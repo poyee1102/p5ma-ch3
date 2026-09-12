@@ -380,8 +380,8 @@
       const STORE_KEY = "p5ma-ch3-v1";
       const TEACHER_PIN = "2246";
       const GAME_SECS = 180;
-      const ALIGN_RAD = 16 * Math.PI / 180;
-      const SNAP_DIST = 56;
+      const ALIGN_RAD = 8 * Math.PI / 180;
+      const SNAP_DIST = 26;
       const HIT_PAD = 28;
       const VERTEX_TOL = 16;
       const ROT_OFFSET = 48;
@@ -881,8 +881,7 @@
         const { P, Q, R } = toolCorners(tool);
         const dLeg = (p1, p2) => Math.min(
           distSeg(p1, seg.a, seg.b),
-          distSeg(p2, seg.a, seg.b),
-          distSeg(lerp(p1, p2, 0.5), seg.a, seg.b)
+          distSeg(lerp(p1, p2, 0.28), seg.a, seg.b)
         );
         const dAlong = dLeg(P, Q);
         const dPerp = dLeg(P, R);
@@ -890,8 +889,9 @@
         const aPerp = alongAlign(tool.ang + Math.PI / 2, baseAng);
         const alongOk = dAlong < SNAP_DIST && aAlong < ALIGN_RAD;
         const perpOk = dPerp < SNAP_DIST && aPerp < ALIGN_RAD;
+        const rotating = !!(state.drag && state.drag.mode === "rot");
         tool.near = alongOk || perpOk;
-        if (alongOk || perpOk) {
+        if (!rotating && (alongOk || perpOk)) {
           const was = tool.snapped;
           const pr = project(P, A, B);
           const t = clampFoot(pr.t, q);
@@ -904,7 +904,7 @@
             setToast(true, isTriQ(q) ? "已貼底！沿底滑，令高線掂到頂點" : "已貼底！沿底滑，令高線掂到對邊");
           }
           updateHeightBtn();
-        } else if (tool.snapped && (Math.min(dAlong, dPerp) > SNAP_DIST + 28 || Math.min(aAlong, aPerp) > ALIGN_RAD + 0.25)) {
+        } else if (tool.snapped && (Math.min(dAlong, dPerp) > SNAP_DIST + 16 || Math.min(aAlong, aPerp) > ALIGN_RAD + 0.12)) {
           tool.snapped = false;
           tool.near = false;
           updateHeightBtn();
@@ -1341,9 +1341,10 @@
         state.pointers.delete(e.pointerId);
         if (!state.drag) return;
         if (e.pointerId !== state.drag.id) return;
-        magnetFoot(); trySnap();
+        magnetFoot();
         state.drag = null;
         scene.classList.remove("dragging");
+        trySnap();
         updateHeightBtn();
         draw();
       }
@@ -1367,9 +1368,11 @@
         if (state.input === "pointer") return;
         if (e.touches && e.touches.length >= 2) return;
         if (state.drag && state.drag.id === "touch") {
-          magnetFoot(); trySnap();
+          magnetFoot();
           state.drag = null;
           scene.classList.remove("dragging");
+          trySnap();
+          updateHeightBtn();
           draw();
         }
       }
