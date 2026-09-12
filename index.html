@@ -122,12 +122,9 @@
     .task-h p { font-size: 13px; font-weight: 900; color: var(--soft); white-space: nowrap; }
     .hintbar {
       flex-shrink: 0; font-size: 12px; font-weight: 800; color: #5a4a72;
-      background: #f4edff; border-radius: 12px; padding: 5px 10px 5px 8px; text-align: left;
+      background: #f4edff; border-radius: 12px; padding: 4px 10px; text-align: center;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .hintbar ol {
-      margin: 0; padding-left: 1.35em; line-height: 1.35;
-    }
-    .hintbar li { margin: 0; }
     .board {
       flex: 1; min-height: 0; position: relative;
       display: flex; align-items: stretch; justify-content: center;
@@ -323,13 +320,7 @@
           <h2 id="taskTitle">任務一：垂直定位</h2>
           <p id="taskKind">銳角△</p>
         </div>
-        <div class="hintbar" id="hintBar">
-          <ol>
-            <li>旋轉尺，對齊底邊</li>
-            <li>貼底（高在外先延長底邊）</li>
-            <li>高線掂頂點，撳「畫出高線」</li>
-          </ol>
-        </div>
+        <div class="hintbar" id="hintBar">1. 旋轉尺，對齊底邊　　2. 貼底　　3. 高線掂頂點，撳「畫出高線」</div>
         <div class="board" id="board">
           <canvas id="scene"></canvas>
         </div>
@@ -714,14 +705,14 @@
       }
       function isTriQ(q) { return !!(q && q.opp != null); }
       function phase1Steps(q) {
-        const ext = (q && q.needExtend && !q.extended) ? "貼底；高在外先撳「延長底邊」" : "貼底";
-        let aim = "高線掂頂點，撳「畫出高線」";
-        if (q && q.kind === "trap") aim = "高線掂平行對邊，撳「畫出高線」";
-        else if (q && !isTriQ(q)) aim = "高線掂對邊，撳「畫出高線」";
+        const ext = (q && q.needExtend && !q.extended) ? "貼底（高在外先延長）" : "貼底";
+        let aim = "掂頂點，撳「畫出高線」";
+        if (q && q.kind === "trap") aim = "掂平行對邊，撳「畫出高線」";
+        else if (q && !isTriQ(q)) aim = "掂對邊，撳「畫出高線」";
         return ["旋轉尺，對齊底邊", ext, aim];
       }
       function setHintSteps(steps) {
-        $("hintBar").innerHTML = "<ol>" + steps.map((s) => "<li>" + s + "</li>").join("") + "</ol>";
+        $("hintBar").textContent = steps.map((s, i) => (i + 1) + ". " + s).join("　　");
       }
       function missHeightMsg(q) {
         if (isTriQ(q)) return "未掂頂點　沿底再滑";
@@ -1589,7 +1580,7 @@
           updateHeightBtn();
         } else {
           $("taskTitle").textContent = "任務二：底高配對";
-          setHintSteps(["睇「底」幾 cm", "睇「高」幾 cm", "揀正確嗰一對"]);
+          setHintSteps(["睇「底」幾 cm", "睇「高」幾 cm", "揀正確一對"]);
         }
       }
       function renderOptions() {
