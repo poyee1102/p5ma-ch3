@@ -143,7 +143,15 @@
     #scene.dragging { cursor: grabbing; }
 
     .choice-row { display: flex; gap: 8px; flex-shrink: 0; align-items: stretch; }
-    .choice-row .candy { flex: 1; font-size: clamp(14px, 2.2vh, 18px); padding: 12px 8px; }
+    .choice-row .candy {
+      flex: 1; font-size: clamp(14px, 2.2vh, 18px); padding: 12px 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      text-align: center; line-height: 1.2;
+    }
+    #btnExtend, #btnHeight {
+      display: inline-flex; align-items: center; justify-content: center;
+      text-align: center;
+    }
     .opt-col { display: none; flex-direction: column; gap: 8px; flex-shrink: 0; }
     .opt-col.show { display: flex; }
     .opt-col .candy { width: 100%; text-align: center; font-size: clamp(15px, 2.2vh, 18px); padding: 10px 8px; }
@@ -1067,18 +1075,14 @@
             const end = lerp(foot, top, lineT);
             ctx.save();
             ctx.lineCap = "round";
-            ctx.strokeStyle = "rgba(255,255,255,0.92)";
-            ctx.lineWidth = 10;
-            ctx.beginPath(); ctx.moveTo(foot.x, foot.y); ctx.lineTo(end.x, end.y); ctx.stroke();
-            ctx.setLineDash([8, 6]);
-            ctx.strokeStyle = "#1a8f7c";
-            ctx.lineWidth = 5;
+            ctx.setLineDash([12, 8]);
+            ctx.strokeStyle = "#111";
+            ctx.lineWidth = 7;
             ctx.beginPath(); ctx.moveTo(foot.x, foot.y); ctx.lineTo(end.x, end.y); ctx.stroke();
             ctx.setLineDash([]);
             if (lineT < 0.995) {
-              ctx.fillStyle = "#1a8f7c";
-              ctx.beginPath(); ctx.arc(end.x, end.y, 7, 0, Math.PI * 2); ctx.fill();
-              ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+              ctx.fillStyle = "#111";
+              ctx.beginPath(); ctx.arc(end.x, end.y, 5, 0, Math.PI * 2); ctx.fill();
             }
             ctx.restore();
           }
@@ -1098,20 +1102,17 @@
       function drawRightMark(ctx, H, A, B, T, t) {
         if (t == null) t = 1;
         if (t <= 0.01) return;
-        let along = norm(sub(B, A));
-        let n = { x: -along.y, y: along.x };
-        if (dot(n, sub(T, H)) < 0) n = mul(n, -1);
-        if (dot(along, sub(T, H)) < 0) along = mul(along, -1);
-        const m = 18;
+        const up = norm(sub(T, H));
+        if (len(up) < 0.5) return;
+        const along = { x: up.y, y: -up.x };
+        const m = 20;
         const ang = Math.atan2(along.y, along.x);
         ctx.save();
         ctx.translate(H.x, H.y);
         ctx.rotate(ang);
-        const s = 0.72 + 0.28 * Math.min(1, t);
-        ctx.scale(s, s);
-        ctx.globalAlpha = Math.min(1, t * 1.5);
-        ctx.strokeStyle = "#ff5eb0";
-        ctx.lineWidth = 2.8;
+        ctx.globalAlpha = Math.min(1, t * 1.8);
+        ctx.strokeStyle = "#111";
+        ctx.lineWidth = 5;
         ctx.lineCap = "butt";
         ctx.lineJoin = "miter";
         ctx.miterLimit = 2;
@@ -1621,15 +1622,15 @@
         q.drawingHeight = true;
         q.heightAnim = { line: 0, mark: 0 };
         const t0 = performance.now();
-        const LINE_MS = 560;
-        const MARK_DELAY = 400;
-        const MARK_MS = 340;
+        const LINE_MS = 980;
+        const MARK_DELAY = 820;
+        const MARK_MS = 520;
         const TOTAL = MARK_DELAY + MARK_MS;
         const tick = (now) => {
           if (state.ended || state.q !== q) return;
           const dt = now - t0;
           q.heightAnim.line = easeOutCubic(dt / LINE_MS);
-          q.heightAnim.mark = dt < MARK_DELAY ? 0 : easeOutBack((dt - MARK_DELAY) / MARK_MS);
+          q.heightAnim.mark = dt < MARK_DELAY ? 0 : easeOutCubic((dt - MARK_DELAY) / MARK_MS);
           draw();
           if (dt < TOTAL) state.heightAnimId = requestAnimationFrame(tick);
           else finishHeightAnim();
