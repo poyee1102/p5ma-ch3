@@ -310,7 +310,7 @@
           <h2 id="taskTitle">任務一：垂直定位</h2>
           <p id="taskKind">銳角△</p>
         </div>
-        <div class="hintbar" id="hintBar">拖尺貼底 · ↺↻ 對齊底邊</div>
+        <div class="hintbar" id="hintBar">拖尺貼底 · 高線要掂到頂點或對邊</div>
         <div class="board" id="board">
           <canvas id="scene"></canvas>
         </div>
@@ -387,7 +387,7 @@
       const ROT_OFFSET = 48;
       const ROT_R = 24;
       const TITLE = "底高偵探：尋找垂直線";
-      const TIP_PERP = "💡 偵探提醒：記得高要和底「垂直」，並接住頂點喔！";
+      const TIP_PERP = "💡 偵探提醒：三角形的高要掂到同底對應嘅頂點；平行四邊形／梯形的高要掂到底嘅對邊（梯形對邊同底平行）！";
       const TIP_OBTUSE = "💡 偵探提醒：鈍角三角形的高可能在外面，記得先延伸底邊喔！";
       const TIP_PAIR = "💡 偵探提醒：底與高要成對，唔好把 A 底配去 B 高喔！";
       const TIP_PERFECT = "🌟 太厲害了！完全掌握垂直概念，零失誤過關！";
@@ -398,7 +398,8 @@
         done: 0, qTimes: [], qStart: 0, sheetSent: false,
         missPerp: 0, missObtuse: 0, missPair: 0,
         q: null, tool: null, drag: null, cssW: 0, cssH: 0,
-        pointers: new Map(), rotHold: null, keepToolPose: false, canvasBound: false
+        pointers: new Map(), rotHold: null, keepToolPose: false, canvasBound: false,
+        roundKinds: null
       };
 
       let audioCtx = null, countId = null, sceneCtx = null;
@@ -454,7 +455,7 @@
         if (a + b + c === 0) return { short: "零失誤", sheet: "完全掌握垂直概念，零失誤過關", tip: TIP_PERFECT };
         if (b >= a && b >= c) return { short: "鈍角未延伸", sheet: "鈍角三角形記得先延伸底邊", tip: TIP_OBTUSE };
         if (c >= a && c >= b) return { short: "底高配對混淆", sheet: "底與高要成對，唔好把 A 底配去 B 高", tip: TIP_PAIR };
-        return { short: "高未垂直", sheet: "高要和底垂直，並接住頂點", tip: TIP_PERP };
+        return { short: "高未垂直", sheet: "高要垂直於底：三角形接住頂點，四邊形接住對邊", tip: TIP_PERP };
       }
       function sheetConfigured() {
         return /^https:\/\/script\.google\.com\/macros\/s\/(?!YOUR_SCRIPT_ID\b)[^/]+\/exec\/?$/.test(GOOGLE_SHEET_URL);
@@ -509,7 +510,7 @@
             classId: who.classId, studentId: who.studentId,
             done: Number(r.score) || 0, avgSec: parseAvgSec(r.avgTime),
             diagnosis: diagnostic,
-            perpErr: /垂直/.test(diagnostic) && /頂點|接住/.test(diagnostic) ? 1 : 0,
+            perpErr: /垂直/.test(diagnostic) && /頂點|接住|對邊/.test(diagnostic) ? 1 : 0,
             obtuseErr: /延伸/.test(diagnostic) ? 1 : 0,
             time: r.time || "", game: r.game || r.chapter || ""
           };
@@ -685,6 +686,25 @@
       function alongAlign(toolAng, baseAng) {
         return Math.min(angDiff(toolAng, baseAng), angDiff(toolAng, baseAng + Math.PI));
       }
+      function sidesParallel(a, b, c, d) {
+        return alongAlign(
+          Math.atan2(b.y - a.y, b.x - a.x),
+          Math.atan2(d.y - c.y, d.x - c.x)
+        ) <= 12 * Math.PI / 180;
+      }
+      function isTriQ(q) { return !!(q && q.opp != null); }
+      function phase1Hint(q) {
+        if (!q) return "拖尺貼底，劃出高線";
+        const ext = (q.needExtend && !q.extended) ? "高在底邊外面就先「延伸底邊」。" : "";
+        if (isTriQ(q)) return ext + "直角尺貼底，高線必須掂到同底對應嘅頂點";
+        if (q.kind === "trap") return ext + "直角尺貼底，高線必須掂到底嘅對邊，而且對邊要同底平行";
+        return ext + "直角尺貼底，高線必須掂到底嘅對邊";
+      }
+      function missHeightMsg(q) {
+        if (isTriQ(q)) return "高線要掂到同底對應嘅頂點";
+        if (q && q.kind === "trap") return "高線要掂到同底平行嘅對邊";
+        return "高線要掂到底嘅對邊";
+      }
 
       function tiltPts(pts) {
         const ang = Math.random() < 0.18 ? rand(-6, 6) * Math.PI / 180 : pick([
@@ -699,8 +719,13 @@
         });
       }
       function genLocal() {
-        if (state.qIndex % 2 === 1) return pick([genAcute, genRight, genObtuse])();
-        return Math.random() < 0.55 ? genPara() : genTrap();
+        const slot = (state.qIndex - 1) % 4;
+        if (slot === 0 || !state.roundKinds) {
+          const tris = shuffle([genAcute, genRight, genObtuse]).slice(0, 2);
+          const quads = Math.random() < 0.5 ? [genPara, genTrap] : [genTrap, genPara];
+          state.roundKinds = [tris[0], tris[1], quads[0], quads[1]];
+        }
+        return state.roundKinds[slot]();
       }
       function genAcute() {
         for (let n = 0; n < 40; n++) {
@@ -734,6 +759,9 @@
         const bot = rint(10, 14), top = rint(5, 8), h = rint(5, 8);
         const off = rint(1, Math.max(1, bot - top - 1));
         const pts = [{ x: 0, y: 0 }, { x: bot, y: 0 }, { x: off + top, y: h }, { x: off, y: h }];
+        if (Math.random() < 0.4) {
+          return { kind: "trap", name: "梯形", verts: pts, baseI: 3, baseJ: 2, oppEdge: [0, 1], baseCm: top, heightCm: h };
+        }
         return { kind: "trap", name: "梯形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2], baseCm: bot, heightCm: h };
       }
       function finishLocal(local) {
@@ -743,7 +771,7 @@
           : lerp(local.verts[local.oppEdge[0]], local.verts[local.oppEdge[1]], 0.5);
         const pr = project(target, A, B);
         local.tFoot = pr.t;
-        local.needExtend = pr.t < -0.02 || pr.t > 1.02;
+        local.needExtend = local.opp != null && (pr.t < -0.02 || pr.t > 1.02);
         return local;
       }
 
@@ -873,7 +901,7 @@
           tool.snapped = true;
           if (!was) {
             sfx("snap");
-            setToast(true, "已貼底！沿底滑，垂直邊對準頂點");
+            setToast(true, isTriQ(q) ? "已貼底！沿底滑，令高線掂到頂點" : "已貼底！沿底滑，令高線掂到對邊");
           }
           updateHeightBtn();
         } else if (tool.snapped && (Math.min(dAlong, dPerp) > SNAP_DIST + 28 || Math.min(aAlong, aPerp) > ALIGN_RAD + 0.25)) {
@@ -985,7 +1013,7 @@
         const c = centroid(q.verts);
         const nOut = dot(n, sub(c, mid)) > 0 ? mul(n, -1) : n;
         drawTag(ctx, "底", add(mid, mul(nOut, 22)).x, add(mid, mul(nOut, 22)).y, "#c0392b");
-        if (q.opp != null && q.phase === 1) {
+        if (isTriQ(q) && q.phase === 1) {
           ctx.fillStyle = "#1578c4";
           ctx.beginPath(); ctx.arc(q.target.x, q.target.y, 8, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = "#fff";
@@ -993,9 +1021,26 @@
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
           ctx.fillText("頂", q.target.x, q.target.y);
         }
+        if (q.oppEdge && q.phase === 1 && q.oppA && q.oppB) {
+          const ready = !!(state.tool && state.tool.ready);
+          ctx.save();
+          ctx.lineCap = "round";
+          ctx.setLineDash(ready ? [] : [8, 6]);
+          ctx.strokeStyle = ready ? "#ff2f86" : "#1578c4";
+          ctx.lineWidth = ready ? 7 : 4;
+          ctx.beginPath();
+          ctx.moveTo(q.oppA.x, q.oppA.y);
+          ctx.lineTo(q.oppB.x, q.oppB.y);
+          ctx.stroke();
+          ctx.restore();
+          const om = lerp(q.oppA, q.oppB, 0.5);
+          let on = norm({ x: q.oppA.y - q.oppB.y, y: q.oppB.x - q.oppA.x });
+          if (dot(on, sub(c, om)) > 0) on = mul(on, -1);
+          drawTag(ctx, q.kind === "trap" ? "平行對邊" : "對邊", add(om, mul(on, 22)).x, add(om, mul(on, 22)).y, ready ? "#ff2f86" : "#1578c4");
+        }
         if (q.heightDrawn) {
-          const foot = q.H;
-          const top = q.opp != null ? q.target : (q.heightHit || q.target);
+          const foot = q.heightFoot || q.H;
+          const top = q.heightTop || (isTriQ(q) ? q.target : (q.heightHit || q.target));
           ctx.save();
           ctx.setLineDash([6, 5]);
           ctx.strokeStyle = "#1a8f7c";
@@ -1056,7 +1101,7 @@
           if (dot(n, sub(c, mid)) > 0) n = mul(n, -1);
           return { text: s.cm + "cm", p: add(mid, mul(n, 26)), color: s.isBase ? "#c0392b" : "#1a3d68" };
         });
-        const hm = lerp(q.H, q.opp != null ? q.target : (q.heightHit || q.target), 0.55);
+        const hm = lerp(q.heightFoot || q.H, q.heightTop || (isTriQ(q) ? q.target : (q.heightHit || q.target)), 0.55);
         const hd = norm(sub(q.baseB, q.baseA));
         tags.push({ text: q.heightCm + "cm", p: add(hm, mul(hd, 18)), color: "#1a8f7c" });
         for (let k = 0; k < 4; k++) {
@@ -1130,40 +1175,59 @@
         ctx.fillStyle = "#5a2a00";
         ctx.fill();
         ctx.restore();
-        if (q && q.opp != null && tool.snapped) {
-          const dEdge = distSeg(q.target, P, R);
-          const dLine = Math.abs(cross(norm(sub(R, P)), sub(q.target, P)));
-          if (dEdge <= VERTEX_TOL + 8 || dLine <= VERTEX_TOL + 8) {
-            ctx.strokeStyle = "#ff2f86";
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.arc(q.target.x, q.target.y, 14, 0, Math.PI * 2); ctx.stroke();
-          }
+        if (q && isTriQ(q) && tool.snapped && tool.ready) {
+          ctx.strokeStyle = "#ff2f86";
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(q.target.x, q.target.y, 14, 0, Math.PI * 2); ctx.stroke();
         }
         ctx.restore();
+      }
+      function heightDir(tool, q) {
+        const { P, perp } = toolCorners(tool);
+        const aim = q.target || q.H;
+        let n = perp;
+        if (aim && dot(n, sub(aim, P)) < 0) n = mul(n, -1);
+        return { P, n };
+      }
+      function heightHitInfo(tool, q) {
+        if (!tool || !q) return null;
+        const { P, n } = heightDir(tool, q);
+        if (isTriQ(q)) {
+          const ahead = dot(sub(q.target, P), n);
+          const dLine = Math.abs(cross(n, sub(q.target, P))) / (len(n) || 1);
+          if (ahead > 8 && dLine <= VERTEX_TOL) return { kind: "vertex", pt: q.target, P, n };
+          return null;
+        }
+        if (!q.oppA || !q.oppB) return null;
+        if (q.kind === "trap" && !sidesParallel(q.baseA, q.baseB, q.oppA, q.oppB)) return null;
+        const hit = rayHitSeg(P, n, q.oppA, q.oppB);
+        if (hit && hit.t >= 8) return { kind: "edge", pt: hit.pt, P, n };
+        return null;
       }
       function drawHeightPreview(ctx, tool, q) {
         if (!tool || !q || q.phase !== 1 || q.heightDrawn) return;
         if (!tool.snapped) return;
-        const { P, perp } = toolCorners(tool);
-        const aim = q.target || q.H;
-        let n = perp;
-        if (dot(n, sub(aim, P)) < 0) n = mul(n, -1);
-        const start = add(P, mul(n, tool.L * 0.88));
+        const { P, n } = heightDir(tool, q);
+        const hit = heightHitInfo(tool, q);
+        const aim = hit ? hit.pt : (q.target || q.H);
         let rayLen = tool.L + 160;
-        const ahead = dot(sub(aim, P), n);
-        if (ahead > 10) rayLen = Math.max(rayLen, ahead + 28);
-        const tip = add(P, mul(n, rayLen));
+        const ahead = aim ? dot(sub(aim, P), n) : 0;
+        if (ahead > 10) rayLen = Math.max(rayLen, ahead + (hit ? 0 : 28));
+        const tip = hit ? hit.pt : add(P, mul(n, rayLen));
+        const reach = Math.max(16, dist(P, tip));
+        const start = add(P, mul(n, Math.min(tool.L * 0.88, Math.max(12, reach - 8))));
+        const ready = !!hit;
         ctx.save();
         ctx.lineCap = "round";
         ctx.strokeStyle = "rgba(255,255,255,0.95)";
         ctx.lineWidth = 12;
         ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(tip.x, tip.y); ctx.stroke();
         ctx.setLineDash([14, 9]);
-        ctx.strokeStyle = tool.ready ? "#ff2f86" : "#00c853";
+        ctx.strokeStyle = ready ? "#ff2f86" : "#00c853";
         ctx.lineWidth = 7;
         ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(tip.x, tip.y); ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = tool.ready ? "#ff2f86" : "#00c853";
+        ctx.fillStyle = ready ? "#ff2f86" : "#00c853";
         ctx.beginPath(); ctx.arc(tip.x, tip.y, 9, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.5; ctx.stroke();
         ctx.restore();
@@ -1331,12 +1395,12 @@
         $("phase2Acts").classList.toggle("show", n === 2);
         if (n === 1) {
           $("taskTitle").textContent = "任務一：垂直定位";
-          $("hintBar").textContent = "尺底貼圖底會吸附；高在底邊外面就先「延伸底邊」，再對準頂點撳「劃出高線」";
+          $("hintBar").textContent = phase1Hint(state.q);
           syncExtendBtn();
           updateHeightBtn();
         } else {
           $("taskTitle").textContent = "任務二：底高配對";
-          $("hintBar").textContent = "揀正確底高";
+          $("hintBar").textContent = "揀正確嘅底同對應嘅高";
         }
       }
       function renderOptions() {
@@ -1414,21 +1478,14 @@
         draw();
       }
       function onCtxMenu(e) { e.preventDefault(); }
-      function isVertexReady() {
+      function isHeightReady() {
         const q = state.q, tool = state.tool;
         if (!q || !tool || q.phase !== 1 || !tool.snapped) return false;
         if (q.needExtend && !q.extended) return false;
-        const { P, R, perp } = toolCorners(tool);
-        if (q.opp != null) {
-          const dFoot = dist(P, q.H);
-          const dEdge = distSeg(q.target, P, R);
-          const dLine = Math.abs(cross(perp, sub(q.target, P))) / (len(perp) || 1);
-          const ahead = dot(sub(q.target, P), perp);
-          return dFoot <= VERTEX_TOL && ahead > 6 && (dEdge <= VERTEX_TOL || dLine <= VERTEX_TOL);
-        }
-        const hit = rayHitSeg(P, perp, q.oppA, q.oppB);
-        if (hit && hit.t >= 8) { q.heightHit = hit.pt; return true; }
-        return false;
+        const hit = heightHitInfo(tool, q);
+        if (!hit) return false;
+        q.heightHit = hit.pt;
+        return true;
       }
       function updateHeightBtn() {
         const btn = $("btnHeight");
@@ -1436,7 +1493,7 @@
           if (btn) { btn.hidden = true; btn.style.display = "none"; }
           return;
         }
-        const ok = isVertexReady();
+        const ok = isHeightReady();
         if (state.tool) state.tool.ready = ok;
         btn.hidden = !ok;
         btn.style.display = ok ? "inline-flex" : "none";
@@ -1457,7 +1514,8 @@
         const local = finishLocal(genLocal());
         state.q = {
           local, phase: 1, extended: false, heightDrawn: false,
-          needExtend: !!local.needExtend, name: local.name, kind: local.kind
+          needExtend: !!local.needExtend, name: local.name, kind: local.kind,
+          opp: local.opp, oppEdge: local.oppEdge
         };
         $("taskKind").textContent = state.q.name;
         syncExtendBtn();
@@ -1491,15 +1549,20 @@
           sfx("bad");
           return;
         }
-        if (!isVertexReady()) {
+        if (!isHeightReady()) {
           state.missPerp += 1;
-          setToast(false, "高要精準接住頂點喔！");
+          setToast(false, missHeightMsg(q));
           sfx("bad");
           return;
         }
         magnetFoot();
-        if (q.opp != null) {
+        if (isTriQ(q)) {
           tool.x = q.H.x; tool.y = q.H.y;
+          q.heightFoot = { x: q.H.x, y: q.H.y };
+          q.heightTop = q.target;
+        } else {
+          q.heightFoot = { x: tool.x, y: tool.y };
+          q.heightTop = q.heightHit || q.target;
         }
         q.heightDrawn = true;
         q.phase = 2;
@@ -1526,6 +1589,7 @@
         setToast(true, "已延伸底邊，可沿虛線滑到垂足");
         sfx("snap");
         if (state.tool && state.tool.snapped) trySnap();
+        $("hintBar").textContent = phase1Hint(state.q);
         updateHeightBtn();
         draw();
       }
@@ -1557,6 +1621,7 @@
         unlockAudio();
         state.classId = classId; state.studentId = studentId;
         state.qIndex = 1; state.done = 0; state.qTimes = [];
+        state.roundKinds = null;
         state.missPerp = 0; state.missObtuse = 0; state.missPair = 0;
         state.ended = false; state.busy = false; state.sheetSent = false;
         $("reportModal").classList.remove("show");
