@@ -400,7 +400,7 @@
       const TIP_PERP = "💡 偵探提醒：三角形的高要掂到同底對應嘅頂點；平行四邊形／梯形的高要掂到底嘅對邊（梯形對邊同底平行）！";
       const TIP_OBTUSE = "💡 偵探提醒：鈍角三角形的高可能在外面，記得先延長底邊喔！";
       const TIP_PAIR = "💡 偵探提醒：底與高要成對，唔好把 A 底配去 B 高喔！";
-      const TIP_PERFECT = "🌟 太厲害了！完全掌握垂直概念，零失誤過關！";
+      const TIP_PERFECT = "🌟 小提醒：零失誤，完全掌握！";
 
       const state = {
         classId: "", studentId: "",
@@ -467,22 +467,22 @@
         if (a) parts.push({
           short: "高未垂直",
           sheet: `高未垂直${a}次（未貼底／未掂頂點或對邊）`,
-          line: `高未垂直／未掂頂點或對邊（${a}次）\n　三角形要掂對應頂點；平行四邊形／梯形要掂對邊`
+          line: `高未垂直（${a}次）：要貼底並掂到頂點／對邊`
         });
         if (b) parts.push({
-          short: "鈍角未延長",
+          short: "未延長",
           sheet: `鈍角未延長${b}次`,
-          line: `鈍角未延長（${b}次）\n　高在底邊外面要先撳「延長底邊」`
+          line: `未延長（${b}次）：高在外面先延長底邊`
         });
         if (c) parts.push({
-          short: "底高配對混淆",
+          short: "底高配對",
           sheet: `底高配對混淆${c}次`,
-          line: `底高配對混淆（${c}次）\n　底同高要成對，唔好把 A 底配去 B 高`
+          line: `底高配對（${c}次）：底同高要成對`
         });
         return {
           short: parts.map((p) => p.short).join("、"),
           sheet: parts.map((p) => p.sheet).join("；"),
-          tip: "💡 你今次錯過：\n" + parts.map((p) => "• " + p.line).join("\n")
+          tip: "小提醒：\n" + parts.map((p) => "• " + p.line).join("\n")
         };
       }
       function sheetConfigured() {
