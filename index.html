@@ -84,18 +84,20 @@
       width: 68px; height: 68px; margin: 0 auto 10px; border-radius: 50%;
       display: grid; place-items: center; font-size: 32px; background: #fff8c4;
       border: 4px solid #fff; box-shadow: 0 6px 0 #e4b82a;
+      animation: floaty 2.6s ease-in-out infinite;
     }
     .title {
       font-family: "Fredoka", "Noto Sans TC", sans-serif;
       display: inline-block;
       font-size: clamp(17px, 4.2vw, 28px); font-weight: 900; letter-spacing: 0.03em;
       margin: 0 0 14px; line-height: 1.35; padding: 10px 14px;
-      color: #fffef2;
-      background: linear-gradient(180deg, #ff6eb4 0%, #ff2f86 100%);
+      color: #ffffff;
+      background: linear-gradient(180deg, #7b5cff 0%, #4b2ed6 100%);
       border: 4px solid #fff;
       border-radius: 22px;
-      text-shadow: 0 3px 0 #9a1458;
-      box-shadow: 0 6px 0 #e4b82a, 0 10px 18px rgba(90, 20, 50, 0.28);
+      text-shadow: 0 3px 0 #1c0d55, 0 5px 0 rgba(28, 13, 85, 0.35);
+      box-shadow: 0 6px 0 #2a1870, 0 10px 18px rgba(40, 20, 90, 0.28);
+      animation: floaty 3.2s ease-in-out infinite;
     }
     .field { text-align: left; margin-bottom: 10px; }
     .field label { display: block; font-weight: 900; font-size: 15px; margin-bottom: 4px; }
@@ -321,7 +323,7 @@
         <div class="choice-row" id="phase1Acts">
           <button class="candy ghost sq" id="btnRotL" aria-label="左轉">↺</button>
           <button class="candy lemon" id="btnExtend">➕ 延伸底邊</button>
-          <button class="candy mint" id="btnHeight">確定劃高</button>
+          <button class="candy mint" id="btnHeight" hidden>✏️ 劃出高線</button>
           <button class="candy ghost sq" id="btnRotR" aria-label="右轉">↻</button>
         </div>
         <div class="opt-col" id="phase2Acts"></div>
@@ -866,7 +868,7 @@
           tool.ang = snapAngle(baseAng, pt, q.target);
           tool.snapped = true;
           if (!was) sfx("snap");
-          maybeAutoHeight();
+          updateHeightBtn();
         } else if (tool.snapped && align > ALIGN_RAD + 0.12) {
           tool.snapped = false;
         }
@@ -990,19 +992,19 @@
         if (dot(n, sub(T, H)) < 0) n = mul(n, -1);
         if (dot(along, sub(T, H)) < 0) along = mul(along, -1);
         const m = 16;
-        const p1 = add(H, mul(along, m));
-        const p2 = add(p1, mul(n, m));
-        const p3 = add(H, mul(n, m));
+        const ang = Math.atan2(along.y, along.x);
         ctx.save();
+        ctx.translate(H.x, H.y);
+        ctx.rotate(ang);
         ctx.strokeStyle = "#ff5eb0";
         ctx.lineWidth = 2.8;
         ctx.lineCap = "butt";
         ctx.lineJoin = "miter";
         ctx.miterLimit = 2;
         ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.lineTo(p3.x, p3.y);
+        ctx.moveTo(m, 0);
+        ctx.lineTo(m, m);
+        ctx.lineTo(0, m);
         ctx.stroke();
         ctx.restore();
       }
@@ -1085,15 +1087,29 @@
         ctx.setLineDash([3, 3]);
         ctx.beginPath(); ctx.moveTo(hyp.x, hyp.y); ctx.lineTo(rotH.x, rotH.y); ctx.stroke();
         ctx.setLineDash([]);
+        const hot = tool.hotRot ? 1.12 : 1;
+        ctx.save();
+        ctx.translate(rotH.x, rotH.y);
+        ctx.scale(hot, hot);
         ctx.fillStyle = "#fff8c4";
-        ctx.beginPath(); ctx.arc(rotH.x, rotH.y, ROT_R + 3, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, 0, ROT_R + 3, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = "#ffd93d";
-        ctx.beginPath(); ctx.arc(rotH.x, rotH.y, ROT_R, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, 0, ROT_R, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = "#c4921a"; ctx.lineWidth = 3; ctx.stroke();
+        ctx.strokeStyle = "#5a2a00";
+        ctx.lineWidth = 2.6;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.arc(0, 0, 9, 0.35, Math.PI * 1.65);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(6, -10);
+        ctx.lineTo(10, -4);
+        ctx.lineTo(2, -5);
+        ctx.closePath();
         ctx.fillStyle = "#5a2a00";
-        ctx.font = "900 16px 'Noto Sans TC', sans-serif";
-        ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText("轉", rotH.x, rotH.y + 1);
+        ctx.fill();
+        ctx.restore();
         const q = state.q;
         if (q && q.opp != null && tool.snapped) {
           const dEdge = distSeg(q.target, P, R);
@@ -1168,7 +1184,7 @@
           const pt = lerp(q.baseA, q.baseB, clampFoot(pr.t, q));
           tool.x = pt.x; tool.y = pt.y;
           magnetFoot();
-          maybeAutoHeight();
+          updateHeightBtn();
         } else {
           tool.x = p.x + drag.dx;
           tool.y = p.y + drag.dy;
@@ -1190,10 +1206,18 @@
         beginDrag(p, e.pointerId, hit);
       }
       function onMove(e) {
-        if (state.pointers.has(e.pointerId)) state.pointers.set(e.pointerId, cssPos(e));
-        if (!state.drag) return;
+        const p = cssPos(e);
+        if (state.pointers.has(e.pointerId)) state.pointers.set(e.pointerId, p);
+        if (!state.drag) {
+          if (state.tool && state.q && state.q.phase === 1) {
+            const { rotH } = toolCorners(state.tool);
+            const hot = dist(p, rotH) <= ROT_R + 8;
+            if (hot !== !!state.tool.hotRot) { state.tool.hotRot = hot; draw(); }
+          }
+          return;
+        }
         if (e.pointerId !== state.drag.id) return;
-        applyMove(cssPos(e));
+        applyMove(p);
       }
       function onUp(e) {
         state.pointers.delete(e.pointerId);
@@ -1202,6 +1226,7 @@
         magnetFoot(); trySnap();
         state.drag = null;
         scene.classList.remove("dragging");
+        updateHeightBtn();
         draw();
       }
       function onTouchStart(e) {
@@ -1252,8 +1277,8 @@
         $("phase2Acts").classList.toggle("show", n === 2);
         if (n === 1) {
           $("taskTitle").textContent = "任務一：垂直定位";
-          $("hintBar").textContent = "黃色旋轉鈕轉尺 · 拖尺身貼底並碰到頂點";
-          $("btnHeight").style.display = "none";
+          $("hintBar").textContent = "旋轉鈕轉尺 · 拖尺身貼底並對準頂點";
+          updateHeightBtn();
         } else {
           $("taskTitle").textContent = "任務二：底高配對";
           $("hintBar").textContent = "揀正確底高";
@@ -1280,6 +1305,7 @@
         state.input = null;
         state.gest = 0;
         state.busy = false;
+        scene.style.pointerEvents = "auto";
         scene.classList.remove("dragging");
         unbindCanvas();
         bindCanvas();
@@ -1333,31 +1359,41 @@
         draw();
       }
       function onCtxMenu(e) { e.preventDefault(); }
-      function maybeAutoHeight() {
-        if (state.ended || state.busy || !state.q || state.q.phase !== 1 || !state.tool) return;
+      function isVertexReady() {
         const q = state.q, tool = state.tool;
-        if (!tool.snapped) return;
-        if (q.needExtend && !q.extended) return;
+        if (!q || !tool || q.phase !== 1 || !tool.snapped) return false;
+        if (q.needExtend && !q.extended) return false;
         const { P, R, perp } = toolCorners(tool);
-        let ok = false;
         if (q.opp != null) {
           const dFoot = dist(P, q.H);
           const dEdge = distSeg(q.target, P, R);
           const dLine = Math.abs(cross(perp, sub(q.target, P))) / (len(perp) || 1);
           const ahead = dot(sub(q.target, P), perp);
-          ok = dFoot <= VERTEX_TOL && ahead > 6 && (dEdge <= VERTEX_TOL || dLine <= VERTEX_TOL);
-        } else {
-          const hit = rayHitSeg(P, perp, q.oppA, q.oppB);
-          ok = !!(hit && hit.t >= 8);
-          if (ok) q.heightHit = hit.pt;
+          return dFoot <= VERTEX_TOL && ahead > 6 && (dEdge <= VERTEX_TOL || dLine <= VERTEX_TOL);
         }
-        if (ok) confirmHeight(true);
+        const hit = rayHitSeg(P, perp, q.oppA, q.oppB);
+        if (hit && hit.t >= 8) { q.heightHit = hit.pt; return true; }
+        return false;
+      }
+      function updateHeightBtn() {
+        const btn = $("btnHeight");
+        if (!btn || !state.q || state.q.phase !== 1) {
+          if (btn) { btn.hidden = true; btn.style.display = "none"; }
+          return;
+        }
+        const ok = isVertexReady();
+        if (state.tool) state.tool.ready = ok;
+        btn.hidden = !ok;
+        btn.style.display = ok ? "inline-flex" : "none";
+        btn.textContent = "✏️ 劃出高線";
+        btn.disabled = !ok;
       }
       function newQuestion() {
         if (state.ended) return;
         resetInput();
         state.keepToolPose = false;
         state.tool = null;
+        scene.style.pointerEvents = "auto";
         state.qStart = Date.now();
         clearToast();
         $("playerPill").textContent = `${state.classId} ${normalizeId(state.studentId)}`;
@@ -1370,6 +1406,7 @@
           return;
         }
         placeTool();
+        scene.style.pointerEvents = "auto";
         state.keepToolPose = true;
         $("taskKind").textContent = state.q.name;
         $("btnExtend").style.display = state.q.needExtend ? "inline-flex" : "none";
@@ -1378,22 +1415,27 @@
         draw();
       }
 
-      function confirmHeight(auto) {
+      function confirmHeight() {
         if (state.ended || !state.q || state.q.phase !== 1 || state.busy) return;
         const q = state.q, tool = state.tool;
         if (!tool) return;
-        if (!auto) bounce($("btnHeight"));
+        bounce($("btnHeight"));
         const baseAng = Math.atan2(q.baseB.y - q.baseA.y, q.baseB.x - q.baseA.x);
         if (!tool.snapped || alongAlign(tool.ang, baseAng) > ALIGN_RAD) {
-          if (!auto) { setToast(false, "直角尺要對齊並貼緊底邊"); sfx("bad"); }
+          setToast(false, "直角尺要對齊並貼緊底邊");
+          sfx("bad");
           return;
         }
         if (q.needExtend && !q.extended) {
-          if (!auto) {
-            state.missObtuse += 1;
-            setToast(false, "先延伸底邊");
-            sfx("bad");
-          }
+          state.missObtuse += 1;
+          setToast(false, "先延伸底邊");
+          sfx("bad");
+          return;
+        }
+        if (!isVertexReady()) {
+          state.missPerp += 1;
+          setToast(false, "高要精準接住頂點喔！");
+          sfx("bad");
           return;
         }
         magnetFoot();
@@ -1415,7 +1457,7 @@
         setToast(true, "已延伸到垂足");
         sfx("snap");
         draw();
-        maybeAutoHeight();
+        updateHeightBtn();
       }
       function pickPair(ok) {
         if (state.ended || !state.q || state.q.phase !== 2 || state.busy) return;
