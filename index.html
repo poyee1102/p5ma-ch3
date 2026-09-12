@@ -123,7 +123,7 @@
     .hintbar {
       flex-shrink: 0; font-size: 12px; font-weight: 800; color: #5a4a72;
       background: #f4edff; border-radius: 12px; padding: 4px 10px; text-align: center;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .board {
       flex: 1; min-height: 0; position: relative;
@@ -840,7 +840,7 @@
           minx = Math.min(minx, p.x); miny = Math.min(miny, p.y);
           maxx = Math.max(maxx, p.x); maxy = Math.max(maxy, p.y);
         });
-        const pad = 36;
+        const pad = 16;
         const bw = Math.max(1, maxx - minx);
         const bh = Math.max(1, maxy - miny);
         const scale = Math.min((W - pad * 2) / bw, (H - pad * 2) / bh);
