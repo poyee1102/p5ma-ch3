@@ -792,8 +792,10 @@
           minx = Math.min(minx, p.x); miny = Math.min(miny, p.y);
           maxx = Math.max(maxx, p.x); maxy = Math.max(maxy, p.y);
         });
-        const pad = 8;
-        const scale = Math.min((W - pad * 2) / Math.max(40, maxx - minx), (H - pad * 2) / Math.max(40, maxy - miny));
+        const pad = 36;
+        const bw = Math.max(1, maxx - minx);
+        const bh = Math.max(1, maxy - miny);
+        const scale = Math.min((W - pad * 2) / bw, (H - pad * 2) / bh);
         const ox = W / 2 - (minx + maxx) / 2 * scale;
         const oy = H / 2 - (miny + maxy) / 2 * scale;
         const xf = (p) => ({ x: ox + p.x * scale, y: oy + p.y * scale });
@@ -1217,12 +1219,11 @@
         const { P, n } = heightDir(tool, q);
         const hit = heightHitInfo(tool, q);
         const aim = hit ? hit.pt : (q.target || q.H);
-        let rayLen = tool.L + 160;
         const ahead = aim ? dot(sub(aim, P), n) : 0;
-        if (ahead > 10) rayLen = Math.max(rayLen, ahead + (hit ? 0 : 28));
+        const rayLen = hit ? dist(P, hit.pt) : Math.max(tool.L * 0.55, ahead + 22);
         const tip = hit ? hit.pt : add(P, mul(n, rayLen));
         const reach = Math.max(16, dist(P, tip));
-        const start = add(P, mul(n, Math.min(tool.L * 0.88, Math.max(12, reach - 8))));
+        const start = add(P, mul(n, Math.min(tool.L * 0.55, Math.max(10, reach - 10))));
         const ready = !!hit;
         ctx.save();
         ctx.lineCap = "round";
