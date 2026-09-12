@@ -11,13 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --pink: #ff8fab; --pink-deep: #ef5f8a;
-      --mint: #7ce0c3; --mint-deep: #3cbc9a;
-      --lemon: #ffe066; --lemon-deep: #e4b82a;
-      --lilac: #cbb2fe; --lilac-deep: #9d7af0;
-      --sky: #8ecaff; --sky-deep: #4ea2f0;
-      --peach: #ffc09f;
-      --ink: #3b2a4a; --soft: #7a6588;
+      --navy: #071526; --navy-2: #0d2748;
+      --sky: #3db4ff; --sky-deep: #1578c4;
+      --gold: #f0c14b; --gold-deep: #c4921a;
+      --teal: #2fd3b6; --teal-deep: #1a8f7c;
+      --ink: #10243f; --soft: #5b7394;
+      --paper: #f3f7ff;
       --safe-t: env(safe-area-inset-top, 0px);
       --safe-b: env(safe-area-inset-bottom, 0px);
       --safe-l: env(safe-area-inset-left, 0px);
@@ -30,10 +29,9 @@
       font-family: "Noto Sans TC", "PingFang HK", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at 12% 10%, #ffd6e8 0 16%, transparent 17%),
-        radial-gradient(circle at 88% 12%, #c9f4e8 0 14%, transparent 15%),
-        radial-gradient(circle at 84% 88%, #dce4ff 0 16%, transparent 17%),
-        linear-gradient(165deg, #fff3ea, #ffe8f2 48%, #eaf4ff);
+        radial-gradient(circle at 12% 8%, rgba(61,180,255,0.22), transparent 30%),
+        radial-gradient(circle at 90% 92%, rgba(240,193,75,0.12), transparent 28%),
+        linear-gradient(165deg, #06111f 0%, #0c2342 48%, #08182c 100%);
       user-select: none;
     }
     button, input { font-family: inherit; }
@@ -58,46 +56,45 @@
     }
     .screen.active { display: flex; }
     .card {
-      background: rgba(255,255,255,0.9); border: 3px solid #fff; border-radius: 28px;
-      box-shadow: 0 14px 32px rgba(255, 93, 143, 0.16); min-height: 0;
+      background: rgba(243,247,255,0.96); border: 2px solid rgba(61,180,255,0.35); border-radius: 24px;
+      box-shadow: 0 16px 36px rgba(0, 16, 40, 0.35); min-height: 0; color: var(--ink);
     }
     .candy {
       border: 0; border-radius: 999px; font-weight: 900; padding: 10px 18px;
       transition: transform 0.12s ease, filter 0.12s ease;
     }
-    .candy:hover { filter: brightness(1.04); }
-    .candy:active { transform: translateY(4px) scale(0.96); box-shadow: 0 2px 0 rgba(0,0,0,0.12) !important; animation: bounce 0.3s ease; }
-    .candy:disabled { filter: saturate(0.7); pointer-events: none; }
-    .pink { background: var(--pink); color: #fff; box-shadow: 0 6px 0 var(--pink-deep); }
-    .mint { background: var(--mint); color: #165f4c; box-shadow: 0 6px 0 var(--mint-deep); }
-    .lemon { background: var(--lemon); color: var(--ink); box-shadow: 0 6px 0 var(--lemon-deep); }
-    .lilac { background: var(--lilac); color: #fff; box-shadow: 0 6px 0 var(--lilac-deep); }
-    .sky { background: var(--sky); color: #123b63; box-shadow: 0 6px 0 var(--sky-deep); }
-    .peach { background: var(--peach); color: var(--ink); box-shadow: 0 6px 0 #f09468; }
-    .ghost { background: #fff; color: var(--soft); box-shadow: 0 5px 0 #ecd6de; }
+    .candy:hover { filter: brightness(1.05); }
+    .candy:active { transform: translateY(4px) scale(0.96); box-shadow: 0 2px 0 rgba(0,0,0,0.18) !important; animation: bounce 0.3s ease; }
+    .candy:disabled { filter: saturate(0.55); pointer-events: none; }
+    .sky { background: var(--sky); color: #06233d; box-shadow: 0 6px 0 var(--sky-deep); }
+    .gold { background: var(--gold); color: #3a2a08; box-shadow: 0 6px 0 var(--gold-deep); }
+    .teal { background: var(--teal); color: #05362e; box-shadow: 0 6px 0 var(--teal-deep); }
+    .navy { background: #1a3d68; color: #eaf5ff; box-shadow: 0 6px 0 #0d2748; }
+    .ghost { background: #fff; color: var(--soft); box-shadow: 0 5px 0 #c5d6ee; }
+    .sq { width: 52px; flex: 0 0 52px !important; padding: 0; font-size: 22px; border-radius: 16px; }
 
     #screen-login { align-items: center; justify-content: center; }
     .login { width: min(400px, 100%); padding: 22px 22px 16px; text-align: center; }
     .mascot {
-      width: 72px; height: 72px; margin: 0 auto 6px; border-radius: 50%;
-      display: grid; place-items: center; font-size: 36px; background: #fff;
-      box-shadow: 0 8px 0 #cbb2fe; animation: floaty 2.8s ease-in-out infinite;
+      width: 76px; height: 76px; margin: 0 auto 6px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 34px; background: #10243f; color: var(--gold);
+      border: 3px solid var(--gold); box-shadow: 0 8px 0 #0a1a30; animation: floaty 2.8s ease-in-out infinite;
     }
     .title {
       font-family: "Fredoka", "Noto Sans TC", sans-serif;
       font-size: clamp(26px, 5.2vh, 40px); font-weight: 900; letter-spacing: 0.04em;
       margin-bottom: 2px; line-height: 1.15;
     }
-    .title span:nth-child(odd) { color: var(--lilac-deep); }
-    .title span:nth-child(even) { color: var(--pink-deep); }
-    .tagline { font-weight: 800; color: var(--soft); font-size: 14px; margin-bottom: 12px; line-height: 1.45; }
+    .title span:nth-child(odd) { color: #1578c4; }
+    .title span:nth-child(even) { color: #c4921a; }
+    .tagline { font-weight: 800; color: var(--soft); font-size: 15px; margin-bottom: 12px; line-height: 1.45; }
     .field { text-align: left; margin-bottom: 10px; }
     .field label { display: block; font-weight: 900; font-size: 15px; margin-bottom: 4px; }
     .field input {
-      width: 100%; border: 3px solid #ffe1ec; border-radius: 16px;
+      width: 100%; border: 3px solid #cfe6ff; border-radius: 16px;
       padding: 10px 12px; font-size: 18px; font-weight: 800; outline: none; background: #fff;
     }
-    .field input:focus { border-color: var(--pink); }
+    .field input:focus { border-color: var(--sky); }
     .start { width: 100%; font-size: 22px; padding: 12px; margin: 6px 0 10px; }
     .teacher-btn {
       width: 64px; height: 64px; border-radius: 50%; font-size: 13px; line-height: 1.15;
@@ -106,10 +103,10 @@
 
     .topbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; margin-bottom: 8px; }
     .pill {
-      background: #fff; border-radius: 999px; padding: 6px 12px;
-      font-weight: 800; font-size: 14px; box-shadow: 0 4px 0 #f0d7e2; white-space: nowrap;
+      background: rgba(243,247,255,0.92); color: var(--ink); border-radius: 999px; padding: 6px 12px;
+      font-weight: 800; font-size: 14px; box-shadow: 0 4px 0 #0a1c33; white-space: nowrap;
     }
-    .timer { font-variant-numeric: tabular-nums; background: #fff8d9; min-width: 92px; text-align: center; }
+    .timer { font-variant-numeric: tabular-nums; background: #fff4cc; min-width: 92px; text-align: center; }
     .timer.low { background: #ffd0d8; color: #b42318; }
     .tiny { padding: 6px 12px; font-size: 13px; }
 
@@ -118,28 +115,32 @@
     .task-h h2 { font-size: clamp(16px, 2.5vh, 22px); line-height: 1.3; }
     .task-h p { font-size: 13px; font-weight: 900; color: var(--soft); white-space: nowrap; }
     .hintbar {
-      flex-shrink: 0; font-size: 13px; font-weight: 800; color: #5a4a72;
-      background: #f4edff; border-radius: 12px; padding: 6px 10px; text-align: center;
+      flex-shrink: 0; font-size: 13px; font-weight: 800; color: #0d3a66;
+      background: #dcebff; border-radius: 12px; padding: 6px 10px; text-align: center;
     }
     .board {
       flex: 1; min-height: 0; position: relative;
       display: flex; align-items: stretch; justify-content: center;
-      background: linear-gradient(180deg, #fff, #f7f4ff);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.5), rgba(210,230,255,0.35)),
+        repeating-linear-gradient(0deg, transparent 0 19px, rgba(21,120,196,0.07) 19px 20px),
+        repeating-linear-gradient(90deg, transparent 0 19px, rgba(21,120,196,0.07) 19px 20px),
+        #eaf3ff;
       border-radius: 22px; overflow: hidden;
-      box-shadow: inset 0 0 0 2px rgba(203, 178, 254, 0.35);
+      box-shadow: inset 0 0 0 2px rgba(21,120,196,0.28);
     }
     .board::before, .board::after {
-      content: ""; position: absolute; width: 42px; height: 14px; z-index: 2; pointer-events: none;
-      background: rgba(255, 224, 102, 0.88); border-radius: 2px;
-      box-shadow: 0 2px 0 rgba(228, 184, 42, 0.35);
+      content: ""; position: absolute; width: 44px; height: 14px; z-index: 2; pointer-events: none;
+      background: rgba(240,193,75,0.9); border-radius: 2px;
+      box-shadow: 0 2px 0 rgba(196,146,26,0.4);
     }
     .board::before { top: 10px; left: 14px; transform: rotate(-18deg); }
     .board::after { top: 12px; right: 16px; transform: rotate(16deg); }
     #scene { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
     #scene.dragging { cursor: grabbing; }
 
-    .choice-row { display: flex; gap: 10px; flex-shrink: 0; }
-    .choice-row .candy { flex: 1; font-size: clamp(15px, 2.3vh, 19px); padding: 12px 8px; }
+    .choice-row { display: flex; gap: 8px; flex-shrink: 0; align-items: stretch; }
+    .choice-row .candy { flex: 1; font-size: clamp(14px, 2.2vh, 18px); padding: 12px 8px; }
     .opt-col { display: none; flex-direction: column; gap: 8px; flex-shrink: 0; }
     .opt-col.show { display: flex; }
     .opt-col .candy { width: 100%; text-align: center; font-size: clamp(15px, 2.2vh, 18px); padding: 10px 8px; }
@@ -149,62 +150,62 @@
       font-weight: 900; font-size: 15px; text-align: center; line-height: 1.4;
     }
     .toast.show { display: block; }
-    .toast.good { background: #e4faf2; border: 2px solid #7ce0c3; color: #165f4c; }
-    .toast.bad { background: #fff1f1; border: 2px solid #ffb4b4; color: #b42318; }
+    .toast.good { background: #d9fff4; border: 2px solid #2fd3b6; color: #0a5c4c; }
+    .toast.bad { background: #ffe8ec; border: 2px solid #ff8a9a; color: #a11b32; }
 
     .report {
-      position: fixed; inset: 0; background: rgba(59, 42, 74, 0.45);
+      position: fixed; inset: 0; background: rgba(6, 17, 31, 0.55);
       display: none; place-items: center; z-index: 25; padding: 16px;
     }
     .report.show { display: grid; }
     .report-card {
-      width: min(520px, 100%); background: #fff; border-radius: 32px;
-      padding: 22px 20px 18px; text-align: center; border: 4px solid #fff;
-      box-shadow: 0 18px 40px rgba(157, 122, 240, 0.28); animation: popIn 0.4s ease;
+      width: min(520px, 100%); background: #f3f7ff; border-radius: 32px;
+      padding: 22px 20px 18px; text-align: center; border: 4px solid #f0c14b;
+      box-shadow: 0 18px 40px rgba(0, 16, 40, 0.4); animation: popIn 0.4s ease; color: var(--ink);
     }
     .report-card h2 { font-size: clamp(22px, 3.4vh, 28px); margin: 8px 0 10px; }
     .report-card p { font-weight: 800; line-height: 1.55; margin: 8px 0; font-size: 16px; }
     .tip {
-      background: #f4edff; border-radius: 18px; padding: 12px 14px; margin: 12px 0 16px;
+      background: #dcebff; border-radius: 18px; padding: 12px 14px; margin: 12px 0 16px;
       font-weight: 800; line-height: 1.6; text-align: left;
     }
 
     .dash-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-shrink: 0; margin-bottom: 8px; }
-    .dash-h h1 { font-family: "Fredoka", "Noto Sans TC", sans-serif; font-size: clamp(20px, 3vh, 28px); }
+    .dash-h h1 { font-family: "Fredoka", "Noto Sans TC", sans-serif; font-size: clamp(20px, 3vh, 28px); color: #eaf5ff; }
     .dash-h .acts { display: flex; gap: 8px; margin: 0; }
     .dash { flex: 1; min-height: 0; overflow: hidden; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
     .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex-shrink: 0; }
     .stat { border-radius: 16px; padding: 10px; }
     .stat b { display: block; font-size: 12px; opacity: 0.8; }
     .stat strong { font-size: clamp(16px, 2.6vh, 24px); display: block; line-height: 1.2; }
-    .s1 { background: #ffe1ea; } .s2 { background: #d9f8ee; } .s3 { background: #efe6ff; }
+    .s1 { background: #dcebff; } .s2 { background: #d9fff4; } .s3 { background: #fff4cc; }
     .tools { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; gap: 8px; flex-wrap: wrap; }
-    .tools select, .tools button.tiny { border: 2px solid #ffe1ec; border-radius: 12px; padding: 4px 8px; font-weight: 800; background: #fff; }
+    .tools select, .tools button.tiny { border: 2px solid #cfe6ff; border-radius: 12px; padding: 4px 8px; font-weight: 800; background: #fff; }
     .tool-filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .dash-src { font-size: 12px; font-weight: 800; color: var(--soft); }
     .dash-count { font-size: 12px; font-weight: 800; color: var(--soft); }
     .records { flex: 1; min-height: 0; overflow: auto; }
     table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; }
-    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(59,42,74,0.08); font-size: 12px; }
-    th { background: #f4edff; position: sticky; top: 0; z-index: 2; white-space: nowrap; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(16,36,63,0.08); font-size: 12px; }
+    th { background: #dcebff; position: sticky; top: 0; z-index: 2; white-space: nowrap; }
     th.col-h { padding-right: 4px; }
     .col-sort { border: 0; background: transparent; font: inherit; font-weight: 900; cursor: pointer; padding: 0; }
-    th.sorted .col-sort { color: #9d7af0; }
+    th.sorted .col-sort { color: #1578c4; }
     .filter-btn {
-      border: 0; background: #efe6ff; color: var(--ink); cursor: pointer;
+      border: 0; background: #cfe6ff; color: var(--ink); cursor: pointer;
       border-radius: 8px; width: 22px; height: 22px; margin-left: 4px;
       font-size: 12px; font-weight: 900; line-height: 1; vertical-align: middle;
     }
-    .filter-btn.on { background: var(--lilac); color: #fff; }
+    .filter-btn.on { background: var(--sky); color: #06233d; }
     .score-cell { font-variant-numeric: tabular-nums; font-weight: 900; text-align: center; }
     th.score-h, td.rank-cell { text-align: center; font-variant-numeric: tabular-nums; }
-    tr.hi .score-cell { color: #165f4c; }
+    tr.hi .score-cell { color: #1a8f7c; }
     tr.lo .score-cell { color: #b42318; }
     .empty { text-align: center; padding: 20px; font-weight: 800; color: var(--soft); }
     .filter-menu {
       position: fixed; z-index: 30; width: min(280px, calc(100vw - 16px));
       background: #fff; border-radius: 18px; padding: 10px;
-      box-shadow: 0 16px 36px rgba(59,42,74,0.24); border: 2px solid #efe6ff;
+      box-shadow: 0 16px 36px rgba(7,21,38,0.28); border: 2px solid #cfe6ff;
       display: none; flex-direction: column; gap: 8px; max-height: min(420px, 70vh);
     }
     .filter-menu.show { display: flex; }
@@ -212,28 +213,29 @@
     .filter-menu .fm-acts { display: flex; gap: 6px; flex-wrap: wrap; }
     .filter-menu .fm-acts button {
       border: 0; border-radius: 999px; font-weight: 900; padding: 6px 10px; font-size: 12px;
-      background: #f6f0ff; color: var(--ink); cursor: pointer;
+      background: #dcebff; color: var(--ink); cursor: pointer;
     }
     .filter-menu input[type="search"] {
-      width: 100%; border: 2px solid #efe6ff; border-radius: 12px;
+      width: 100%; border: 2px solid #cfe6ff; border-radius: 12px;
       padding: 6px 8px; font-weight: 800; font-size: 14px;
     }
     .filter-menu .opts { overflow: auto; text-align: left; flex: 1; min-height: 80px; }
     .filter-menu label { display: flex; gap: 8px; align-items: flex-start; padding: 5px 2px; font-weight: 800; font-size: 13px; cursor: pointer; }
     .filter-menu label input { margin-top: 2px; }
 
-    .modal { position: fixed; inset: 0; background: rgba(59,42,74,0.4); display: none; place-items: center; z-index: 20; padding: 16px; }
+    .modal { position: fixed; inset: 0; background: rgba(6,17,31,0.5); display: none; place-items: center; z-index: 20; padding: 16px; }
     .modal.show { display: grid; }
-    .modal-card { width: min(360px, 100%); background: #fff; border-radius: 24px; padding: 18px; text-align: center; }
+    .modal-card { width: min(360px, 100%); background: #f3f7ff; border-radius: 24px; padding: 18px; text-align: center; color: var(--ink); }
     .modal-card input {
-      width: 100%; border: 3px solid #efe6ff; border-radius: 14px;
+      width: 100%; border: 3px solid #cfe6ff; border-radius: 14px;
       padding: 10px; font-size: 20px; font-weight: 800; text-align: center; margin: 10px 0;
     }
     canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
 
     @media (max-height: 720px) {
-      .mascot { width: 56px; height: 56px; font-size: 28px; }
-      .choice-row .candy { padding: 10px 8px; font-size: 15px; }
+      .mascot { width: 56px; height: 56px; font-size: 26px; }
+      .choice-row .candy { padding: 10px 6px; font-size: 14px; }
+      .sq { width: 44px; flex-basis: 44px !important; }
       .hintbar { font-size: 12px; padding: 4px 8px; }
     }
     @media print {
@@ -249,7 +251,7 @@
   <div class="app">
     <section id="screen-login" class="screen active">
       <div class="card login">
-        <div class="mascot">📐</div>
+        <div class="mascot">🛡️</div>
         <h1 class="title" id="titleWave"></h1>
         <p class="tagline">尋找垂直線 · 高 ⊥ 底</p>
         <div class="field">
@@ -260,8 +262,8 @@
           <label for="studentId">學號</label>
           <input id="studentId" maxlength="6" placeholder="01" inputmode="numeric" autocomplete="off" />
         </div>
-        <button class="candy pink start" id="startBtn">開始任務</button>
-        <button class="candy lilac teacher-btn" id="teacherBtn">老師<br>後台</button>
+        <button class="candy gold start" id="startBtn">開始任務</button>
+        <button class="candy navy teacher-btn" id="teacherBtn">老師<br>後台</button>
       </div>
     </section>
 
@@ -277,14 +279,16 @@
           <h2 id="taskTitle">任務一：垂直定位</h2>
           <p id="taskKind">銳角△</p>
         </div>
-        <div class="hintbar" id="hintBar">拖尺貼底 · 高 ⊥ 底</div>
+        <div class="hintbar" id="hintBar">拖尺貼底 · ↺↻ 對齊底邊</div>
         <div class="board" id="board">
           <canvas id="scene"></canvas>
         </div>
         <div class="toast" id="feedToast"></div>
         <div class="choice-row" id="phase1Acts">
-          <button class="candy lemon" id="btnExtend">➕ 延伸底邊</button>
-          <button class="candy mint" id="btnHeight">確定劃高</button>
+          <button class="candy ghost sq" id="btnRotL" aria-label="左轉">↺</button>
+          <button class="candy gold" id="btnExtend">➕ 延伸底邊</button>
+          <button class="candy teal" id="btnHeight">確定劃高</button>
+          <button class="candy ghost sq" id="btnRotR" aria-label="右轉">↻</button>
         </div>
         <div class="opt-col" id="phase2Acts"></div>
       </div>
@@ -294,8 +298,8 @@
       <div class="dash-h">
         <h1>老師後台</h1>
         <div class="acts no-print">
-          <button class="candy lemon tiny" id="printBtn">列印</button>
-          <button class="candy peach tiny" id="refreshDashBtn">重新整理</button>
+          <button class="candy gold tiny" id="printBtn">列印</button>
+          <button class="candy sky tiny" id="refreshDashBtn">重新整理</button>
           <button class="candy ghost tiny" id="dashBackBtn">返回</button>
         </div>
       </div>
@@ -320,7 +324,7 @@
       <h2>成績診斷卡</h2>
       <p id="reportScore"></p>
       <div class="tip" id="reportTip"></div>
-      <button class="candy pink" id="reportBackBtn">完成</button>
+      <button class="candy gold" id="reportBackBtn">完成</button>
     </div>
   </div>
 
@@ -332,7 +336,7 @@
       <input id="pinInput" type="password" maxlength="8" inputmode="numeric" autocomplete="off" />
       <div class="choice-row">
         <button class="candy ghost" id="pinCancel">取消</button>
-        <button class="candy lilac" id="pinOk">確認</button>
+        <button class="candy navy" id="pinOk">確認</button>
       </div>
     </div>
   </div>
@@ -345,6 +349,9 @@
       const STORE_KEY = "p5ma-ch3-v1";
       const TEACHER_PIN = "2246";
       const GAME_SECS = 180;
+      const ALIGN_RAD = 14 * Math.PI / 180;
+      const SNAP_DIST = 38;
+      const HIT_PAD = 26;
       const TIP_PERP = "💡 偵探提醒：記得高要和底「垂直」，並接住頂點喔！";
       const TIP_OBTUSE = "💡 偵探提醒：鈍角三角形的高可能在外面，記得先延伸底邊喔！";
       const TIP_PAIR = "💡 偵探提醒：底與高要成對，唔好把 A 底配去 B 高喔！";
@@ -355,7 +362,8 @@
         qIndex: 1, remain: GAME_SECS, ended: false, busy: false,
         done: 0, qTimes: [], qStart: 0, sheetSent: false,
         missPerp: 0, missObtuse: 0, missPair: 0,
-        q: null, tool: null, drag: null, cssW: 0, cssH: 0
+        q: null, tool: null, drag: null, cssW: 0, cssH: 0,
+        pointers: new Map(), rotHold: null
       };
 
       let audioCtx = null, countId = null, sceneCtx = null;
@@ -408,15 +416,9 @@
       }
       function diagnose() {
         const a = state.missPerp, b = state.missObtuse, c = state.missPair;
-        if (a + b + c === 0) {
-          return { short: "零失誤", sheet: "完全掌握垂直概念，零失誤過關", tip: TIP_PERFECT };
-        }
-        if (b >= a && b >= c) {
-          return { short: "鈍角未延伸", sheet: "鈍角三角形記得先延伸底邊", tip: TIP_OBTUSE };
-        }
-        if (c >= a && c >= b) {
-          return { short: "底高配對混淆", sheet: "底與高要成對，唔好把 A 底配去 B 高", tip: TIP_PAIR };
-        }
+        if (a + b + c === 0) return { short: "零失誤", sheet: "完全掌握垂直概念，零失誤過關", tip: TIP_PERFECT };
+        if (b >= a && b >= c) return { short: "鈍角未延伸", sheet: "鈍角三角形記得先延伸底邊", tip: TIP_OBTUSE };
+        if (c >= a && c >= b) return { short: "底高配對混淆", sheet: "底與高要成對，唔好把 A 底配去 B 高", tip: TIP_PAIR };
         return { short: "高未垂直", sheet: "高要和底垂直，並接住頂點", tip: TIP_PERP };
       }
       function sheetConfigured() {
@@ -446,7 +448,7 @@
 
       let sheetLogsCache = null, dashSeq = 0, dashAllLogs = [];
       let dashClass = "ALL";
-      let dashSort = { col: "score", dir: "desc" };
+      let dashSort = { col: "student", dir: "asc" };
       let dashFilters = {}, dashMenuCol = "";
       const DASH_COLS = [
         { key: "student", label: "班別學號", numeric: false },
@@ -469,15 +471,12 @@
           const who = parseSheetStudent(r.student);
           const diagnostic = String(r.diagnostic || "");
           return {
-            classId: who.classId,
-            studentId: who.studentId,
-            done: Number(r.score) || 0,
-            avgSec: parseAvgSec(r.avgTime),
+            classId: who.classId, studentId: who.studentId,
+            done: Number(r.score) || 0, avgSec: parseAvgSec(r.avgTime),
             diagnosis: diagnostic,
             perpErr: /垂直/.test(diagnostic) && /頂點|接住/.test(diagnostic) ? 1 : 0,
             obtuseErr: /延伸/.test(diagnostic) ? 1 : 0,
-            time: r.time || "",
-            game: r.game || r.chapter || ""
+            time: r.time || "", game: r.game || r.chapter || ""
           };
         }).filter((e) => e.studentId || e.classId);
       }
@@ -506,9 +505,7 @@
           const res = await fetch(url, { method: "GET" });
           if (!res.ok) throw new Error("http");
           data = await res.json();
-        } catch (err) {
-          data = await jsonpSheet(url);
-        }
+        } catch (err) { data = await jsonpSheet(url); }
         if (!data || !data.ok) throw new Error("bad");
         sheetLogsCache = rowsToLogs(data.rows);
         return sheetLogsCache;
@@ -519,14 +516,9 @@
         const avg = state.done ? Math.round(state.qTimes.reduce((a, b) => a + b, 0) / state.done) : 0;
         const d = diagnose();
         db.logs.push({
-          classId: state.classId,
-          studentId: normalizeId(state.studentId),
-          done: state.done,
-          avgSec: avg,
-          diagnosis: d.short,
-          perpErr: state.missPerp,
-          obtuseErr: state.missObtuse,
-          time: nowText()
+          classId: state.classId, studentId: normalizeId(state.studentId),
+          done: state.done, avgSec: avg, diagnosis: d.short,
+          perpErr: state.missPerp, obtuseErr: state.missObtuse, time: nowText()
         });
         saveStore(db);
         return d;
@@ -543,9 +535,7 @@
         if (!audioCtx) return;
         const o = audioCtx.createOscillator();
         const g = audioCtx.createGain();
-        o.type = type || "sine";
-        o.frequency.value = freq;
-        g.gain.value = gain || 0.05;
+        o.type = type || "sine"; o.frequency.value = freq; g.gain.value = gain || 0.05;
         o.connect(g); g.connect(audioCtx.destination);
         o.start();
         g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
@@ -569,29 +559,22 @@
       function stopCountdown() { clearInterval(countId); countId = null; }
       function startCountdown() {
         stopCountdown();
-        state.remain = GAME_SECS;
-        state.ended = false;
-        renderTimer();
+        state.remain = GAME_SECS; state.ended = false; renderTimer();
         countId = setInterval(() => {
           if (state.ended) return;
-          state.remain -= 1;
-          renderTimer();
+          state.remain -= 1; renderTimer();
           if (state.remain <= 0) endSession();
         }, 1000);
       }
       function endSession() {
         if (state.ended) return;
-        state.ended = true;
-        state.remain = 0;
-        renderTimer();
-        stopCountdown();
+        state.ended = true; state.remain = 0; renderTimer(); stopCountdown();
         const d = saveSession();
         sendToGoogleSheet(d);
         $("reportScore").textContent = `🎉 太棒了！你 3 分鐘內成功找出並配對了 ${state.done} 組垂直底高！`;
         $("reportTip").textContent = d.tip;
         $("reportModal").classList.add("show");
-        burstConfetti(180);
-        sfx("win");
+        burstConfetti(180); sfx("win");
       }
 
       function rand(a, b) { return a + Math.random() * (b - a); }
@@ -631,6 +614,10 @@
       function distLine(p, a, b) {
         return Math.abs(cross(sub(b, a), sub(p, a))) / (len(sub(b, a)) || 1);
       }
+      function distSeg(p, a, b) {
+        const pr = project(p, a, b);
+        return dist(p, lerp(a, b, Math.max(0, Math.min(1, pr.t))));
+      }
       function angDiff(a, b) {
         let d = Math.abs(a - b) % (Math.PI * 2);
         if (d > Math.PI) d = Math.PI * 2 - d;
@@ -660,7 +647,22 @@
         if (t >= 8 && u >= -0.08 && u <= 1.08) return { t, u, pt: add(o, mul(dir, t)) };
         return null;
       }
+      function alongAlign(toolAng, baseAng) {
+        return Math.min(angDiff(toolAng, baseAng), angDiff(toolAng, baseAng + Math.PI));
+      }
 
+      function tiltPts(pts) {
+        const ang = Math.random() < 0.18 ? rand(-6, 6) * Math.PI / 180 : pick([
+          rand(16, 52), rand(70, 110), rand(125, 160), rand(200, 250), rand(290, 340)
+        ]) * Math.PI / 180;
+        return rotatePts(pts, ang);
+      }
+      function isAcuteTri(pts) {
+        return [0, 1, 2].every((i) => {
+          const a = angleAt(pts[(i + 2) % 3], pts[i], pts[(i + 1) % 3]);
+          return a > 0.28 && a < Math.PI / 2 - 0.06;
+        });
+      }
       function genLocal() {
         const roll = Math.random();
         if (roll < 0.28) return genAcute();
@@ -670,67 +672,47 @@
         return genTrap();
       }
       function genAcute() {
-        for (let n = 0; n < 30; n++) {
-          const R = 90;
-          const pts = [0, 120, 240].map((deg) => {
-            const a = (deg + rand(-14, 14)) * Math.PI / 180;
-            const r = R + rand(-16, 16);
-            return { x: Math.cos(a) * r, y: Math.sin(a) * r };
-          });
-          const angs = [0, 1, 2].map((i) => angleAt(pts[(i + 2) % 3], pts[i], pts[(i + 1) % 3]));
-          if (angs.every((x) => x > 0.45 && x < 1.4)) {
-            const bi = rint(0, 2);
-            return { kind: "acute", name: "銳角△", verts: pts, baseI: bi, baseJ: (bi + 1) % 3, opp: (bi + 2) % 3 };
+        for (let n = 0; n < 40; n++) {
+          const base = rint(8, 12), height = rint(6, 9);
+          const tx = rand(0.28, 0.72) * base;
+          const pts = [{ x: 0, y: 0 }, { x: base, y: 0 }, { x: tx, y: height }];
+          if (isAcuteTri(pts)) {
+            return { kind: "acute", name: "銳角△", verts: pts, baseI: 0, baseJ: 1, opp: 2, baseCm: base, heightCm: height };
           }
         }
         return genRight();
       }
       function genRight() {
-        const w = rand(80, 130), h = rand(70, 115);
-        const pts = [{ x: 0, y: 0 }, { x: w, y: 0 }, { x: 0, y: h }];
-        const useHyp = Math.random() < 0.45;
-        if (useHyp) return { kind: "right", name: "直角△", verts: pts, baseI: 1, baseJ: 2, opp: 0 };
-        return { kind: "right", name: "直角△", verts: pts, baseI: 0, baseJ: 1, opp: 2 };
+        const k = rint(1, 2);
+        const a = 6 * k, b = 8 * k;
+        const pts = [{ x: 0, y: 0 }, { x: a, y: 0 }, { x: 0, y: b }];
+        return { kind: "right", name: "直角△", verts: pts, baseI: 0, baseJ: 1, opp: 2, baseCm: a, heightCm: b };
       }
       function genObtuse() {
-        const obt = rand(102, 132) * Math.PI / 180;
-        const len1 = rand(88, 125), len2 = rand(78, 115);
-        const pts = [
-          { x: 0, y: 0 },
-          { x: len1, y: 0 },
-          { x: Math.cos(obt) * len2, y: Math.sin(obt) * len2 }
-        ];
-        return { kind: "obtuse", name: "鈍角△", verts: pts, baseI: 0, baseJ: 1, opp: 2 };
+        const base = rint(8, 12), height = rint(5, 8);
+        const tx = Math.random() < 0.5 ? -rand(1.8, 3.6) : base + rand(1.8, 3.6);
+        const pts = [{ x: 0, y: 0 }, { x: base, y: 0 }, { x: tx, y: height }];
+        return { kind: "obtuse", name: "鈍角△", verts: pts, baseI: 0, baseJ: 1, opp: 2, baseCm: base, heightCm: height };
       }
       function genPara() {
-        const w = rand(95, 140), h = rand(55, 85), sk = rand(22, 55) * (Math.random() < 0.5 ? 1 : -1);
-        const pts = [
-          { x: 0, y: 0 }, { x: w, y: 0 },
-          { x: w + sk, y: h }, { x: sk, y: h }
-        ];
-        return { kind: "para", name: "平行四邊形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2] };
+        const base = rint(8, 12), h = rint(5, 8), sk = rint(2, 5) * (Math.random() < 0.5 ? 1 : -1);
+        const pts = [{ x: 0, y: 0 }, { x: base, y: 0 }, { x: base + sk, y: h }, { x: sk, y: h }];
+        return { kind: "para", name: "平行四邊形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2], baseCm: base, heightCm: h };
       }
       function genTrap() {
-        const bot = rand(120, 160), top = rand(60, 95), h = rand(52, 80), off = rand(8, bot - top - 8);
-        const pts = [
-          { x: 0, y: 0 }, { x: bot, y: 0 },
-          { x: off + top, y: h }, { x: off, y: h }
-        ];
-        return { kind: "trap", name: "梯形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2] };
+        const bot = rint(10, 14), top = rint(5, 8), h = rint(5, 8);
+        const off = rint(1, Math.max(1, bot - top - 1));
+        const pts = [{ x: 0, y: 0 }, { x: bot, y: 0 }, { x: off + top, y: h }, { x: off, y: h }];
+        return { kind: "trap", name: "梯形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2], baseCm: bot, heightCm: h };
       }
-
       function finishLocal(local) {
-        const tilt = Math.random() < 0.22 ? rand(-8, 8) * Math.PI / 180 : pick([
-          rand(18, 58), rand(72, 108), rand(122, 158), rand(198, 248), rand(288, 338)
-        ]) * Math.PI / 180;
-        local.verts = rotatePts(local.verts, tilt);
+        local.verts = tiltPts(local.verts);
         const A = local.verts[local.baseI], B = local.verts[local.baseJ];
         const target = local.opp != null ? local.verts[local.opp]
           : lerp(local.verts[local.oppEdge[0]], local.verts[local.oppEdge[1]], 0.5);
         const pr = project(target, A, B);
         local.tFoot = pr.t;
-        local.needExtend = pr.t < -0.04 || pr.t > 1.04;
-        local.baseCm = rint(6, 12);
+        local.needExtend = pr.t < -0.02 || pr.t > 1.02;
         return local;
       }
 
@@ -738,42 +720,43 @@
         const local = q.local;
         const verts = local.verts;
         const A = verts[local.baseI], B = verts[local.baseJ];
-        const extra = [];
-        extra.push(lerp(A, B, -0.85), lerp(A, B, 1.85));
-        const all = verts.concat(extra);
+        const target = local.opp != null ? verts[local.opp]
+          : lerp(verts[local.oppEdge[0]], verts[local.oppEdge[1]], 0.5);
+        const pr0 = project(target, A, B);
+        const all = verts.concat([pr0.pt, lerp(A, B, pr0.t < 0 ? pr0.t - 0.15 : 0), lerp(A, B, pr0.t > 1 ? pr0.t + 0.15 : 1)]);
         let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
         all.forEach((p) => {
           minx = Math.min(minx, p.x); miny = Math.min(miny, p.y);
           maxx = Math.max(maxx, p.x); maxy = Math.max(maxy, p.y);
         });
-        const pad = 44;
+        const pad = 52;
         const scale = Math.min((W - pad * 2) / Math.max(40, maxx - minx), (H - pad * 2) / Math.max(40, maxy - miny));
         const ox = W / 2 - (minx + maxx) / 2 * scale;
         const oy = H / 2 - (miny + maxy) / 2 * scale;
-        q.verts = verts.map((p) => ({ x: ox + p.x * scale, y: oy + p.y * scale }));
+        const xf = (p) => ({ x: ox + p.x * scale, y: oy + p.y * scale });
+        q.verts = verts.map(xf);
         q.baseA = q.verts[local.baseI];
         q.baseB = q.verts[local.baseJ];
         q.target = local.opp != null ? q.verts[local.opp]
           : lerp(q.verts[local.oppEdge[0]], q.verts[local.oppEdge[1]], 0.5);
-        if (local.oppEdge) q.oppA = q.verts[local.oppEdge[0]], q.oppB = q.verts[local.oppEdge[1]];
+        if (local.oppEdge) { q.oppA = q.verts[local.oppEdge[0]]; q.oppB = q.verts[local.oppEdge[1]]; }
         const pr = project(q.target, q.baseA, q.baseB);
         q.H = pr.pt;
         q.tFoot = pr.t;
         q.needExtend = local.needExtend;
-        const baseLen = dist(q.baseA, q.baseB);
-        const heightLen = distLine(q.target, q.baseA, q.baseB);
         q.baseCm = local.baseCm;
-        q.heightCm = Math.max(3, Math.round(heightLen / ((baseLen / q.baseCm) || 1)));
-        if (q.heightCm === q.baseCm) q.heightCm = Math.max(3, q.heightCm - 1);
-        q.kind = local.kind;
-        q.name = local.name;
-        q.opp = local.opp;
-        q.oppEdge = local.oppEdge;
+        q.heightCm = local.heightCm;
+        q.kind = local.kind; q.name = local.name;
+        q.opp = local.opp; q.oppEdge = local.oppEdge;
+        q.pxPerCm = dist(q.baseA, q.baseB) / (q.baseCm || 1);
         const sides = [];
         for (let i = 0; i < q.verts.length; i++) {
           const a = q.verts[i], b = q.verts[(i + 1) % q.verts.length];
-          const cm = Math.max(3, Math.round(dist(a, b) / ((baseLen / q.baseCm) || 1)));
-          sides.push({ a, b, cm, isBase: (i === local.baseI && (i + 1) % q.verts.length === local.baseJ) || (i === local.baseJ && (i + 1) % q.verts.length === local.baseI) });
+          const la = verts[i], lb = verts[(i + 1) % verts.length];
+          const cm = Math.max(1, Math.round(dist(la, lb)));
+          const isBase = (i === local.baseI && (i + 1) % q.verts.length === local.baseJ) ||
+            (i === local.baseJ && (i + 1) % q.verts.length === local.baseI);
+          sides.push({ a, b, cm: isBase ? q.baseCm : cm, isBase });
         }
         q.sides = sides;
         const fakeH = q.heightCm + pick([1, 2, -1].filter((d) => q.heightCm + d >= 3));
@@ -791,16 +774,15 @@
         const along = { x: Math.cos(tool.ang), y: Math.sin(tool.ang) };
         const perp = { x: Math.cos(tool.ang + Math.PI / 2), y: Math.sin(tool.ang + Math.PI / 2) };
         const P = { x: tool.x, y: tool.y };
-        return { P, Q: add(P, mul(along, L)), R: add(P, mul(perp, L)), along, perp };
+        const Q = add(P, mul(along, L)), R = add(P, mul(perp, L));
+        return { P, Q, R, along, perp, rotH: lerp(Q, R, 0.5) };
       }
       function placeTool() {
-        const L = Math.max(64, Math.min(108, Math.min(state.cssW, state.cssH) * 0.22));
+        const L = Math.max(72, Math.min(120, Math.min(state.cssW, state.cssH) * 0.26));
         state.tool = {
-          x: state.cssW * 0.78,
-          y: state.cssH * 0.78,
-          ang: -0.35,
-          snapped: false,
-          L
+          x: Math.max(L + 8, state.cssW * 0.82),
+          y: Math.max(L + 8, state.cssH * 0.78),
+          ang: -0.4, snapped: false, L
         };
       }
       function snapAngle(baseAng, P, target) {
@@ -812,28 +794,29 @@
         });
         return best;
       }
-      function clampFoot(t, extended) {
-        const lo = extended ? -0.8 : 0.02;
-        const hi = extended ? 1.8 : 0.98;
-        return Math.max(lo, Math.min(hi, t));
+      function clampFoot(t, q) {
+        if (q.extended) {
+          const extra = 0.1;
+          return Math.max(Math.min(0, q.tFoot) - extra, Math.min(Math.max(1, q.tFoot) + extra, t));
+        }
+        return Math.max(0.02, Math.min(0.98, t));
       }
-      function trySnap(force) {
+      function trySnap() {
         const q = state.q, tool = state.tool;
         if (!q || q.phase !== 1 || !tool) return;
-        const d = distLine({ x: tool.x, y: tool.y }, q.baseA, q.baseB);
         const baseAng = Math.atan2(q.baseB.y - q.baseA.y, q.baseB.x - q.baseA.x);
-        const align = Math.min(angDiff(tool.ang, baseAng), angDiff(tool.ang, baseAng + Math.PI));
-        const near = d < 38 && (force || align < 0.42 || tool.snapped);
-        if (near) {
+        const d = distLine({ x: tool.x, y: tool.y }, q.baseA, q.baseB);
+        const align = alongAlign(tool.ang, baseAng);
+        if (d < SNAP_DIST && align < ALIGN_RAD) {
           const was = tool.snapped;
           const pr = project({ x: tool.x, y: tool.y }, q.baseA, q.baseB);
-          const t = clampFoot(pr.t, q.extended);
+          const t = clampFoot(pr.t, q);
           const pt = lerp(q.baseA, q.baseB, t);
           tool.x = pt.x; tool.y = pt.y;
           tool.ang = snapAngle(baseAng, pt, q.target);
           tool.snapped = true;
           if (!was) sfx("snap");
-        } else if (tool.snapped && d > 56) {
+        } else if (tool.snapped && (d > SNAP_DIST + 22 || align > ALIGN_RAD + 0.15)) {
           tool.snapped = false;
         }
       }
@@ -856,33 +839,36 @@
         sceneCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
         state.cssW = w; state.cssH = h;
         if (state.q && state.q.local) {
-          const keep = { snapped: state.tool && state.tool.snapped, t: null, ang: state.tool && state.tool.ang };
-          if (state.tool && state.q.baseA) {
-            const pr = project({ x: state.tool.x, y: state.tool.y }, state.q.baseA, state.q.baseB);
-            keep.t = pr.t;
-          }
+          const keepT = (state.tool && state.q.baseA)
+            ? project({ x: state.tool.x, y: state.tool.y }, state.q.baseA, state.q.baseB).t : null;
+          const keepSnap = !!(state.tool && state.tool.snapped);
+          const keepAng = state.tool && state.tool.ang;
           fitQuestion(state.q, w, h);
           if (state.tool) {
-            state.tool.L = Math.max(64, Math.min(108, Math.min(w, h) * 0.22));
-            if (keep.snapped && keep.t != null) {
-              const pt = lerp(state.q.baseA, state.q.baseB, clampFoot(keep.t, state.q.extended));
-              state.tool.x = pt.x; state.tool.y = pt.y;
-              state.tool.snapped = true;
+            state.tool.L = Math.max(72, Math.min(120, Math.min(w, h) * 0.26));
+            if (keepSnap && keepT != null) {
+              const pt = lerp(state.q.baseA, state.q.baseB, clampFoot(keepT, state.q));
+              state.tool.x = pt.x; state.tool.y = pt.y; state.tool.snapped = true;
               state.tool.ang = snapAngle(Math.atan2(state.q.baseB.y - state.q.baseA.y, state.q.baseB.x - state.q.baseA.x), pt, state.q.target);
-            }
+            } else if (keepAng != null) state.tool.ang = keepAng;
           }
         }
       }
 
       function drawGrid(ctx, w, h) {
-        const g = ctx.createLinearGradient(0, 0, 0, h);
-        g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#f4f0ff");
-        ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-        ctx.strokeStyle = "rgba(157,122,240,0.07)";
+        ctx.fillStyle = "#eaf3ff";
+        ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = "rgba(21,120,196,0.08)";
         ctx.lineWidth = 1;
-        const step = Math.min(w, h) / 8;
-        for (let x = step; x < w; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-        for (let y = step; y < h; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+        const step = 20;
+        for (let x = 0.5; x < w; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+        for (let y = 0.5; y < h; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+      }
+      function extendRange(q) {
+        const extra = 0.12;
+        const t0 = Math.min(0, q.tFoot) - extra;
+        const t1 = Math.max(1, q.tFoot) + extra;
+        return { a: lerp(q.baseA, q.baseB, t0), b: lerp(q.baseA, q.baseB, t1) };
       }
       function drawPoly(ctx, q) {
         const vs = q.verts;
@@ -890,23 +876,24 @@
         ctx.moveTo(vs[0].x, vs[0].y);
         vs.slice(1).forEach((p) => ctx.lineTo(p.x, p.y));
         ctx.closePath();
-        ctx.fillStyle = "rgba(255,255,255,0.92)";
+        ctx.fillStyle = "rgba(255,255,255,0.88)";
         ctx.fill();
         ctx.lineJoin = "round";
-        ctx.strokeStyle = "#7a6588";
+        ctx.strokeStyle = "#1a3d68";
         ctx.lineWidth = 4;
         ctx.stroke();
         if (q.extended) {
-          const a = lerp(q.baseA, q.baseB, -0.85);
-          const b = lerp(q.baseA, q.baseB, 1.85);
+          const ex = extendRange(q);
           ctx.save();
-          ctx.setLineDash([8, 7]);
-          ctx.strokeStyle = "#ef5f8a";
+          ctx.setLineDash([7, 6]);
+          ctx.strokeStyle = "#1578c4";
           ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(ex.a.x, ex.a.y); ctx.lineTo(ex.b.x, ex.b.y); ctx.stroke();
           ctx.restore();
+          ctx.fillStyle = "#1578c4";
+          ctx.beginPath(); ctx.arc(q.H.x, q.H.y, 5, 0, Math.PI * 2); ctx.fill();
         }
-        ctx.strokeStyle = "#ef5f8a";
+        ctx.strokeStyle = "#e24b3d";
         ctx.lineWidth = 8;
         ctx.lineCap = "round";
         ctx.beginPath(); ctx.moveTo(q.baseA.x, q.baseA.y); ctx.lineTo(q.baseB.x, q.baseB.y); ctx.stroke();
@@ -914,97 +901,138 @@
         const n = norm({ x: q.baseA.y - q.baseB.y, y: q.baseB.x - q.baseA.x });
         const c = centroid(q.verts);
         const nOut = dot(n, sub(c, mid)) > 0 ? mul(n, -1) : n;
-        const tag = add(mid, mul(nOut, 16));
-        ctx.fillStyle = "#ef5f8a";
-        ctx.font = "900 13px 'Noto Sans TC', sans-serif";
-        ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText("底", tag.x, tag.y);
+        drawTag(ctx, "底", add(mid, mul(nOut, 22)).x, add(mid, mul(nOut, 22)).y, "#c0392b");
         if (q.opp != null && q.phase === 1) {
-          ctx.fillStyle = "#9d7af0";
-          ctx.beginPath(); ctx.arc(q.target.x, q.target.y, 7, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = "#fff";
-          ctx.font = "900 10px 'Noto Sans TC', sans-serif";
-          ctx.fillText("頂", q.target.x, q.target.y);
-        }
-        if (q.heightDrawn) {
-          ctx.save();
-          ctx.setLineDash([6, 5]);
-          ctx.strokeStyle = "#3cbc9a";
-          ctx.lineWidth = 4;
-          ctx.beginPath(); ctx.moveTo(q.H.x, q.H.y); ctx.lineTo(q.target.x, q.target.y); ctx.stroke();
-          ctx.restore();
-          drawRightMark(ctx, q.H, q.baseA, q.baseB, q.target);
-        }
-      }
-      function drawRightMark(ctx, H, A, B, T) {
-        const along = norm(sub(B, A));
-        let perp = { x: -along.y, y: along.x };
-        if (dot(perp, sub(T, H)) < 0) perp = mul(perp, -1);
-        const s = 12;
-        ctx.strokeStyle = "#9d7af0";
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(H.x + along.x * s, H.y + along.y * s);
-        ctx.lineTo(H.x + along.x * s + perp.x * s, H.y + along.y * s + perp.y * s);
-        ctx.lineTo(H.x + perp.x * s, H.y + perp.y * s);
-        ctx.stroke();
-      }
-      function drawLabels(ctx, q) {
-        q.sides.forEach((s) => {
-          const mid = lerp(s.a, s.b, 0.5);
-          const n = norm({ x: s.a.y - s.b.y, y: s.b.x - s.a.x });
-          const c = centroid(q.verts);
-          const nOut = dot(n, sub(c, mid)) > 0 ? mul(n, -1) : n;
-          const p = add(mid, mul(nOut, 14));
-          ctx.fillStyle = s.isBase ? "#ef5f8a" : "#7a6588";
-          ctx.font = "900 13px 'Noto Sans TC', sans-serif";
-          ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          ctx.fillText(s.cm + "cm", p.x, p.y);
-        });
-        const hm = lerp(q.H, q.target, 0.5);
-        ctx.fillStyle = "#165f4c";
-        ctx.font = "900 13px 'Noto Sans TC', sans-serif";
-        ctx.fillText(q.heightCm + "cm", hm.x + 12, hm.y);
-      }
-      function drawTool(ctx, tool, q) {
-        const { P, Q, R, perp } = toolCorners(tool);
-        ctx.save();
-        ctx.globalAlpha = 0.92;
-        ctx.beginPath();
-        ctx.moveTo(P.x, P.y); ctx.lineTo(Q.x, Q.y); ctx.lineTo(R.x, R.y); ctx.closePath();
-        ctx.fillStyle = tool.snapped ? "rgba(124,224,195,0.55)" : "rgba(203,178,254,0.5)";
-        ctx.fill();
-        ctx.strokeStyle = tool.snapped ? "#3cbc9a" : "#9d7af0";
-        ctx.lineWidth = 3;
-        ctx.lineJoin = "round";
-        ctx.stroke();
-        const s = 10;
-        const along = { x: Math.cos(tool.ang), y: Math.sin(tool.ang) };
-        ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        ctx.moveTo(P.x + along.x * s, P.y + along.y * s);
-        ctx.lineTo(P.x + along.x * s + perp.x * s, P.y + along.y * s + perp.y * s);
-        ctx.lineTo(P.x + perp.x * s, P.y + perp.y * s);
-        ctx.stroke();
-        if (tool.snapped) {
-          ctx.save();
-          ctx.setLineDash([5, 5]);
-          ctx.strokeStyle = "rgba(60,188,154,0.55)";
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(P.x, P.y);
-          ctx.lineTo(P.x + perp.x * 420, P.y + perp.y * 420);
-          ctx.stroke();
-          ctx.restore();
-        }
-        if (!tool.snapped) {
-          ctx.fillStyle = "#9d7af0";
-          ctx.beginPath(); ctx.arc(Q.x, Q.y, 9, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#1578c4";
+          ctx.beginPath(); ctx.arc(q.target.x, q.target.y, 8, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = "#fff";
           ctx.font = "900 11px 'Noto Sans TC', sans-serif";
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          ctx.fillText("↻", Q.x, Q.y + 0.5);
+          ctx.fillText("頂", q.target.x, q.target.y);
         }
+        if (q.heightDrawn) {
+          const foot = q.H;
+          const top = q.opp != null ? q.target : (q.heightHit || q.target);
+          ctx.save();
+          ctx.setLineDash([6, 5]);
+          ctx.strokeStyle = "#1a8f7c";
+          ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(foot.x, foot.y); ctx.lineTo(top.x, top.y); ctx.stroke();
+          ctx.restore();
+          drawRightMark(ctx, foot, q.baseA, q.baseB, top);
+        }
+      }
+      function drawRightMark(ctx, H, A, B, T) {
+        const baseAng = Math.atan2(B.y - A.y, B.x - A.x);
+        const local = rot(sub(T, H), -baseAng);
+        const sx = local.x >= 0 ? 1 : -1;
+        const sy = local.y >= 0 ? 1 : -1;
+        const s = 14;
+        ctx.save();
+        ctx.translate(H.x, H.y);
+        ctx.rotate(baseAng);
+        ctx.strokeStyle = "#1578c4";
+        ctx.lineWidth = 2.6;
+        ctx.lineCap = "butt";
+        ctx.lineJoin = "miter";
+        ctx.miterLimit = 2;
+        ctx.beginPath();
+        ctx.moveTo(sx * s, 0);
+        ctx.lineTo(sx * s, sy * s);
+        ctx.lineTo(0, sy * s);
+        ctx.stroke();
+        ctx.restore();
+      }
+      function drawTag(ctx, text, x, y, color) {
+        ctx.font = "900 13px 'Noto Sans TC', sans-serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        const w = ctx.measureText(text).width;
+        const pw = w + 12, ph = 20;
+        ctx.beginPath();
+        const r = 8, x0 = x - pw / 2, y0 = y - ph / 2;
+        ctx.moveTo(x0 + r, y0);
+        ctx.arcTo(x0 + pw, y0, x0 + pw, y0 + ph, r);
+        ctx.arcTo(x0 + pw, y0 + ph, x0, y0 + ph, r);
+        ctx.arcTo(x0, y0 + ph, x0, y0, r);
+        ctx.arcTo(x0, y0, x0 + pw, y0, r);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(255,255,255,0.94)";
+        ctx.fill();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+        ctx.fillStyle = color;
+        ctx.fillText(text, x, y);
+      }
+      function placeLabels(q) {
+        const c = centroid(q.verts);
+        const tags = q.sides.map((s) => {
+          const mid = lerp(s.a, s.b, 0.5);
+          let n = norm({ x: s.a.y - s.b.y, y: s.b.x - s.a.x });
+          if (dot(n, sub(c, mid)) > 0) n = mul(n, -1);
+          return { text: s.cm + "cm", p: add(mid, mul(n, 26)), color: s.isBase ? "#c0392b" : "#1a3d68" };
+        });
+        const hm = lerp(q.H, q.opp != null ? q.target : (q.heightHit || q.target), 0.55);
+        const hd = norm(sub(q.baseB, q.baseA));
+        tags.push({ text: q.heightCm + "cm", p: add(hm, mul(hd, 18)), color: "#1a8f7c" });
+        for (let k = 0; k < 4; k++) {
+          for (let i = 0; i < tags.length; i++) {
+            for (let j = i + 1; j < tags.length; j++) {
+              const d = dist(tags[i].p, tags[j].p);
+              if (d < 34 && d > 0.1) {
+                const push = mul(norm(sub(tags[j].p, tags[i].p)), (34 - d) / 2);
+                tags[i].p = sub(tags[i].p, push);
+                tags[j].p = add(tags[j].p, push);
+              }
+            }
+          }
+        }
+        return tags;
+      }
+      function drawLabels(ctx, q) {
+        placeLabels(q).forEach((t) => drawTag(ctx, t.text, t.p.x, t.p.y, t.color));
+      }
+      function drawTool(ctx, tool) {
+        const { P, Q, R, perp, rotH } = toolCorners(tool);
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(P.x, P.y); ctx.lineTo(Q.x, Q.y); ctx.lineTo(R.x, R.y); ctx.closePath();
+        ctx.fillStyle = tool.snapped ? "rgba(47,211,182,0.5)" : "rgba(61,180,255,0.42)";
+        ctx.fill();
+        ctx.strokeStyle = tool.snapped ? "#1a8f7c" : "#1578c4";
+        ctx.lineWidth = 3.2;
+        ctx.lineJoin = "round";
+        ctx.stroke();
+        const s = 12;
+        const along = { x: Math.cos(tool.ang), y: Math.sin(tool.ang) };
+        ctx.save();
+        ctx.translate(P.x, P.y);
+        ctx.rotate(tool.ang);
+        ctx.strokeStyle = "#1578c4";
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = "butt";
+        ctx.beginPath();
+        ctx.moveTo(s, 0); ctx.lineTo(s, s); ctx.lineTo(0, s);
+        ctx.stroke();
+        ctx.restore();
+        if (tool.snapped) {
+          ctx.save();
+          ctx.setLineDash([5, 5]);
+          ctx.strokeStyle = "rgba(26,143,124,0.55)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(P.x, P.y);
+          ctx.lineTo(P.x + perp.x * 460, P.y + perp.y * 460);
+          ctx.stroke();
+          ctx.restore();
+        }
+        ctx.fillStyle = "#f0c14b";
+        ctx.beginPath(); ctx.arc(rotH.x, rotH.y, 16, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#c4921a"; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = "#3a2a08";
+        ctx.font = "900 16px 'Noto Sans TC', sans-serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText("↻", rotH.x, rotH.y + 1);
         ctx.restore();
       }
       function draw() {
@@ -1014,7 +1042,7 @@
         if (!q) return;
         drawPoly(ctx, q);
         if (q.phase === 2) drawLabels(ctx, q);
-        if (q.phase === 1 && state.tool) drawTool(ctx, state.tool, q);
+        if (q.phase === 1 && state.tool) drawTool(ctx, state.tool);
       }
 
       function cssPos(e) {
@@ -1024,55 +1052,106 @@
       function hitTool(p) {
         const tool = state.tool;
         if (!tool) return null;
-        const { P, Q, R } = toolCorners(tool);
-        if (!tool.snapped && dist(p, Q) < 18) return "rot";
-        if (inTri(p, P, Q, R) || dist(p, P) < 22) return "move";
+        const { P, Q, R, rotH } = toolCorners(tool);
+        if (dist(p, rotH) < 22) return "rot";
+        if (inTri(p, P, Q, R) || dist(p, P) < HIT_PAD || distSeg(p, P, Q) < 18 || distSeg(p, P, R) < 18 || distSeg(p, Q, R) < 16) return "move";
         return null;
       }
 
       function onDown(e) {
         if (state.ended || !state.q || state.q.phase !== 1) return;
         const p = cssPos(e);
+        state.pointers.set(e.pointerId, p);
+        if (state.pointers.size === 2) {
+          const arr = [...state.pointers.values()];
+          state.drag = {
+            mode: "pinch",
+            id: e.pointerId,
+            ang0: Math.atan2(arr[1].y - arr[0].y, arr[1].x - arr[0].x),
+            toolAng0: state.tool.ang
+          };
+          state.tool.snapped = false;
+          try { scene.setPointerCapture(e.pointerId); } catch (err) {}
+          scene.classList.add("dragging");
+          e.preventDefault();
+          return;
+        }
         const hit = hitTool(p);
         if (!hit) return;
         e.preventDefault();
-        scene.setPointerCapture(e.pointerId);
+        try { scene.setPointerCapture(e.pointerId); } catch (err) {}
         scene.classList.add("dragging");
+        if (hit === "rot") state.tool.snapped = false;
         state.drag = { mode: hit, id: e.pointerId, last: p, dx: state.tool.x - p.x, dy: state.tool.y - p.y };
       }
       function onMove(e) {
-        if (!state.drag || e.pointerId !== state.drag.id) return;
+        if (state.pointers.has(e.pointerId)) state.pointers.set(e.pointerId, cssPos(e));
+        if (!state.drag) return;
+        if (state.drag.mode === "pinch") {
+          if (state.pointers.size < 2) return;
+          const arr = [...state.pointers.values()];
+          const ang = Math.atan2(arr[1].y - arr[0].y, arr[1].x - arr[0].x);
+          state.tool.ang = state.drag.toolAng0 + (ang - state.drag.ang0);
+          trySnap(); draw();
+          return;
+        }
+        if (e.pointerId !== state.drag.id) return;
         const p = cssPos(e);
         const tool = state.tool, q = state.q;
-        if (state.drag.mode === "rot" && !tool.snapped) {
+        if (state.drag.mode === "rot") {
+          tool.snapped = false;
           tool.ang = Math.atan2(p.y - tool.y, p.x - tool.x);
-          trySnap(false);
-        } else {
-          if (tool.snapped) {
-            const dir = norm(sub(q.baseB, q.baseA));
-            const slide = dot(sub(p, state.drag.last), dir);
-            const np = add({ x: tool.x, y: tool.y }, mul(dir, slide));
-            const pr = project(np, q.baseA, q.baseB);
-            const t = clampFoot(pr.t, q.extended);
-            const pt = lerp(q.baseA, q.baseB, t);
-            tool.x = pt.x; tool.y = pt.y;
-            const pull = distLine(p, q.baseA, q.baseB);
-            if (pull > 58) { tool.snapped = false; tool.x = p.x + state.drag.dx; tool.y = p.y + state.drag.dy; }
-          } else {
+          trySnap();
+        } else if (tool.snapped) {
+          const dir = norm(sub(q.baseB, q.baseA));
+          const slide = dot(sub(p, state.drag.last), dir);
+          const np = add({ x: tool.x, y: tool.y }, mul(dir, slide));
+          const pr = project(np, q.baseA, q.baseB);
+          const t = clampFoot(pr.t, q);
+          const pt = lerp(q.baseA, q.baseB, t);
+          tool.x = pt.x; tool.y = pt.y;
+          const pull = distLine(p, q.baseA, q.baseB);
+          if (pull > 64) {
+            tool.snapped = false;
             tool.x = p.x + state.drag.dx;
             tool.y = p.y + state.drag.dy;
-            trySnap(false);
           }
+        } else {
+          tool.x = p.x + state.drag.dx;
+          tool.y = p.y + state.drag.dy;
+          trySnap();
         }
         state.drag.last = p;
         draw();
       }
       function onUp(e) {
-        if (!state.drag || e.pointerId !== state.drag.id) return;
-        trySnap(true);
+        state.pointers.delete(e.pointerId);
+        if (!state.drag) return;
+        if (state.drag.mode === "pinch") {
+          if (state.pointers.size < 2) { state.drag = null; scene.classList.remove("dragging"); trySnap(); draw(); }
+          return;
+        }
+        if (e.pointerId !== state.drag.id) return;
+        trySnap();
         state.drag = null;
         scene.classList.remove("dragging");
         draw();
+      }
+
+      function rotateBy(deg) {
+        if (!state.tool || !state.q || state.q.phase !== 1 || state.ended) return;
+        state.tool.snapped = false;
+        state.tool.ang += deg * Math.PI / 180;
+        trySnap();
+        draw();
+      }
+      function startRotHold(deg) {
+        rotateBy(deg);
+        stopRotHold();
+        state.rotHold = setInterval(() => rotateBy(deg), 70);
+      }
+      function stopRotHold() {
+        if (state.rotHold) { clearInterval(state.rotHold); state.rotHold = null; }
       }
 
       function showPhase(n) {
@@ -1080,7 +1159,7 @@
         $("phase2Acts").classList.toggle("show", n === 2);
         if (n === 1) {
           $("taskTitle").textContent = "任務一：垂直定位";
-          $("hintBar").textContent = "拖尺貼底 · 高 ⊥ 底";
+          $("hintBar").textContent = "拖尺貼底 · ↺↻ 對齊底邊";
         } else {
           $("taskTitle").textContent = "任務二：底高配對";
           $("hintBar").textContent = "揀正確底高";
@@ -1090,7 +1169,8 @@
         const q = state.q;
         $("phase2Acts").innerHTML = q.options.map((o, i) => {
           const lab = String.fromCharCode(65 + i);
-          return `<button type="button" class="candy ${i === 0 ? "mint" : i === 1 ? "sky" : "peach"}" data-ok="${o.ok ? 1 : 0}">${lab}. 底 ${o.b}cm／高 ${o.h}cm</button>`;
+          const cls = i === 0 ? "teal" : i === 1 ? "sky" : "gold";
+          return `<button type="button" class="candy ${cls}" data-ok="${o.ok ? 1 : 0}">${lab}. 底 ${o.b}cm／高 ${o.h}cm</button>`;
         }).join("");
       }
 
@@ -1104,6 +1184,10 @@
         const local = finishLocal(genLocal());
         state.q = { local, phase: 1, extended: false, heightDrawn: false };
         layoutCanvas();
+        if (state.cssW < 40) {
+          requestAnimationFrame(newQuestion);
+          return;
+        }
         placeTool();
         $("taskKind").textContent = state.q.name;
         $("btnExtend").style.display = state.q.needExtend ? "inline-flex" : "none";
@@ -1117,8 +1201,9 @@
         if (state.ended || !state.q || state.q.phase !== 1 || state.busy) return;
         const q = state.q, tool = state.tool;
         bounce($("btnHeight"));
-        if (!tool.snapped) {
-          setToast(false, "先把直角尺貼緊底邊");
+        const baseAng = Math.atan2(q.baseB.y - q.baseA.y, q.baseB.x - q.baseA.x);
+        if (!tool.snapped || alongAlign(tool.ang, baseAng) > ALIGN_RAD) {
+          setToast(false, "直角尺要對齊並貼緊底邊");
           sfx("bad");
           return;
         }
@@ -1130,7 +1215,7 @@
         }
         const { perp } = toolCorners(tool);
         if (q.opp != null) {
-          if (dist({ x: tool.x, y: tool.y }, q.H) > 28) {
+          if (dist({ x: tool.x, y: tool.y }, q.H) > 22) {
             state.missPerp += 1;
             setToast(false, "記得高要和底『垂直』，並接住頂點喔！");
             sfx("bad");
@@ -1144,9 +1229,11 @@
             sfx("bad");
             return;
           }
+          q.heightHit = hit.pt;
         }
+        tool.x = q.opp != null ? q.H.x : tool.x;
+        tool.y = q.opp != null ? q.H.y : tool.y;
         q.heightDrawn = true;
-        q.H = { x: tool.x, y: tool.y };
         q.phase = 2;
         sfx("ok");
         setToast(true, "劃高成功！");
@@ -1158,7 +1245,7 @@
         if (!state.q || state.q.phase !== 1) return;
         state.q.extended = true;
         $("btnExtend").disabled = true;
-        setToast(true, "底邊已延伸");
+        setToast(true, "已延伸到垂足");
         sfx("snap");
         draw();
       }
@@ -1188,22 +1275,15 @@
         const studentId = $("studentId").value.trim();
         if (!classId || !studentId) { bounce($("startBtn")); return; }
         unlockAudio();
-        state.classId = classId;
-        state.studentId = studentId;
-        state.qIndex = 1;
-        state.done = 0;
-        state.qTimes = [];
-        state.missPerp = 0;
-        state.missObtuse = 0;
-        state.missPair = 0;
-        state.ended = false;
-        state.busy = false;
-        state.sheetSent = false;
+        state.classId = classId; state.studentId = studentId;
+        state.qIndex = 1; state.done = 0; state.qTimes = [];
+        state.missPerp = 0; state.missObtuse = 0; state.missPair = 0;
+        state.ended = false; state.busy = false; state.sheetSent = false;
         $("reportModal").classList.remove("show");
         ensureStudent();
         showScreen("game");
         startCountdown();
-        newQuestion();
+        requestAnimationFrame(() => newQuestion());
       }
 
       function escapeHtml(s) {
@@ -1286,7 +1366,7 @@
       }
       function resetDashFilters() {
         dashFilters = {};
-        dashSort = { col: "score", dir: "desc" };
+        dashSort = { col: "student", dir: "asc" };
         dashClass = "ALL";
         closeFilterMenu();
       }
@@ -1434,13 +1514,8 @@
           <div class="stat s3"><b>鈍角未延伸</b><strong>…</strong></div>
         `;
         let source = "";
-        try {
-          dashAllLogs = await loadSheetLogs(!!force);
-          source = "Google 試算表";
-        } catch (err) {
-          dashAllLogs = loadStore().logs;
-          source = "本機（未能連線試算表）";
-        }
+        try { dashAllLogs = await loadSheetLogs(!!force); source = "Google 試算表"; }
+        catch (err) { dashAllLogs = loadStore().logs; source = "本機（未能連線試算表）"; }
         if (seq !== dashSeq) return;
         if ($("dashSource")) $("dashSource").textContent = source;
         paintDash();
@@ -1451,7 +1526,7 @@
       let pieces = [];
       function resizeConfetti() { confetti.width = window.innerWidth; confetti.height = window.innerHeight; }
       function burstConfetti(count) {
-        const colors = ["#ff8fab", "#7ce0c3", "#ffe066", "#cbb2fe", "#8ecaff", "#ffc09f"];
+        const colors = ["#3db4ff", "#f0c14b", "#2fd3b6", "#7ec8ff", "#ffe08a"];
         for (let i = 0; i < count; i++) {
           pieces.push({
             x: confetti.width * (0.2 + Math.random() * 0.6), y: -12,
@@ -1483,9 +1558,18 @@
       });
 
       scene.addEventListener("pointerdown", onDown);
-      scene.addEventListener("pointermove", onMove);
-      scene.addEventListener("pointerup", onUp);
-      scene.addEventListener("pointercancel", onUp);
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+      scene.addEventListener("contextmenu", (e) => e.preventDefault());
+
+      function bindRot(btn, deg) {
+        btn.addEventListener("pointerdown", (e) => { e.preventDefault(); startRotHold(deg); });
+        ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => btn.addEventListener(ev, stopRotHold));
+      }
+      bindRot($("btnRotL"), -8);
+      bindRot($("btnRotR"), 8);
+
       $("startBtn").addEventListener("click", startGame);
       $("classId").addEventListener("keydown", (e) => { if (e.key === "Enter") $("studentId").focus(); });
       $("studentId").addEventListener("keydown", (e) => { if (e.key === "Enter") startGame(); });
