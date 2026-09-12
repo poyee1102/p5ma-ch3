@@ -180,7 +180,7 @@
     .report-card p { font-weight: 800; line-height: 1.55; margin: 8px 0; font-size: 16px; }
     .tip {
       background: #f4edff; border-radius: 18px; padding: 12px 14px; margin: 12px 0 16px;
-      font-weight: 800; line-height: 1.6; text-align: left;
+      font-weight: 800; line-height: 1.6; text-align: left; white-space: pre-wrap;
     }
 
     .dash-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-shrink: 0; margin-bottom: 8px; }
@@ -463,9 +463,27 @@
       function diagnose() {
         const a = state.missPerp, b = state.missObtuse, c = state.missPair;
         if (a + b + c === 0) return { short: "零失誤", sheet: "完全掌握垂直概念，零失誤過關", tip: TIP_PERFECT };
-        if (b >= a && b >= c) return { short: "鈍角未延長", sheet: "鈍角三角形記得先延長底邊", tip: TIP_OBTUSE };
-        if (c >= a && c >= b) return { short: "底高配對混淆", sheet: "底與高要成對，唔好把 A 底配去 B 高", tip: TIP_PAIR };
-        return { short: "高未垂直", sheet: "高要垂直於底：三角形接住頂點，四邊形接住對邊", tip: TIP_PERP };
+        const parts = [];
+        if (a) parts.push({
+          short: "高未垂直",
+          sheet: `高未垂直${a}次（未貼底／未掂頂點或對邊）`,
+          line: `高未垂直／未掂頂點或對邊（${a}次）\n　三角形要掂對應頂點；平行四邊形／梯形要掂對邊`
+        });
+        if (b) parts.push({
+          short: "鈍角未延長",
+          sheet: `鈍角未延長${b}次`,
+          line: `鈍角未延長（${b}次）\n　高在底邊外面要先撳「延長底邊」`
+        });
+        if (c) parts.push({
+          short: "底高配對混淆",
+          sheet: `底高配對混淆${c}次`,
+          line: `底高配對混淆（${c}次）\n　底同高要成對，唔好把 A 底配去 B 高`
+        });
+        return {
+          short: parts.map((p) => p.short).join("、"),
+          sheet: parts.map((p) => p.sheet).join("；"),
+          tip: "💡 你今次錯過：\n" + parts.map((p) => "• " + p.line).join("\n")
+        };
       }
       function sheetConfigured() {
         return /^https:\/\/script\.google\.com\/macros\/s\/(?!YOUR_SCRIPT_ID\b)[^/]+\/exec\/?$/.test(GOOGLE_SHEET_URL);
