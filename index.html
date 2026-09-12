@@ -39,20 +39,23 @@
     .fun-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
     .fun-bg i { position: absolute; display: block; }
     .cloud {
-      width: 86px; height: 32px; background: rgba(255,255,255,0.78); border-radius: 40px;
+      width: 90px; height: 34px; background: rgba(255,255,255,0.82); border-radius: 40px;
       animation: floaty 5s ease-in-out infinite;
     }
     .cloud::before, .cloud::after {
-      content: ""; position: absolute; background: rgba(255,255,255,0.78); border-radius: 50%;
+      content: ""; position: absolute; background: inherit; border-radius: 50%;
     }
-    .cloud::before { width: 34px; height: 34px; left: 14px; top: -16px; }
-    .cloud::after { width: 46px; height: 46px; left: 36px; top: -22px; }
+    .cloud::before { width: 36px; height: 36px; left: 12px; top: -16px; }
+    .cloud::after { width: 48px; height: 48px; left: 34px; top: -22px; }
+    .cloud.pink { background: rgba(255, 182, 216, 0.72); }
+    .cloud.sky { background: rgba(174, 224, 255, 0.75); }
+    .cloud.lilac { background: rgba(214, 198, 255, 0.72); }
+    .cloud.mint { background: rgba(186, 245, 220, 0.72); }
     .star { color: #ffd93d; font-style: normal; font-size: 22px; animation: floaty 3.4s ease-in-out infinite; text-shadow: 0 2px 0 #fff; }
     .tri {
       width: 0; height: 0; border-left: 11px solid transparent; border-right: 11px solid transparent;
       border-bottom: 18px solid rgba(255,126,182,0.4); animation: floaty 4.2s ease-in-out infinite;
     }
-    .dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(92,200,255,0.45); animation: floaty 3.8s ease-in-out infinite; }
     button, input { font-family: inherit; }
     button { cursor: pointer; touch-action: manipulation; }
     input { user-select: text; -webkit-user-select: text; }
@@ -125,7 +128,7 @@
       padding: 0; margin: 4px auto 0; display: grid; place-items: center;
     }
 
-    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; margin-bottom: 8px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; margin-bottom: 4px; }
     .pill {
       background: #fff; color: var(--ink); border-radius: 999px; padding: 6px 12px;
       font-weight: 800; font-size: 14px; box-shadow: 0 4px 0 #f0d7e2; white-space: nowrap;
@@ -134,7 +137,7 @@
     .timer.low { background: #ffd0d8; color: #b42318; }
     .tiny { padding: 6px 12px; font-size: 13px; }
 
-    .play { flex: 1; min-height: 0; overflow: hidden; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .play { flex: 1; min-height: 0; overflow: hidden; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
     .task-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-shrink: 0; }
     .task-h h2 { font-size: clamp(15px, 2.2vh, 20px); line-height: 1.3; }
     .task-h p { font-size: 13px; font-weight: 900; color: var(--soft); white-space: nowrap; }
@@ -269,19 +272,21 @@
 </head>
 <body>
   <div class="fun-bg" aria-hidden="true">
-    <i class="cloud" style="left:6%;top:10%"></i>
-    <i class="cloud" style="right:8%;top:22%;animation-delay:.6s;transform:scale(.8)"></i>
-    <i class="cloud" style="left:18%;bottom:12%;animation-delay:1.1s;transform:scale(1.1)"></i>
+    <i class="cloud" style="left:5%;top:9%"></i>
+    <i class="cloud pink" style="left:28%;top:4%;transform:scale(.75);animation-delay:.4s"></i>
+    <i class="cloud sky" style="right:7%;top:16%;transform:scale(.9);animation-delay:.7s"></i>
+    <i class="cloud lilac" style="left:12%;bottom:14%;transform:scale(1.15);animation-delay:1.1s"></i>
+    <i class="cloud mint" style="right:18%;bottom:10%;transform:scale(.85);animation-delay:.5s"></i>
+    <i class="cloud pink" style="left:48%;bottom:6%;transform:scale(.7);animation-delay:1.4s"></i>
+    <i class="cloud sky" style="left:62%;top:8%;transform:scale(.65);animation-delay:.9s"></i>
+    <i class="cloud" style="right:38%;top:28%;transform:scale(.55);animation-delay:1.6s"></i>
     <i class="star" style="left:12%;top:36%">★</i>
     <i class="star" style="right:16%;top:8%;animation-delay:.4s">★</i>
-    <i class="star" style="right:28%;bottom:18%;animation-delay:.9s">✦</i>
+    <i class="star" style="right:28%;bottom:22%;animation-delay:.9s">✦</i>
     <i class="star" style="left:40%;top:6%;animation-delay:1.3s">★</i>
-    <i class="tri" style="left:8%;bottom:28%"></i>
-    <i class="tri" style="right:10%;bottom:32%;border-bottom-color:rgba(92,200,255,.4);animation-delay:.5s"></i>
-    <i class="tri" style="left:52%;bottom:8%;border-bottom-color:rgba(201,182,255,.45);animation-delay:1s"></i>
-    <i class="dot" style="left:30%;top:20%"></i>
-    <i class="dot" style="right:22%;top:42%;background:rgba(255,126,182,.4)"></i>
-    <i class="dot" style="left:62%;top:14%;background:rgba(126,236,200,.5)"></i>
+    <i class="tri" style="left:8%;bottom:30%"></i>
+    <i class="tri" style="right:10%;bottom:34%;border-bottom-color:rgba(92,200,255,.4);animation-delay:.5s"></i>
+    <i class="tri" style="left:54%;bottom:18%;border-bottom-color:rgba(201,182,255,.45);animation-delay:1s"></i>
   </div>
   <canvas id="confetti"></canvas>
   <div class="app">
@@ -384,10 +389,12 @@
       const STORE_KEY = "p5ma-ch3-v1";
       const TEACHER_PIN = "2246";
       const GAME_SECS = 180;
-      const ALIGN_RAD = 14 * Math.PI / 180;
-      const SNAP_DIST = 42;
-      const HIT_PAD = 36;
+      const ALIGN_RAD = 5 * Math.PI / 180;
+      const SNAP_DIST = 36;
+      const HIT_PAD = 28;
       const VERTEX_TOL = 5;
+      const ROT_OFFSET = 34;
+      const ROT_R = 20;
       const TITLE = "底高偵探：尋找垂直線";
       const TITLE_COLORS = ["#ff5eb0", "#3ec6ff", "#ffd93d"];
       const TIP_PERP = "💡 偵探提醒：記得高要和底「垂直」，並接住頂點喔！";
@@ -767,7 +774,7 @@
           minx = Math.min(minx, p.x); miny = Math.min(miny, p.y);
           maxx = Math.max(maxx, p.x); maxy = Math.max(maxy, p.y);
         });
-        const pad = 20;
+        const pad = 14;
         const scale = Math.min((W - pad * 2) / Math.max(40, maxx - minx), (H - pad * 2) / Math.max(40, maxy - miny));
         const ox = W / 2 - (minx + maxx) / 2 * scale;
         const oy = H / 2 - (miny + maxy) / 2 * scale;
@@ -808,20 +815,31 @@
         ]);
       }
 
+      function toolSize() {
+        const q = state.q;
+        if (q && q.baseA && q.baseB) {
+          const baseLen = dist(q.baseA, q.baseB);
+          const hLen = distLine(q.target || q.baseA, q.baseA, q.baseB);
+          return Math.max(40, Math.min(baseLen * 0.34, hLen * 0.5, 64));
+        }
+        return Math.max(40, Math.min(state.cssW, state.cssH) * 0.12);
+      }
       function toolCorners(tool) {
         const L = tool.L;
         const along = { x: Math.cos(tool.ang), y: Math.sin(tool.ang) };
         const perp = { x: Math.cos(tool.ang + Math.PI / 2), y: Math.sin(tool.ang + Math.PI / 2) };
         const P = { x: tool.x, y: tool.y };
         const Q = add(P, mul(along, L)), R = add(P, mul(perp, L));
-        return { P, Q, R, along, perp, rotH: lerp(Q, R, 0.5) };
+        const hyp = lerp(Q, R, 0.5);
+        const out = norm(sub(hyp, P));
+        return { P, Q, R, along, perp, hyp, rotH: add(hyp, mul(out, ROT_OFFSET)) };
       }
       function placeTool() {
-        const L = Math.max(80, Math.min(130, Math.min(state.cssW, state.cssH) * 0.28));
+        const L = toolSize();
         state.tool = {
-          x: Math.min(state.cssW - L * 0.55, Math.max(L * 0.45, state.cssW * 0.74)),
-          y: Math.min(state.cssH - L * 0.45, Math.max(L * 0.45, state.cssH * 0.68)),
-          ang: -0.45, snapped: false, L
+          x: Math.min(state.cssW - L * 0.9, Math.max(L * 0.4, state.cssW * 0.78)),
+          y: Math.min(state.cssH - L * 0.55, Math.max(L * 0.4, state.cssH * 0.72)),
+          ang: -0.45, snapped: false, L, hLen: L, near: false
         };
       }
       function snapAngle(baseAng, P, target) {
@@ -846,6 +864,7 @@
         const baseAng = Math.atan2(q.baseB.y - q.baseA.y, q.baseB.x - q.baseA.x);
         const d = distLine({ x: tool.x, y: tool.y }, q.baseA, q.baseB);
         const align = alongAlign(tool.ang, baseAng);
+        tool.near = d < SNAP_DIST + 10 && align < ALIGN_RAD + 0.04;
         if (d < SNAP_DIST && align < ALIGN_RAD) {
           const was = tool.snapped;
           const pr = project({ x: tool.x, y: tool.y }, q.baseA, q.baseB);
@@ -854,8 +873,8 @@
           tool.x = pt.x; tool.y = pt.y;
           tool.ang = snapAngle(baseAng, pt, q.target);
           tool.snapped = true;
-          if (!was) sfx("snap");
-        } else if (tool.snapped && (d > SNAP_DIST + 22 || align > ALIGN_RAD + 0.15)) {
+          if (!was) { sfx("snap"); tool.hLen = tool.L; }
+        } else if (tool.snapped && align > ALIGN_RAD + 0.12) {
           tool.snapped = false;
         }
       }
@@ -884,7 +903,8 @@
           const keepAng = state.tool && state.tool.ang;
           fitQuestion(state.q, w, h);
           if (state.tool) {
-            state.tool.L = Math.max(72, Math.min(120, Math.min(w, h) * 0.26));
+            state.tool.L = toolSize();
+            if (state.tool.hLen < state.tool.L) state.tool.hLen = state.tool.L;
             if (keepSnap && keepT != null) {
               const pt = lerp(state.q.baseA, state.q.baseB, clampFoot(keepT, state.q));
               state.tool.x = pt.x; state.tool.y = pt.y; state.tool.snapped = true;
@@ -933,9 +953,15 @@
           ctx.fillStyle = "#1578c4";
           ctx.beginPath(); ctx.arc(q.H.x, q.H.y, 5, 0, Math.PI * 2); ctx.fill();
         }
-        ctx.strokeStyle = "#e24b3d";
-        ctx.lineWidth = 8;
+        const glow = state.tool && (state.tool.snapped || state.tool.near);
+        ctx.strokeStyle = glow ? "#3cbc9a" : "#e24b3d";
+        ctx.lineWidth = glow ? 12 : 8;
         ctx.lineCap = "round";
+        ctx.globalAlpha = glow ? 0.35 : 1;
+        ctx.beginPath(); ctx.moveTo(q.baseA.x, q.baseA.y); ctx.lineTo(q.baseB.x, q.baseB.y); ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = glow ? "#2aa07e" : "#e24b3d";
+        ctx.lineWidth = 7;
         ctx.beginPath(); ctx.moveTo(q.baseA.x, q.baseA.y); ctx.lineTo(q.baseB.x, q.baseB.y); ctx.stroke();
         const mid = lerp(q.baseA, q.baseB, 0.5);
         const n = norm({ x: q.baseA.y - q.baseB.y, y: q.baseB.x - q.baseA.x });
@@ -963,24 +989,24 @@
         }
       }
       function drawRightMark(ctx, H, A, B, T) {
-        const ang = Math.atan2(B.y - A.y, B.x - A.x);
-        const c = Math.cos(ang), s = Math.sin(ang);
-        const lx = c * (T.x - H.x) + s * (T.y - H.y);
-        const ly = -s * (T.x - H.x) + c * (T.y - H.y);
-        const sx = lx >= 0 ? 1 : -1;
-        const sy = ly >= 0 ? 1 : -1;
+        let along = norm(sub(B, A));
+        let n = { x: -along.y, y: along.x };
+        if (dot(n, sub(T, H)) < 0) n = mul(n, -1);
+        if (dot(along, sub(T, H)) < 0) along = mul(along, -1);
         const m = 16;
+        const p1 = add(H, mul(along, m));
+        const p2 = add(p1, mul(n, m));
+        const p3 = add(H, mul(n, m));
         ctx.save();
-        ctx.transform(c, s, -s, c, H.x, H.y);
         ctx.strokeStyle = "#ff5eb0";
         ctx.lineWidth = 2.8;
         ctx.lineCap = "butt";
         ctx.lineJoin = "miter";
         ctx.miterLimit = 2;
         ctx.beginPath();
-        ctx.moveTo(sx * m, 0);
-        ctx.lineTo(sx * m, sy * m);
-        ctx.lineTo(0, sy * m);
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
         ctx.stroke();
         ctx.restore();
       }
@@ -1034,41 +1060,45 @@
         placeLabels(q).forEach((t) => drawTag(ctx, t.text, t.p.x, t.p.y, t.color));
       }
       function drawTool(ctx, tool) {
-        const { P, Q, R, perp, rotH } = toolCorners(tool);
+        const { P, Q, R, along, perp, hyp, rotH } = toolCorners(tool);
+        const q = state.q;
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(P.x, P.y); ctx.lineTo(Q.x, Q.y); ctx.lineTo(R.x, R.y); ctx.closePath();
-        ctx.fillStyle = tool.snapped ? "rgba(47,211,182,0.5)" : "rgba(61,180,255,0.42)";
+        ctx.fillStyle = tool.snapped ? "rgba(126,236,200,0.52)" : "rgba(92,200,255,0.42)";
         ctx.fill();
-        ctx.strokeStyle = tool.snapped ? "#1a8f7c" : "#1578c4";
-        ctx.lineWidth = 3.2;
+        ctx.strokeStyle = tool.snapped ? "#2aa07e" : "#2a9adf";
+        ctx.lineWidth = 3;
         ctx.lineJoin = "round";
         ctx.stroke();
-        const s = 12;
-        const along = { x: Math.cos(tool.ang), y: Math.sin(tool.ang) };
-        ctx.save();
-        ctx.translate(P.x, P.y);
-        ctx.rotate(tool.ang);
-        ctx.strokeStyle = "#1578c4";
-        ctx.lineWidth = 2.4;
-        ctx.lineCap = "butt";
-        ctx.beginPath();
-        ctx.moveTo(s, 0); ctx.lineTo(s, s); ctx.lineTo(0, s);
-        ctx.stroke();
-        ctx.restore();
+        drawRightMark(ctx, P, P, Q, R);
+        const hLen = tool.snapped ? Math.max(tool.L, tool.hLen || tool.L) : tool.L;
         if (tool.snapped) {
+          const tip = add(P, mul(perp, hLen));
           ctx.save();
-          ctx.setLineDash([5, 5]);
-          ctx.strokeStyle = "rgba(26,143,124,0.55)";
-          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 5]);
+          ctx.strokeStyle = "#2aa07e";
+          ctx.lineWidth = 3.2;
           ctx.beginPath();
           ctx.moveTo(P.x, P.y);
-          ctx.lineTo(P.x + perp.x * 460, P.y + perp.y * 460);
+          ctx.lineTo(tip.x, tip.y);
           ctx.stroke();
           ctx.restore();
+          ctx.fillStyle = "#2aa07e";
+          ctx.beginPath(); ctx.arc(tip.x, tip.y, 5, 0, Math.PI * 2); ctx.fill();
+          if (q && q.target && dist(tip, q.target) <= 10) {
+            ctx.strokeStyle = "#ff5eb0";
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(q.target.x, q.target.y, 12, 0, Math.PI * 2); ctx.stroke();
+          }
         }
-        ctx.fillStyle = "#ffd93d";
-        ctx.beginPath(); ctx.arc(rotH.x, rotH.y, 22, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "rgba(228,184,42,0.7)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(hyp.x, hyp.y); ctx.lineTo(rotH.x, rotH.y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#ffe066";
+        ctx.beginPath(); ctx.arc(rotH.x, rotH.y, ROT_R, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = "#e4b82a"; ctx.lineWidth = 3; ctx.stroke();
         ctx.fillStyle = "#3b2a55";
         ctx.font = "900 18px 'Noto Sans TC', sans-serif";
@@ -1103,11 +1133,8 @@
         const tool = state.tool;
         if (!tool) return null;
         const { P, Q, R, rotH } = toolCorners(tool);
-        if (dist(p, rotH) <= 28) return "rot";
-        if (inTri(p, P, Q, R) || dist(p, P) < HIT_PAD || distSeg(p, P, Q) < 22 || distSeg(p, P, R) < 22 || distSeg(p, Q, R) < 20) return "move";
-        const mid = { x: (P.x + Q.x + R.x) / 3, y: (P.y + Q.y + R.y) / 3 };
-        if (dist(p, mid) < tool.L * 0.85) return "move";
-        if (dist(p, P) < tool.L + 48) return "move";
+        if (dist(p, rotH) <= ROT_R + 10) return "rot";
+        if (inTri(p, P, Q, R) || dist(p, P) < HIT_PAD || distSeg(p, P, Q) < 18 || distSeg(p, P, R) < 18) return "move";
         return null;
       }
       function magnetFoot() {
@@ -1130,14 +1157,21 @@
           tool.snapped = false;
           tool.ang = Math.atan2(p.y - tool.y, p.x - tool.x);
         } else if (tool.snapped) {
-          const dir = norm(sub(q.baseB, q.baseA));
-          const slide = dot(sub(p, drag.last), dir);
-          const np = add({ x: tool.x, y: tool.y }, mul(dir, slide));
-          const pr = project(np, q.baseA, q.baseB);
-          const pt = lerp(q.baseA, q.baseB, clampFoot(pr.t, q));
-          tool.x = pt.x; tool.y = pt.y;
-          magnetFoot();
-          if (distLine(p, q.baseA, q.baseB) > 70) {
+          const { along, perp } = toolCorners(tool);
+          const delta = sub(p, drag.last);
+          const alongAmt = dot(delta, along);
+          const perpAmt = dot(delta, perp);
+          if (perpAmt > 1.2 && perpAmt >= Math.abs(alongAmt) * 0.55) {
+            tool.hLen = Math.max(tool.L, (tool.hLen || tool.L) + perpAmt);
+          } else {
+            const dir = norm(sub(q.baseB, q.baseA));
+            const np = add({ x: tool.x, y: tool.y }, mul(dir, dot(delta, dir)));
+            const pr = project(np, q.baseA, q.baseB);
+            const pt = lerp(q.baseA, q.baseB, clampFoot(pr.t, q));
+            tool.x = pt.x; tool.y = pt.y;
+            magnetFoot();
+          }
+          if (perpAmt < -18 && distLine(p, q.baseA, q.baseB) > 80) {
             tool.snapped = false;
             tool.x = p.x + drag.dx;
             tool.y = p.y + drag.dy;
@@ -1168,7 +1202,8 @@
           e.preventDefault();
           return;
         }
-        const hit = hitTool(p) || "move";
+        const hit = hitTool(p);
+        if (!hit) return;
         e.preventDefault();
         try { scene.setPointerCapture(e.pointerId); } catch (err) {}
         beginDrag(p, e.pointerId, hit);
@@ -1214,7 +1249,9 @@
           return;
         }
         const p = cssPos(e);
-        beginDrag(p, "touch", hitTool(p) || "move");
+        const th = hitTool(p);
+        if (!th) return;
+        beginDrag(p, "touch", th);
       }
       function onTouchMove(e) {
         if (state.input === "pointer") return;
@@ -1260,7 +1297,7 @@
         $("phase2Acts").classList.toggle("show", n === 2);
         if (n === 1) {
           $("taskTitle").textContent = "任務一：垂直定位";
-          $("hintBar").textContent = "拖尺貼底 · ↺↻ 對齊底邊";
+          $("hintBar").textContent = "對齊貼底（±5°）· 沿直角邊拉高";
         } else {
           $("taskTitle").textContent = "任務二：底高配對";
           $("hintBar").textContent = "揀正確底高";
@@ -1319,7 +1356,9 @@
         if (q.opp != null) {
           const dFoot = dist({ x: tool.x, y: tool.y }, q.H);
           const dVert = Math.abs(cross(perp, sub(q.target, { x: tool.x, y: tool.y }))) / (len(perp) || 1);
-          if (dFoot > VERTEX_TOL || dVert > VERTEX_TOL) {
+          const reach = tool.hLen || tool.L;
+          const alongH = dot(sub(q.target, { x: tool.x, y: tool.y }), perp);
+          if (dFoot > VERTEX_TOL || dVert > VERTEX_TOL || alongH < 4 || reach < alongH - VERTEX_TOL) {
             state.missPerp += 1;
             setToast(false, "高要精準接住頂點喔！");
             sfx("bad");
