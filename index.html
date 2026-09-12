@@ -468,8 +468,8 @@
         });
         if (b) parts.push({
           short: "未延長",
-          sheet: `鈍角未延長${b}次（交點在底外）`,
-          line: `✏️ 未延長（${b}次）：交點在底外，先延長底`
+          sheet: `鈍角未延長${b}次（頂點或對邊在底外）`,
+          line: `✏️ 未延長（${b}次）：頂點或對邊在底外，先延長底`
         });
         if (c) parts.push({
           short: "底高配對",
@@ -536,7 +536,7 @@
             done: Number(r.score) || 0, avgSec: parseAvgSec(r.avgTime),
             diagnosis: diagnostic,
             perpErr: /垂直/.test(diagnostic) && /頂點|接住|對邊|接觸|通過|到達|垂線|垂直線/.test(diagnostic) ? 1 : 0,
-            obtuseErr: /延長|延伸|垂足|交點在底外/.test(diagnostic) ? 1 : 0,
+            obtuseErr: /延長|延伸|垂足|交點在底外|頂點或對邊在底外/.test(diagnostic) ? 1 : 0,
             time: r.time || "", game: r.game || r.chapter || ""
           };
         }).filter((e) => e.studentId || e.classId);
@@ -1794,7 +1794,7 @@
         }
         if (q.needExtend && !q.extended) {
           state.missObtuse += 1;
-          setToast(false, "交點在底外　先延長底");
+          setToast(false, "頂點或對邊在底外　先延長底");
           sfx("bad");
           return;
         }
