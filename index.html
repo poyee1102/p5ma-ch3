@@ -399,7 +399,7 @@
         missPerp: 0, missObtuse: 0, missPair: 0,
         q: null, tool: null, drag: null, cssW: 0, cssH: 0,
         pointers: new Map(), rotHold: null, keepToolPose: false, canvasBound: false,
-        roundKinds: null
+        roundKinds: null, heightAnimId: null
       };
 
       let audioCtx = null, countId = null, sceneCtx = null;
@@ -604,6 +604,7 @@
       }
       function endSession() {
         if (state.ended) return;
+        cancelHeightAnim();
         state.ended = true; state.remain = 0; renderTimer(); stopCountdown();
         const d = saveSession();
         sendToGoogleSheet(d);
@@ -836,7 +837,7 @@
       }
 
       function toolSize() {
-        return 104;
+        return 156;
       }
       function toolCorners(tool) {
         const L = tool.L;
@@ -1047,37 +1048,70 @@
           if (dot(on, sub(c, om)) > 0) on = mul(on, -1);
           drawTag(ctx, q.kind === "trap" ? "平行對邊" : "對邊", add(om, mul(on, 22)).x, add(om, mul(on, 22)).y, ready ? "#ff2f86" : "#1578c4");
         }
-        if (q.heightDrawn) {
-          const foot = q.heightFoot || q.H;
-          const top = q.heightTop || (isTriQ(q) ? q.target : (q.heightHit || q.target));
-          ctx.save();
-          ctx.setLineDash([6, 5]);
-          ctx.strokeStyle = "#1a8f7c";
-          ctx.lineWidth = 4;
-          ctx.beginPath(); ctx.moveTo(foot.x, foot.y); ctx.lineTo(top.x, top.y); ctx.stroke();
-          ctx.restore();
-          drawRightMark(ctx, foot, q.baseA, q.baseB, top);
+        if (q.heightDrawn || q.drawingHeight) {
+          const { foot, top } = heightEnds(q);
+          const lineT = q.heightAnim ? q.heightAnim.line : 1;
+          const markT = q.heightAnim ? q.heightAnim.mark : 1;
+          if (lineT > 0.01) {
+            const end = lerp(foot, top, lineT);
+            ctx.save();
+            ctx.lineCap = "round";
+            ctx.strokeStyle = "rgba(255,255,255,0.92)";
+            ctx.lineWidth = 10;
+            ctx.beginPath(); ctx.moveTo(foot.x, foot.y); ctx.lineTo(end.x, end.y); ctx.stroke();
+            ctx.setLineDash([8, 6]);
+            ctx.strokeStyle = "#1a8f7c";
+            ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(foot.x, foot.y); ctx.lineTo(end.x, end.y); ctx.stroke();
+            ctx.setLineDash([]);
+            if (lineT < 0.995) {
+              ctx.fillStyle = "#1a8f7c";
+              ctx.beginPath(); ctx.arc(end.x, end.y, 7, 0, Math.PI * 2); ctx.fill();
+              ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+            }
+            ctx.restore();
+          }
+          if (markT > 0) drawRightMark(ctx, foot, q.baseA, q.baseB, top, markT);
         }
       }
-      function drawRightMark(ctx, H, A, B, T) {
+      function heightEnds(q) {
+        if (isTriQ(q)) return { foot: q.H, top: q.target };
+        const foot = (q.heightFootT != null)
+          ? lerp(q.baseA, q.baseB, q.heightFootT)
+          : (q.heightFoot || q.H);
+        const top = (q.heightTopU != null && q.oppA)
+          ? lerp(q.oppA, q.oppB, q.heightTopU)
+          : (q.heightTop || q.heightHit || q.target);
+        return { foot, top };
+      }
+      function drawRightMark(ctx, H, A, B, T, t) {
+        if (t == null) t = 1;
+        if (t <= 0.01) return;
         let along = norm(sub(B, A));
         let n = { x: -along.y, y: along.x };
         if (dot(n, sub(T, H)) < 0) n = mul(n, -1);
         if (dot(along, sub(T, H)) < 0) along = mul(along, -1);
-        const m = 16;
+        const m = 18;
         const ang = Math.atan2(along.y, along.x);
         ctx.save();
         ctx.translate(H.x, H.y);
         ctx.rotate(ang);
+        const s = 0.72 + 0.28 * Math.min(1, t);
+        ctx.scale(s, s);
+        ctx.globalAlpha = Math.min(1, t * 1.5);
         ctx.strokeStyle = "#ff5eb0";
         ctx.lineWidth = 2.8;
         ctx.lineCap = "butt";
         ctx.lineJoin = "miter";
         ctx.miterLimit = 2;
         ctx.beginPath();
+        const p1 = Math.min(1, t / 0.55);
         ctx.moveTo(m, 0);
-        ctx.lineTo(m, m);
-        ctx.lineTo(0, m);
+        ctx.lineTo(m, m * p1);
+        if (t > 0.55) {
+          const p2 = Math.min(1, (t - 0.55) / 0.45);
+          ctx.lineTo(m * (1 - p2), m);
+        }
         ctx.stroke();
         ctx.restore();
       }
@@ -1110,7 +1144,8 @@
           if (dot(n, sub(c, mid)) > 0) n = mul(n, -1);
           return { text: s.cm + "cm", p: add(mid, mul(n, 26)), color: s.isBase ? "#c0392b" : "#1a3d68" };
         });
-        const hm = lerp(q.heightFoot || q.H, q.heightTop || (isTriQ(q) ? q.target : (q.heightHit || q.target)), 0.55);
+        const ends = heightEnds(q);
+        const hm = lerp(ends.foot, ends.top, 0.55);
         const hd = norm(sub(q.baseB, q.baseA));
         tags.push({ text: q.heightCm + "cm", p: add(hm, mul(hd, 18)), color: "#1a8f7c" });
         for (let k = 0; k < 4; k++) {
@@ -1214,7 +1249,7 @@
         return null;
       }
       function drawHeightPreview(ctx, tool, q) {
-        if (!tool || !q || q.phase !== 1 || q.heightDrawn) return;
+        if (!tool || !q || q.phase !== 1 || q.heightDrawn || q.drawingHeight) return;
         if (!tool.snapped) return;
         const { P, n } = heightDir(tool, q);
         const hit = heightHitInfo(tool, q);
@@ -1320,7 +1355,7 @@
         draw();
       }
       function onDown(e) {
-        if (state.ended || !state.q || state.q.phase !== 1) return;
+        if (state.ended || state.busy || !state.q || state.q.phase !== 1) return;
         if (e.pointerType === "touch") state.input = "pointer";
         const p = cssPos(e);
         state.pointers.set(e.pointerId, p);
@@ -1358,7 +1393,7 @@
       }
       function onTouchStart(e) {
         if (state.input === "pointer") return;
-        if (state.ended || !state.q || state.q.phase !== 1) return;
+        if (state.ended || state.busy || !state.q || state.q.phase !== 1) return;
         e.preventDefault();
         if (state.drag) return;
         const p = cssPos(e);
@@ -1386,7 +1421,7 @@
       }
 
       function rotateBy(deg) {
-        if (!state.tool || !state.q || state.q.phase !== 1 || state.ended) return;
+        if (!state.tool || !state.q || state.q.phase !== 1 || state.ended || state.busy) return;
         state.tool.snapped = false;
         state.tool.ang += deg * Math.PI / 180;
         trySnap();
@@ -1424,6 +1459,7 @@
       }
 
       function resetInput() {
+        cancelHeightAnim();
         stopRotHold();
         if (state.pointers) {
           state.pointers.forEach((_, id) => {
@@ -1500,7 +1536,7 @@
       }
       function updateHeightBtn() {
         const btn = $("btnHeight");
-        if (!btn || !state.q || state.q.phase !== 1) {
+        if (!btn || !state.q || state.q.phase !== 1 || state.busy || state.q.drawingHeight) {
           if (btn) { btn.hidden = true; btn.style.display = "none"; }
           return;
         }
@@ -1543,6 +1579,54 @@
         });
       }
 
+      function easeOutCubic(t) { return 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3); }
+      function easeOutBack(t) {
+        t = Math.max(0, Math.min(1, t));
+        const c = 1.70158;
+        return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2);
+      }
+      function cancelHeightAnim() {
+        if (state.heightAnimId) {
+          cancelAnimationFrame(state.heightAnimId);
+          state.heightAnimId = null;
+        }
+      }
+      function finishHeightAnim() {
+        state.heightAnimId = null;
+        const q = state.q;
+        if (!q || state.ended) return;
+        q.heightAnim = null;
+        q.drawingHeight = false;
+        q.heightDrawn = true;
+        q.phase = 2;
+        state.busy = false;
+        scene.style.pointerEvents = "auto";
+        setToast(true, "劃高成功！");
+        showPhase(2);
+        renderOptions();
+        draw();
+      }
+      function startHeightAnim() {
+        const q = state.q;
+        cancelHeightAnim();
+        q.drawingHeight = true;
+        q.heightAnim = { line: 0, mark: 0 };
+        const t0 = performance.now();
+        const LINE_MS = 560;
+        const MARK_DELAY = 400;
+        const MARK_MS = 340;
+        const TOTAL = MARK_DELAY + MARK_MS;
+        const tick = (now) => {
+          if (state.ended || state.q !== q) return;
+          const dt = now - t0;
+          q.heightAnim.line = easeOutCubic(dt / LINE_MS);
+          q.heightAnim.mark = dt < MARK_DELAY ? 0 : easeOutBack((dt - MARK_DELAY) / MARK_MS);
+          draw();
+          if (dt < TOTAL) state.heightAnimId = requestAnimationFrame(tick);
+          else finishHeightAnim();
+        };
+        state.heightAnimId = requestAnimationFrame(tick);
+      }
       function confirmHeight() {
         if (state.ended || !state.q || state.q.phase !== 1 || state.busy) return;
         const q = state.q, tool = state.tool;
@@ -1569,19 +1653,22 @@
         magnetFoot();
         if (isTriQ(q)) {
           tool.x = q.H.x; tool.y = q.H.y;
+          q.heightFootT = q.tFoot;
           q.heightFoot = { x: q.H.x, y: q.H.y };
           q.heightTop = q.target;
         } else {
+          q.heightFootT = project({ x: tool.x, y: tool.y }, q.baseA, q.baseB).t;
           q.heightFoot = { x: tool.x, y: tool.y };
           q.heightTop = q.heightHit || q.target;
+          q.heightTopU = (q.heightHit && q.oppA) ? project(q.heightHit, q.oppA, q.oppB).t : 0.5;
         }
-        q.heightDrawn = true;
-        q.phase = 2;
+        state.busy = true;
+        scene.style.pointerEvents = "none";
+        $("phase1Acts").style.display = "none";
+        updateHeightBtn();
         sfx("ok");
-        setToast(true, "劃高成功！");
-        showPhase(2);
-        renderOptions();
-        draw();
+        setToast(true, "正在劃出高線…");
+        startHeightAnim();
       }
       function syncExtendBtn() {
         const btn = $("btnExtend");
@@ -1593,7 +1680,7 @@
         btn.disabled = !!(q && q.extended);
       }
       function extendBase() {
-        if (!state.q || state.q.phase !== 1 || state.q.extended) return;
+        if (!state.q || state.q.phase !== 1 || state.q.extended || state.busy) return;
         bounce($("btnExtend"));
         state.q.extended = true;
         syncExtendBtn();
