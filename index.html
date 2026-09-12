@@ -380,8 +380,8 @@
       const STORE_KEY = "p5ma-ch3-v1";
       const TEACHER_PIN = "2246";
       const GAME_SECS = 180;
-      const ALIGN_RAD = 8 * Math.PI / 180;
-      const SNAP_DIST = 26;
+      const ALIGN_RAD = 5 * Math.PI / 180;
+      const SNAP_DIST = 14;
       const HIT_PAD = 28;
       const VERTEX_TOL = 16;
       const ROT_OFFSET = 48;
@@ -881,7 +881,7 @@
         const { P, Q, R } = toolCorners(tool);
         const dLeg = (p1, p2) => Math.min(
           distSeg(p1, seg.a, seg.b),
-          distSeg(lerp(p1, p2, 0.28), seg.a, seg.b)
+          distSeg(lerp(p1, p2, 0.16), seg.a, seg.b)
         );
         const dAlong = dLeg(P, Q);
         const dPerp = dLeg(P, R);
