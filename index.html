@@ -380,10 +380,10 @@
       const STORE_KEY = "p5ma-ch3-v1";
       const TEACHER_PIN = "2246";
       const GAME_SECS = 180;
-      const ALIGN_RAD = 5 * Math.PI / 180;
-      const SNAP_DIST = 36;
+      const ALIGN_RAD = 16 * Math.PI / 180;
+      const SNAP_DIST = 56;
       const HIT_PAD = 28;
-      const VERTEX_TOL = 12;
+      const VERTEX_TOL = 16;
       const ROT_OFFSET = 48;
       const ROT_R = 24;
       const TITLE = "底高偵探：尋找垂直線";
@@ -843,22 +843,34 @@
       function trySnap() {
         const q = state.q, tool = state.tool;
         if (!q || q.phase !== 1 || !tool) return;
-        const baseAng = Math.atan2(q.baseB.y - q.baseA.y, q.baseB.x - q.baseA.x);
-        const d = distLine({ x: tool.x, y: tool.y }, q.baseA, q.baseB);
-        const align = alongAlign(tool.ang, baseAng);
-        tool.near = d < SNAP_DIST + 10 && align < ALIGN_RAD + 0.04;
-        if (d < SNAP_DIST && align < ALIGN_RAD) {
+        const A = q.baseA, B = q.baseB;
+        const baseAng = Math.atan2(B.y - A.y, B.x - A.x);
+        const { P, Q, R } = toolCorners(tool);
+        const dLeg = (a, b) => Math.min(distLine(a, A, B), distLine(b, A, B), distLine(lerp(a, b, 0.5), A, B));
+        const dAlong = dLeg(P, Q);
+        const dPerp = dLeg(P, R);
+        const aAlong = alongAlign(tool.ang, baseAng);
+        const aPerp = alongAlign(tool.ang + Math.PI / 2, baseAng);
+        const alongOk = dAlong < SNAP_DIST && aAlong < ALIGN_RAD;
+        const perpOk = dPerp < SNAP_DIST && aPerp < ALIGN_RAD;
+        tool.near = alongOk || perpOk ||
+          (Math.min(dAlong, dPerp) < SNAP_DIST + 18 && Math.min(aAlong, aPerp) < ALIGN_RAD + 0.1);
+        if (alongOk || perpOk) {
           const was = tool.snapped;
-          const pr = project({ x: tool.x, y: tool.y }, q.baseA, q.baseB);
+          const pr = project(P, A, B);
           const t = clampFoot(pr.t, q);
-          const pt = lerp(q.baseA, q.baseB, t);
+          const pt = lerp(A, B, t);
           tool.x = pt.x; tool.y = pt.y;
           tool.ang = snapAngle(baseAng, pt, q.target);
           tool.snapped = true;
-          if (!was) sfx("snap");
+          if (!was) {
+            sfx("snap");
+            setToast(true, "已貼底！沿底滑，垂直邊對準頂點");
+          }
           updateHeightBtn();
-        } else if (tool.snapped && align > ALIGN_RAD + 0.12) {
+        } else if (tool.snapped && Math.min(aAlong, aPerp) > ALIGN_RAD + 0.2) {
           tool.snapped = false;
+          updateHeightBtn();
         }
       }
 
@@ -1046,7 +1058,8 @@
         placeLabels(q).forEach((t) => drawTag(ctx, t.text, t.p.x, t.p.y, t.color));
       }
       function drawTool(ctx, tool) {
-        const { P, Q, R, hyp, rotH } = toolCorners(tool);
+        const { P, Q, R, hyp, rotH, perp } = toolCorners(tool);
+        const q = state.q;
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(P.x, P.y); ctx.lineTo(Q.x, Q.y); ctx.lineTo(R.x, R.y); ctx.closePath();
@@ -1070,6 +1083,26 @@
         ctx.lineTo(1, m);
         ctx.stroke();
         ctx.restore();
+        if (tool.snapped && q && q.phase === 1 && !q.heightDrawn) {
+          const aim = q.target || q.H;
+          let hLen = tool.L * 1.35;
+          const ahead = dot(sub(aim, P), perp);
+          if (ahead > 12) hLen = Math.max(hLen, ahead);
+          const tip = add(P, mul(perp, hLen));
+          const ready = tool.ready;
+          ctx.save();
+          ctx.setLineDash(ready ? [] : [8, 6]);
+          ctx.strokeStyle = ready ? "#1a8f7c" : "rgba(26,143,124,0.75)";
+          ctx.lineWidth = ready ? 5 : 3.5;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(P.x, P.y);
+          ctx.lineTo(tip.x, tip.y);
+          ctx.stroke();
+          ctx.restore();
+          ctx.fillStyle = ready ? "#ff2f86" : "#1a8f7c";
+          ctx.beginPath(); ctx.arc(tip.x, tip.y, ready ? 6 : 5, 0, Math.PI * 2); ctx.fill();
+        }
         ctx.strokeStyle = "rgba(228,184,42,0.7)";
         ctx.lineWidth = 2;
         ctx.setLineDash([3, 3]);
@@ -1098,7 +1131,6 @@
         ctx.fillStyle = "#5a2a00";
         ctx.fill();
         ctx.restore();
-        const q = state.q;
         if (q && q.opp != null && tool.snapped) {
           const dEdge = distSeg(q.target, P, R);
           const dLine = Math.abs(cross(norm(sub(R, P)), sub(q.target, P)));
@@ -1168,6 +1200,7 @@
         if (drag.mode === "rot") {
           tool.snapped = false;
           tool.ang = Math.atan2(p.y - tool.y, p.x - tool.x) - (drag.angGrab || 0);
+          trySnap();
         } else if (drag.mode === "move" && tool.snapped) {
           const dir = norm(sub(q.baseB, q.baseA));
           const delta = sub(p, drag.last);
@@ -1269,7 +1302,7 @@
         $("phase2Acts").classList.toggle("show", n === 2);
         if (n === 1) {
           $("taskTitle").textContent = "任務一：垂直定位";
-          $("hintBar").textContent = "旋轉鈕轉尺 · 拖尺身貼底並對準頂點";
+          $("hintBar").textContent = "尺底貼圖底會吸附，再對準頂點撳「劃出高線」";
           updateHeightBtn();
         } else {
           $("taskTitle").textContent = "任務二：底高配對";
