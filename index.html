@@ -78,23 +78,22 @@
     .ghost { background: #fff; color: var(--soft); box-shadow: 0 5px 0 #ecd6de; }
     .sq { width: 52px; flex: 0 0 52px !important; padding: 0; font-size: 22px; border-radius: 16px; }
 
-    #screen-login { align-items: center; justify-content: center; gap: 2px; }
-    .login { width: min(400px, 100%); padding: 18px 18px 14px; text-align: center; }
+    #screen-login { align-items: center; justify-content: center; }
+    .login { width: min(400px, 100%); padding: 22px 18px 16px; text-align: center; }
     .mascot {
       width: 72px; height: 72px; margin: 0 auto 6px; border-radius: 50%;
       display: grid; place-items: center; font-size: 36px; background: #fff;
       box-shadow: 0 8px 0 #ffc2e0;
-      animation: floaty 2.6s ease-in-out infinite;
+      animation: floaty 2.8s ease-in-out infinite;
     }
     .title {
       font-family: "Fredoka", "Noto Sans TC", sans-serif;
-      font-size: clamp(22px, 5.2vw, 36px); font-weight: 900; letter-spacing: 0.04em;
-      margin: 0 0 12px; line-height: 1.35; padding: 0;
-      color: #ffffff;
-      background: none; border: 0; border-radius: 0; box-shadow: none;
-      text-shadow: 0 3px 0 #3b1d6e, 0 6px 0 #24124a, 2px 4px 10px rgba(40, 16, 80, 0.35);
+      font-size: clamp(22px, 5vh, 34px); font-weight: 900; letter-spacing: 0.04em;
+      margin-bottom: 14px; line-height: 1.25;
+      background: none; border: 0; box-shadow: none; padding: 0; text-shadow: none;
     }
-    .title span { display: inline-block; color: #fff; }
+    .title span:nth-child(odd) { color: var(--pink-deep); }
+    .title span:nth-child(even) { color: var(--lilac-deep); }
     .field { text-align: left; margin-bottom: 10px; }
     .field label { display: block; font-weight: 900; font-size: 15px; margin-bottom: 4px; }
     .field input {
@@ -283,9 +282,9 @@
   <canvas id="confetti"></canvas>
   <div class="app">
     <section id="screen-login" class="screen active">
-      <div class="mascot">🔍</div>
-      <h1 class="title" id="titleWave"></h1>
       <div class="card login">
+        <div class="mascot">🔍</div>
+        <h1 class="title" id="titleWave"></h1>
         <div class="field">
           <label for="classId">班別</label>
           <input id="classId" maxlength="8" placeholder="5A" autocomplete="off" />
@@ -419,7 +418,7 @@
         el.classList.add("bounce");
       }
       $("titleWave").innerHTML = [...TITLE].map((ch, i) =>
-        `<span style="animation:floaty 2.6s ${i * 0.06}s ease-in-out infinite">${ch}</span>`
+        `<span style="display:inline-block;animation:floaty 2.4s ${i * 0.08}s ease-in-out infinite">${ch}</span>`
       ).join("");
 
       function loadStore() {
