@@ -1083,26 +1083,6 @@
         ctx.lineTo(1, m);
         ctx.stroke();
         ctx.restore();
-        if (tool.snapped && q && q.phase === 1 && !q.heightDrawn) {
-          const aim = q.target || q.H;
-          let hLen = tool.L * 1.35;
-          const ahead = dot(sub(aim, P), perp);
-          if (ahead > 12) hLen = Math.max(hLen, ahead);
-          const tip = add(P, mul(perp, hLen));
-          const ready = tool.ready;
-          ctx.save();
-          ctx.setLineDash(ready ? [] : [8, 6]);
-          ctx.strokeStyle = ready ? "#1a8f7c" : "rgba(26,143,124,0.75)";
-          ctx.lineWidth = ready ? 5 : 3.5;
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.moveTo(P.x, P.y);
-          ctx.lineTo(tip.x, tip.y);
-          ctx.stroke();
-          ctx.restore();
-          ctx.fillStyle = ready ? "#ff2f86" : "#1a8f7c";
-          ctx.beginPath(); ctx.arc(tip.x, tip.y, ready ? 6 : 5, 0, Math.PI * 2); ctx.fill();
-        }
         ctx.strokeStyle = "rgba(228,184,42,0.7)";
         ctx.lineWidth = 2;
         ctx.setLineDash([3, 3]);
@@ -1142,6 +1122,33 @@
         }
         ctx.restore();
       }
+      function drawHeightPreview(ctx, tool, q) {
+        if (!tool || !q || q.phase !== 1 || q.heightDrawn) return;
+        if (!tool.snapped && !tool.near) return;
+        const { P, perp } = toolCorners(tool);
+        const aim = q.target || q.H;
+        let n = perp;
+        if (dot(n, sub(aim, P)) < 0) n = mul(n, -1);
+        const start = add(P, mul(n, tool.L * 0.88));
+        let rayLen = tool.L + 160;
+        const ahead = dot(sub(aim, P), n);
+        if (ahead > 10) rayLen = Math.max(rayLen, ahead + 28);
+        const tip = add(P, mul(n, rayLen));
+        ctx.save();
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "rgba(255,255,255,0.95)";
+        ctx.lineWidth = 12;
+        ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(tip.x, tip.y); ctx.stroke();
+        ctx.setLineDash([14, 9]);
+        ctx.strokeStyle = tool.ready ? "#ff2f86" : "#00c853";
+        ctx.lineWidth = 7;
+        ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(tip.x, tip.y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = tool.ready ? "#ff2f86" : "#00c853";
+        ctx.beginPath(); ctx.arc(tip.x, tip.y, 9, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.restore();
+      }
       function draw() {
         const ctx = sceneCtx, q = state.q, w = state.cssW, h = state.cssH;
         if (!ctx || !w) return;
@@ -1149,7 +1156,10 @@
         if (!q) return;
         drawPoly(ctx, q);
         if (q.phase === 2) drawLabels(ctx, q);
-        if (q.phase === 1 && state.tool) drawTool(ctx, state.tool);
+        if (q.phase === 1 && state.tool) {
+          drawTool(ctx, state.tool);
+          drawHeightPreview(ctx, state.tool, q);
+        }
       }
 
       function cssPos(e) {
