@@ -1123,7 +1123,11 @@
       function cssPos(e) {
         const src = e.touches && e.touches[0] ? e.touches[0] : (e.changedTouches && e.changedTouches[0] ? e.changedTouches[0] : e);
         const r = scene.getBoundingClientRect();
-        return { x: src.clientX - r.left, y: src.clientY - r.top };
+        const w = r.width || 1, h = r.height || 1;
+        return {
+          x: (src.clientX - r.left) * ((state.cssW || w) / w),
+          y: (src.clientY - r.top) * ((state.cssH || h) / h)
+        };
       }
       function touchPair(e) {
         const list = e.touches && e.touches.length ? e.touches : e.changedTouches;
@@ -1380,6 +1384,7 @@
         if (state.ended) return;
         resetInput();
         state.keepToolPose = false;
+        state.needCenterTool = true;
         state.tool = null;
         scene.style.pointerEvents = "auto";
         state.qStart = Date.now();
@@ -1388,19 +1393,20 @@
         $("qPill").textContent = `第 ${state.qIndex} 題`;
         const local = finishLocal(genLocal());
         state.q = { local, phase: 1, extended: false, heightDrawn: false };
-        layoutCanvas();
-        if (state.cssW < 40) {
-          requestAnimationFrame(newQuestion);
-          return;
-        }
-        placeTool();
-        scene.style.pointerEvents = "auto";
-        state.keepToolPose = true;
         $("taskKind").textContent = state.q.name;
         $("btnExtend").style.display = state.q.needExtend ? "inline-flex" : "none";
         $("btnExtend").disabled = false;
         showPhase(1);
-        draw();
+        requestAnimationFrame(() => {
+          if (state.ended || !state.q || state.q.phase !== 1) return;
+          layoutCanvas();
+          placeTool();
+          scene.style.pointerEvents = "auto";
+          state.needCenterTool = false;
+          state.keepToolPose = true;
+          updateHeightBtn();
+          draw();
+        });
       }
 
       function confirmHeight() {
@@ -1752,10 +1758,24 @@
       resizeConfetti();
       window.addEventListener("resize", () => {
         resizeConfetti();
-        if (screens.game.classList.contains("active")) { layoutCanvas(); draw(); }
+        if (screens.game.classList.contains("active")) {
+          layoutCanvas();
+          if (state.needCenterTool) placeTool();
+          draw();
+        }
       });
 
       bindCanvas();
+      if (window.ResizeObserver && $("board")) {
+        new ResizeObserver(() => {
+          if (!screens.game.classList.contains("active")) return;
+          if (!state.q) return;
+          layoutCanvas();
+          if (state.needCenterTool || !state.tool) placeTool();
+          if (state.q.phase === 1) updateHeightBtn();
+          draw();
+        }).observe($("board"));
+      }
 
       function bindRot(btn, deg) {
         btn.addEventListener("pointerdown", (e) => { e.preventDefault(); startRotHold(deg); });
