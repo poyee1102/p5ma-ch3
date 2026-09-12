@@ -462,15 +462,15 @@
         if (a + b + c === 0) return { short: "零失誤", sheet: "零失誤", tip: TIP_PERFECT };
         const parts = [];
         if (a) parts.push({
-          sheet: `高未垂直${a}次`,
+          sheet: `高未垂直：未由底畫垂直線到頂點或對邊（${a}次）`,
           line: `📐 高未垂直（${a}次）：由底畫垂直線到頂點或對邊`
         });
         if (b) parts.push({
-          sheet: `未延長${b}次`,
+          sheet: `未延長：頂點或對邊在底外（${b}次）`,
           line: `✏️ 未延長（${b}次）：頂點或對邊在底外，先延長底`
         });
         if (c) parts.push({
-          sheet: `底高配對${c}次`,
+          sheet: `底高配對：底與高未成對（${c}次）`,
           line: `🧩 底高配對（${c}次）：底與高須成對`
         });
         const sheet = parts.map((p) => p.sheet).join("；");
