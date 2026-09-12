@@ -4,19 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="底高偵探" />
+  <meta name="apple-mobile-web-app-title" content="底高偵探：尋找垂直線" />
   <title>底高偵探：尋找垂直線</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --navy: #071526; --navy-2: #0d2748;
-      --sky: #3db4ff; --sky-deep: #1578c4;
-      --gold: #f0c14b; --gold-deep: #c4921a;
-      --teal: #2fd3b6; --teal-deep: #1a8f7c;
-      --ink: #10243f; --soft: #5b7394;
-      --paper: #f3f7ff;
+      --pink: #ff7eb6; --pink-deep: #ee4d93;
+      --sky: #5cc8ff; --sky-deep: #2a9adf;
+      --lemon: #ffe066; --lemon-deep: #e4b82a;
+      --lilac: #c9b6ff; --lilac-deep: #9b7af0;
+      --mint: #7eecc8; --mint-deep: #3cbc9a;
+      --ink: #3b2a55; --soft: #7a6588;
       --safe-t: env(safe-area-inset-top, 0px);
       --safe-b: env(safe-area-inset-bottom, 0px);
       --safe-l: env(safe-area-inset-left, 0px);
@@ -29,11 +29,30 @@
       font-family: "Noto Sans TC", "PingFang HK", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at 12% 8%, rgba(61,180,255,0.22), transparent 30%),
-        radial-gradient(circle at 90% 92%, rgba(240,193,75,0.12), transparent 28%),
-        linear-gradient(165deg, #06111f 0%, #0c2342 48%, #08182c 100%);
+        radial-gradient(circle at 8% 18%, #ffd6f0 0 18%, transparent 19%),
+        radial-gradient(circle at 88% 12%, #cce8ff 0 16%, transparent 17%),
+        radial-gradient(circle at 78% 82%, #e4d7ff 0 20%, transparent 21%),
+        radial-gradient(circle at 18% 88%, #d4ffe8 0 14%, transparent 15%),
+        linear-gradient(165deg, #eef6ff 0%, #f3e9ff 42%, #ffeaf6 72%, #e9fff7 100%);
       user-select: none;
     }
+    .fun-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .fun-bg i { position: absolute; display: block; }
+    .cloud {
+      width: 86px; height: 32px; background: rgba(255,255,255,0.78); border-radius: 40px;
+      animation: floaty 5s ease-in-out infinite;
+    }
+    .cloud::before, .cloud::after {
+      content: ""; position: absolute; background: rgba(255,255,255,0.78); border-radius: 50%;
+    }
+    .cloud::before { width: 34px; height: 34px; left: 14px; top: -16px; }
+    .cloud::after { width: 46px; height: 46px; left: 36px; top: -22px; }
+    .star { color: #ffd93d; font-style: normal; font-size: 22px; animation: floaty 3.4s ease-in-out infinite; text-shadow: 0 2px 0 #fff; }
+    .tri {
+      width: 0; height: 0; border-left: 11px solid transparent; border-right: 11px solid transparent;
+      border-bottom: 18px solid rgba(255,126,182,0.4); animation: floaty 4.2s ease-in-out infinite;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(92,200,255,0.45); animation: floaty 3.8s ease-in-out infinite; }
     button, input { font-family: inherit; }
     button { cursor: pointer; touch-action: manipulation; }
     input { user-select: text; -webkit-user-select: text; }
@@ -46,18 +65,19 @@
     .shake { animation: shake 0.4s ease; }
 
     .app {
+      position: relative; z-index: 1;
       height: 100%; width: 100%; overflow: hidden; display: flex;
-      padding: calc(8px + var(--safe-t)) calc(12px + var(--safe-r)) calc(8px + var(--safe-b)) calc(12px + var(--safe-l));
+      padding: calc(6px + var(--safe-t)) calc(8px + var(--safe-r)) calc(6px + var(--safe-b)) calc(8px + var(--safe-l));
     }
     .screen {
-      display: none; width: min(1080px, 100%); margin: 0 auto;
+      display: none; width: min(1280px, 100%); margin: 0 auto;
       height: 100%; min-height: 0; flex-direction: column; overflow: hidden;
       animation: popIn 0.35s ease;
     }
     .screen.active { display: flex; }
     .card {
-      background: rgba(243,247,255,0.96); border: 2px solid rgba(61,180,255,0.35); border-radius: 24px;
-      box-shadow: 0 16px 36px rgba(0, 16, 40, 0.35); min-height: 0; color: var(--ink);
+      background: rgba(255,255,255,0.92); border: 3px solid #fff; border-radius: 26px;
+      box-shadow: 0 14px 30px rgba(155, 122, 240, 0.18); min-height: 0; color: var(--ink);
     }
     .candy {
       border: 0; border-radius: 999px; font-weight: 900; padding: 10px 18px;
@@ -66,35 +86,39 @@
     .candy:hover { filter: brightness(1.05); }
     .candy:active { transform: translateY(4px) scale(0.96); box-shadow: 0 2px 0 rgba(0,0,0,0.18) !important; animation: bounce 0.3s ease; }
     .candy:disabled { filter: saturate(0.55); pointer-events: none; }
-    .sky { background: var(--sky); color: #06233d; box-shadow: 0 6px 0 var(--sky-deep); }
-    .gold { background: var(--gold); color: #3a2a08; box-shadow: 0 6px 0 var(--gold-deep); }
-    .teal { background: var(--teal); color: #05362e; box-shadow: 0 6px 0 var(--teal-deep); }
-    .navy { background: #1a3d68; color: #eaf5ff; box-shadow: 0 6px 0 #0d2748; }
-    .ghost { background: #fff; color: var(--soft); box-shadow: 0 5px 0 #c5d6ee; }
+    .sky { background: var(--sky); color: #0a3a5c; box-shadow: 0 6px 0 var(--sky-deep); }
+    .pink { background: var(--pink); color: #fff; box-shadow: 0 6px 0 var(--pink-deep); }
+    .lemon { background: var(--lemon); color: var(--ink); box-shadow: 0 6px 0 var(--lemon-deep); }
+    .mint { background: var(--mint); color: #165f4c; box-shadow: 0 6px 0 var(--mint-deep); }
+    .lilac { background: var(--lilac); color: #fff; box-shadow: 0 6px 0 var(--lilac-deep); }
+    .ghost { background: #fff; color: var(--soft); box-shadow: 0 5px 0 #ecd6de; }
     .sq { width: 52px; flex: 0 0 52px !important; padding: 0; font-size: 22px; border-radius: 16px; }
 
     #screen-login { align-items: center; justify-content: center; }
-    .login { width: min(400px, 100%); padding: 22px 22px 16px; text-align: center; }
+    .login { width: min(460px, 100%); padding: 20px 18px 16px; text-align: center; }
     .mascot {
-      width: 76px; height: 76px; margin: 0 auto 6px; border-radius: 50%;
-      display: grid; place-items: center; font-size: 34px; background: #10243f; color: var(--gold);
-      border: 3px solid var(--gold); box-shadow: 0 8px 0 #0a1a30; animation: floaty 2.8s ease-in-out infinite;
+      width: 68px; height: 68px; margin: 0 auto 8px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 32px; background: #fff;
+      box-shadow: 0 8px 0 #ffc2e0; animation: floaty 2.8s ease-in-out infinite;
     }
     .title {
       font-family: "Fredoka", "Noto Sans TC", sans-serif;
-      font-size: clamp(26px, 5.2vh, 40px); font-weight: 900; letter-spacing: 0.04em;
-      margin-bottom: 2px; line-height: 1.15;
+      font-size: clamp(18px, 4.4vw, 32px); font-weight: 900; letter-spacing: 0.01em;
+      margin: 0 0 12px; line-height: 1.4;
     }
-    .title span:nth-child(odd) { color: #1578c4; }
-    .title span:nth-child(even) { color: #c4921a; }
-    .tagline { font-weight: 800; color: var(--soft); font-size: 15px; margin-bottom: 12px; line-height: 1.45; }
+    .title span {
+      display: inline-block;
+      -webkit-text-stroke: 4px #fff;
+      paint-order: stroke fill;
+      text-shadow: 0 3px 0 #fff;
+    }
     .field { text-align: left; margin-bottom: 10px; }
     .field label { display: block; font-weight: 900; font-size: 15px; margin-bottom: 4px; }
     .field input {
-      width: 100%; border: 3px solid #cfe6ff; border-radius: 16px;
+      width: 100%; border: 3px solid #ffe1ec; border-radius: 16px;
       padding: 10px 12px; font-size: 18px; font-weight: 800; outline: none; background: #fff;
     }
-    .field input:focus { border-color: var(--sky); }
+    .field input:focus { border-color: var(--pink); }
     .start { width: 100%; font-size: 22px; padding: 12px; margin: 6px 0 10px; }
     .teacher-btn {
       width: 64px; height: 64px; border-radius: 50%; font-size: 13px; line-height: 1.15;
@@ -103,36 +127,33 @@
 
     .topbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; margin-bottom: 8px; }
     .pill {
-      background: rgba(243,247,255,0.92); color: var(--ink); border-radius: 999px; padding: 6px 12px;
-      font-weight: 800; font-size: 14px; box-shadow: 0 4px 0 #0a1c33; white-space: nowrap;
+      background: #fff; color: var(--ink); border-radius: 999px; padding: 6px 12px;
+      font-weight: 800; font-size: 14px; box-shadow: 0 4px 0 #f0d7e2; white-space: nowrap;
     }
     .timer { font-variant-numeric: tabular-nums; background: #fff4cc; min-width: 92px; text-align: center; }
     .timer.low { background: #ffd0d8; color: #b42318; }
     .tiny { padding: 6px 12px; font-size: 13px; }
 
-    .play { flex: 1; min-height: 0; overflow: hidden; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .play { flex: 1; min-height: 0; overflow: hidden; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
     .task-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-shrink: 0; }
-    .task-h h2 { font-size: clamp(16px, 2.5vh, 22px); line-height: 1.3; }
+    .task-h h2 { font-size: clamp(15px, 2.2vh, 20px); line-height: 1.3; }
     .task-h p { font-size: 13px; font-weight: 900; color: var(--soft); white-space: nowrap; }
     .hintbar {
-      flex-shrink: 0; font-size: 13px; font-weight: 800; color: #0d3a66;
-      background: #dcebff; border-radius: 12px; padding: 6px 10px; text-align: center;
+      flex-shrink: 0; font-size: 12px; font-weight: 800; color: #5a4a72;
+      background: #f4edff; border-radius: 12px; padding: 4px 10px; text-align: center;
     }
     .board {
       flex: 1; min-height: 0; position: relative;
       display: flex; align-items: stretch; justify-content: center;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.5), rgba(210,230,255,0.35)),
-        repeating-linear-gradient(0deg, transparent 0 19px, rgba(21,120,196,0.07) 19px 20px),
-        repeating-linear-gradient(90deg, transparent 0 19px, rgba(21,120,196,0.07) 19px 20px),
-        #eaf3ff;
+      background: linear-gradient(180deg, #fff, #f7f4ff);
       border-radius: 22px; overflow: hidden;
-      box-shadow: inset 0 0 0 2px rgba(21,120,196,0.28);
+      box-shadow: inset 0 0 0 2px rgba(201, 182, 255, 0.4);
+      touch-action: none;
     }
     .board::before, .board::after {
-      content: ""; position: absolute; width: 44px; height: 14px; z-index: 2; pointer-events: none;
-      background: rgba(240,193,75,0.9); border-radius: 2px;
-      box-shadow: 0 2px 0 rgba(196,146,26,0.4);
+      content: ""; position: absolute; width: 36px; height: 12px; z-index: 2; pointer-events: none;
+      background: rgba(255, 224, 102, 0.88); border-radius: 2px;
+      box-shadow: 0 2px 0 rgba(228, 184, 42, 0.35);
     }
     .board::before { top: 10px; left: 14px; transform: rotate(-18deg); }
     .board::after { top: 12px; right: 16px; transform: rotate(16deg); }
@@ -150,53 +171,53 @@
       font-weight: 900; font-size: 15px; text-align: center; line-height: 1.4;
     }
     .toast.show { display: block; }
-    .toast.good { background: #d9fff4; border: 2px solid #2fd3b6; color: #0a5c4c; }
-    .toast.bad { background: #ffe8ec; border: 2px solid #ff8a9a; color: #a11b32; }
+    .toast.good { background: #e4faf2; border: 2px solid #7eecc8; color: #165f4c; }
+    .toast.bad { background: #fff1f1; border: 2px solid #ffb4b4; color: #b42318; }
 
     .report {
-      position: fixed; inset: 0; background: rgba(6, 17, 31, 0.55);
+      position: fixed; inset: 0; background: rgba(59, 42, 85, 0.42);
       display: none; place-items: center; z-index: 25; padding: 16px;
     }
     .report.show { display: grid; }
     .report-card {
-      width: min(520px, 100%); background: #f3f7ff; border-radius: 32px;
-      padding: 22px 20px 18px; text-align: center; border: 4px solid #f0c14b;
-      box-shadow: 0 18px 40px rgba(0, 16, 40, 0.4); animation: popIn 0.4s ease; color: var(--ink);
+      width: min(520px, 100%); background: #fff; border-radius: 32px;
+      padding: 22px 20px 18px; text-align: center; border: 4px solid #fff;
+      box-shadow: 0 18px 40px rgba(255, 126, 182, 0.28); animation: popIn 0.4s ease; color: var(--ink);
     }
     .report-card h2 { font-size: clamp(22px, 3.4vh, 28px); margin: 8px 0 10px; }
     .report-card p { font-weight: 800; line-height: 1.55; margin: 8px 0; font-size: 16px; }
     .tip {
-      background: #dcebff; border-radius: 18px; padding: 12px 14px; margin: 12px 0 16px;
+      background: #f4edff; border-radius: 18px; padding: 12px 14px; margin: 12px 0 16px;
       font-weight: 800; line-height: 1.6; text-align: left;
     }
 
     .dash-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-shrink: 0; margin-bottom: 8px; }
-    .dash-h h1 { font-family: "Fredoka", "Noto Sans TC", sans-serif; font-size: clamp(20px, 3vh, 28px); color: #eaf5ff; }
+    .dash-h h1 { font-family: "Fredoka", "Noto Sans TC", sans-serif; font-size: clamp(20px, 3vh, 28px); color: var(--ink); }
     .dash-h .acts { display: flex; gap: 8px; margin: 0; }
     .dash { flex: 1; min-height: 0; overflow: hidden; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
     .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex-shrink: 0; }
     .stat { border-radius: 16px; padding: 10px; }
     .stat b { display: block; font-size: 12px; opacity: 0.8; }
     .stat strong { font-size: clamp(16px, 2.6vh, 24px); display: block; line-height: 1.2; }
-    .s1 { background: #dcebff; } .s2 { background: #d9fff4; } .s3 { background: #fff4cc; }
+    .s1 { background: #ffe1ea; } .s2 { background: #d9f8ee; } .s3 { background: #efe6ff; }
     .tools { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; gap: 8px; flex-wrap: wrap; }
-    .tools select, .tools button.tiny { border: 2px solid #cfe6ff; border-radius: 12px; padding: 4px 8px; font-weight: 800; background: #fff; }
+    .tools select, .tools button.tiny { border: 2px solid #ffe1ec; border-radius: 12px; padding: 4px 8px; font-weight: 800; background: #fff; }
     .tool-filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .dash-src { font-size: 12px; font-weight: 800; color: var(--soft); }
     .dash-count { font-size: 12px; font-weight: 800; color: var(--soft); }
     .records { flex: 1; min-height: 0; overflow: auto; }
     table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; }
     th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(16,36,63,0.08); font-size: 12px; }
-    th { background: #dcebff; position: sticky; top: 0; z-index: 2; white-space: nowrap; }
+    th { background: #fff3f8; position: sticky; top: 0; z-index: 2; white-space: nowrap; }
     th.col-h { padding-right: 4px; }
     .col-sort { border: 0; background: transparent; font: inherit; font-weight: 900; cursor: pointer; padding: 0; }
-    th.sorted .col-sort { color: #1578c4; }
+    th.sorted .col-sort { color: #ee4d93; }
     .filter-btn {
-      border: 0; background: #cfe6ff; color: var(--ink); cursor: pointer;
+      border: 0; background: #ffe1ec; color: var(--ink); cursor: pointer;
       border-radius: 8px; width: 22px; height: 22px; margin-left: 4px;
       font-size: 12px; font-weight: 900; line-height: 1; vertical-align: middle;
     }
-    .filter-btn.on { background: var(--sky); color: #06233d; }
+    .filter-btn.on { background: var(--pink); color: #fff; }
     .score-cell { font-variant-numeric: tabular-nums; font-weight: 900; text-align: center; }
     th.score-h, td.rank-cell { text-align: center; font-variant-numeric: tabular-nums; }
     tr.hi .score-cell { color: #1a8f7c; }
@@ -205,7 +226,7 @@
     .filter-menu {
       position: fixed; z-index: 30; width: min(280px, calc(100vw - 16px));
       background: #fff; border-radius: 18px; padding: 10px;
-      box-shadow: 0 16px 36px rgba(7,21,38,0.28); border: 2px solid #cfe6ff;
+      box-shadow: 0 16px 36px rgba(59,42,85,0.24); border: 2px solid #ffe1ec;
       display: none; flex-direction: column; gap: 8px; max-height: min(420px, 70vh);
     }
     .filter-menu.show { display: flex; }
@@ -213,21 +234,21 @@
     .filter-menu .fm-acts { display: flex; gap: 6px; flex-wrap: wrap; }
     .filter-menu .fm-acts button {
       border: 0; border-radius: 999px; font-weight: 900; padding: 6px 10px; font-size: 12px;
-      background: #dcebff; color: var(--ink); cursor: pointer;
+      background: #f6f0ff; color: var(--ink); cursor: pointer;
     }
     .filter-menu input[type="search"] {
-      width: 100%; border: 2px solid #cfe6ff; border-radius: 12px;
+      width: 100%; border: 2px solid #ffe1ec; border-radius: 12px;
       padding: 6px 8px; font-weight: 800; font-size: 14px;
     }
     .filter-menu .opts { overflow: auto; text-align: left; flex: 1; min-height: 80px; }
     .filter-menu label { display: flex; gap: 8px; align-items: flex-start; padding: 5px 2px; font-weight: 800; font-size: 13px; cursor: pointer; }
     .filter-menu label input { margin-top: 2px; }
 
-    .modal { position: fixed; inset: 0; background: rgba(6,17,31,0.5); display: none; place-items: center; z-index: 20; padding: 16px; }
+    .modal { position: fixed; inset: 0; background: rgba(59,42,85,0.4); display: none; place-items: center; z-index: 20; padding: 16px; }
     .modal.show { display: grid; }
-    .modal-card { width: min(360px, 100%); background: #f3f7ff; border-radius: 24px; padding: 18px; text-align: center; color: var(--ink); }
+    .modal-card { width: min(360px, 100%); background: #fff; border-radius: 24px; padding: 18px; text-align: center; color: var(--ink); }
     .modal-card input {
-      width: 100%; border: 3px solid #cfe6ff; border-radius: 14px;
+      width: 100%; border: 3px solid #ffe1ec; border-radius: 14px;
       padding: 10px; font-size: 20px; font-weight: 800; text-align: center; margin: 10px 0;
     }
     canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
@@ -247,13 +268,27 @@
   </style>
 </head>
 <body>
+  <div class="fun-bg" aria-hidden="true">
+    <i class="cloud" style="left:6%;top:10%"></i>
+    <i class="cloud" style="right:8%;top:22%;animation-delay:.6s;transform:scale(.8)"></i>
+    <i class="cloud" style="left:18%;bottom:12%;animation-delay:1.1s;transform:scale(1.1)"></i>
+    <i class="star" style="left:12%;top:36%">★</i>
+    <i class="star" style="right:16%;top:8%;animation-delay:.4s">★</i>
+    <i class="star" style="right:28%;bottom:18%;animation-delay:.9s">✦</i>
+    <i class="star" style="left:40%;top:6%;animation-delay:1.3s">★</i>
+    <i class="tri" style="left:8%;bottom:28%"></i>
+    <i class="tri" style="right:10%;bottom:32%;border-bottom-color:rgba(92,200,255,.4);animation-delay:.5s"></i>
+    <i class="tri" style="left:52%;bottom:8%;border-bottom-color:rgba(201,182,255,.45);animation-delay:1s"></i>
+    <i class="dot" style="left:30%;top:20%"></i>
+    <i class="dot" style="right:22%;top:42%;background:rgba(255,126,182,.4)"></i>
+    <i class="dot" style="left:62%;top:14%;background:rgba(126,236,200,.5)"></i>
+  </div>
   <canvas id="confetti"></canvas>
   <div class="app">
     <section id="screen-login" class="screen active">
       <div class="card login">
-        <div class="mascot">🛡️</div>
+        <div class="mascot">🔎</div>
         <h1 class="title" id="titleWave"></h1>
-        <p class="tagline">尋找垂直線 · 高 ⊥ 底</p>
         <div class="field">
           <label for="classId">班別</label>
           <input id="classId" maxlength="8" placeholder="5A" autocomplete="off" />
@@ -262,8 +297,8 @@
           <label for="studentId">學號</label>
           <input id="studentId" maxlength="6" placeholder="01" inputmode="numeric" autocomplete="off" />
         </div>
-        <button class="candy gold start" id="startBtn">開始任務</button>
-        <button class="candy navy teacher-btn" id="teacherBtn">老師<br>後台</button>
+        <button class="candy pink start" id="startBtn">開始任務</button>
+        <button class="candy lilac teacher-btn" id="teacherBtn">老師<br>後台</button>
       </div>
     </section>
 
@@ -286,8 +321,8 @@
         <div class="toast" id="feedToast"></div>
         <div class="choice-row" id="phase1Acts">
           <button class="candy ghost sq" id="btnRotL" aria-label="左轉">↺</button>
-          <button class="candy gold" id="btnExtend">➕ 延伸底邊</button>
-          <button class="candy teal" id="btnHeight">確定劃高</button>
+          <button class="candy lemon" id="btnExtend">➕ 延伸底邊</button>
+          <button class="candy mint" id="btnHeight">確定劃高</button>
           <button class="candy ghost sq" id="btnRotR" aria-label="右轉">↻</button>
         </div>
         <div class="opt-col" id="phase2Acts"></div>
@@ -298,7 +333,7 @@
       <div class="dash-h">
         <h1>老師後台</h1>
         <div class="acts no-print">
-          <button class="candy gold tiny" id="printBtn">列印</button>
+          <button class="candy lemon tiny" id="printBtn">列印</button>
           <button class="candy sky tiny" id="refreshDashBtn">重新整理</button>
           <button class="candy ghost tiny" id="dashBackBtn">返回</button>
         </div>
@@ -324,7 +359,7 @@
       <h2>成績診斷卡</h2>
       <p id="reportScore"></p>
       <div class="tip" id="reportTip"></div>
-      <button class="candy gold" id="reportBackBtn">完成</button>
+      <button class="candy pink" id="reportBackBtn">完成</button>
     </div>
   </div>
 
@@ -336,7 +371,7 @@
       <input id="pinInput" type="password" maxlength="8" inputmode="numeric" autocomplete="off" />
       <div class="choice-row">
         <button class="candy ghost" id="pinCancel">取消</button>
-        <button class="candy navy" id="pinOk">確認</button>
+        <button class="candy lilac" id="pinOk">確認</button>
       </div>
     </div>
   </div>
@@ -350,8 +385,11 @@
       const TEACHER_PIN = "2246";
       const GAME_SECS = 180;
       const ALIGN_RAD = 14 * Math.PI / 180;
-      const SNAP_DIST = 38;
-      const HIT_PAD = 26;
+      const SNAP_DIST = 42;
+      const HIT_PAD = 36;
+      const VERTEX_TOL = 5;
+      const TITLE = "底高偵探：尋找垂直線";
+      const TITLE_COLORS = ["#ff5eb0", "#3ec6ff", "#ffd93d"];
       const TIP_PERP = "💡 偵探提醒：記得高要和底「垂直」，並接住頂點喔！";
       const TIP_OBTUSE = "💡 偵探提醒：鈍角三角形的高可能在外面，記得先延伸底邊喔！";
       const TIP_PAIR = "💡 偵探提醒：底與高要成對，唔好把 A 底配去 B 高喔！";
@@ -382,8 +420,8 @@
         void el.offsetWidth;
         el.classList.add("bounce");
       }
-      $("titleWave").innerHTML = [..."底高偵探"].map((ch, i) =>
-        `<span style="display:inline-block;animation:floaty 2.4s ${i * 0.08}s ease-in-out infinite">${ch}</span>`
+      $("titleWave").innerHTML = [...TITLE].map((ch, i) =>
+        `<span style="color:${TITLE_COLORS[i % 3]};animation:floaty 2.6s ${i * 0.05}s ease-in-out infinite">${ch}</span>`
       ).join("");
 
       function loadStore() {
@@ -723,13 +761,13 @@
         const target = local.opp != null ? verts[local.opp]
           : lerp(verts[local.oppEdge[0]], verts[local.oppEdge[1]], 0.5);
         const pr0 = project(target, A, B);
-        const all = verts.concat([pr0.pt, lerp(A, B, pr0.t < 0 ? pr0.t - 0.15 : 0), lerp(A, B, pr0.t > 1 ? pr0.t + 0.15 : 1)]);
+        const all = verts.concat([pr0.pt]);
         let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
         all.forEach((p) => {
           minx = Math.min(minx, p.x); miny = Math.min(miny, p.y);
           maxx = Math.max(maxx, p.x); maxy = Math.max(maxy, p.y);
         });
-        const pad = 52;
+        const pad = 20;
         const scale = Math.min((W - pad * 2) / Math.max(40, maxx - minx), (H - pad * 2) / Math.max(40, maxy - miny));
         const ox = W / 2 - (minx + maxx) / 2 * scale;
         const oy = H / 2 - (miny + maxy) / 2 * scale;
@@ -753,10 +791,11 @@
         for (let i = 0; i < q.verts.length; i++) {
           const a = q.verts[i], b = q.verts[(i + 1) % q.verts.length];
           const la = verts[i], lb = verts[(i + 1) % verts.length];
-          const cm = Math.max(1, Math.round(dist(la, lb)));
           const isBase = (i === local.baseI && (i + 1) % q.verts.length === local.baseJ) ||
             (i === local.baseJ && (i + 1) % q.verts.length === local.baseI);
-          sides.push({ a, b, cm: isBase ? q.baseCm : cm, isBase });
+          const px = dist(a, b);
+          const cm = isBase ? q.baseCm : Math.max(1, Math.round(px / (q.pxPerCm || 1)));
+          sides.push({ a, b, cm, isBase });
         }
         q.sides = sides;
         const fakeH = q.heightCm + pick([1, 2, -1].filter((d) => q.heightCm + d >= 3));
@@ -778,11 +817,11 @@
         return { P, Q, R, along, perp, rotH: lerp(Q, R, 0.5) };
       }
       function placeTool() {
-        const L = Math.max(72, Math.min(120, Math.min(state.cssW, state.cssH) * 0.26));
+        const L = Math.max(80, Math.min(130, Math.min(state.cssW, state.cssH) * 0.28));
         state.tool = {
-          x: Math.max(L + 8, state.cssW * 0.82),
-          y: Math.max(L + 8, state.cssH * 0.78),
-          ang: -0.4, snapped: false, L
+          x: Math.min(state.cssW - L * 0.55, Math.max(L * 0.45, state.cssW * 0.74)),
+          y: Math.min(state.cssH - L * 0.45, Math.max(L * 0.45, state.cssH * 0.68)),
+          ang: -0.45, snapped: false, L
         };
       }
       function snapAngle(baseAng, P, target) {
@@ -856,11 +895,12 @@
       }
 
       function drawGrid(ctx, w, h) {
-        ctx.fillStyle = "#eaf3ff";
-        ctx.fillRect(0, 0, w, h);
-        ctx.strokeStyle = "rgba(21,120,196,0.08)";
+        const g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#f7f0ff");
+        ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = "rgba(201,182,255,0.18)";
         ctx.lineWidth = 1;
-        const step = 20;
+        const step = 22;
         for (let x = 0.5; x < w; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
         for (let y = 0.5; y < h; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
       }
@@ -923,23 +963,24 @@
         }
       }
       function drawRightMark(ctx, H, A, B, T) {
-        const baseAng = Math.atan2(B.y - A.y, B.x - A.x);
-        const local = rot(sub(T, H), -baseAng);
-        const sx = local.x >= 0 ? 1 : -1;
-        const sy = local.y >= 0 ? 1 : -1;
-        const s = 14;
+        const ang = Math.atan2(B.y - A.y, B.x - A.x);
+        const c = Math.cos(ang), s = Math.sin(ang);
+        const lx = c * (T.x - H.x) + s * (T.y - H.y);
+        const ly = -s * (T.x - H.x) + c * (T.y - H.y);
+        const sx = lx >= 0 ? 1 : -1;
+        const sy = ly >= 0 ? 1 : -1;
+        const m = 16;
         ctx.save();
-        ctx.translate(H.x, H.y);
-        ctx.rotate(baseAng);
-        ctx.strokeStyle = "#1578c4";
-        ctx.lineWidth = 2.6;
+        ctx.transform(c, s, -s, c, H.x, H.y);
+        ctx.strokeStyle = "#ff5eb0";
+        ctx.lineWidth = 2.8;
         ctx.lineCap = "butt";
         ctx.lineJoin = "miter";
         ctx.miterLimit = 2;
         ctx.beginPath();
-        ctx.moveTo(sx * s, 0);
-        ctx.lineTo(sx * s, sy * s);
-        ctx.lineTo(0, sy * s);
+        ctx.moveTo(sx * m, 0);
+        ctx.lineTo(sx * m, sy * m);
+        ctx.lineTo(0, sy * m);
         ctx.stroke();
         ctx.restore();
       }
@@ -1026,11 +1067,11 @@
           ctx.stroke();
           ctx.restore();
         }
-        ctx.fillStyle = "#f0c14b";
-        ctx.beginPath(); ctx.arc(rotH.x, rotH.y, 16, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = "#c4921a"; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = "#3a2a08";
-        ctx.font = "900 16px 'Noto Sans TC', sans-serif";
+        ctx.fillStyle = "#ffd93d";
+        ctx.beginPath(); ctx.arc(rotH.x, rotH.y, 22, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#e4b82a"; ctx.lineWidth = 3; ctx.stroke();
+        ctx.fillStyle = "#3b2a55";
+        ctx.font = "900 18px 'Noto Sans TC', sans-serif";
         ctx.textAlign = "center"; ctx.textBaseline = "middle";
         ctx.fillText("↻", rotH.x, rotH.y + 1);
         ctx.restore();
@@ -1046,27 +1087,78 @@
       }
 
       function cssPos(e) {
+        const src = e.touches && e.touches[0] ? e.touches[0] : (e.changedTouches && e.changedTouches[0] ? e.changedTouches[0] : e);
         const r = scene.getBoundingClientRect();
-        return { x: e.clientX - r.left, y: e.clientY - r.top };
+        return { x: src.clientX - r.left, y: src.clientY - r.top };
+      }
+      function touchPair(e) {
+        const list = e.touches && e.touches.length ? e.touches : e.changedTouches;
+        if (!list || list.length < 2) return null;
+        const r = scene.getBoundingClientRect();
+        const a = { x: list[0].clientX - r.left, y: list[0].clientY - r.top };
+        const b = { x: list[1].clientX - r.left, y: list[1].clientY - r.top };
+        return { a, b, ang: Math.atan2(b.y - a.y, b.x - a.x) };
       }
       function hitTool(p) {
         const tool = state.tool;
         if (!tool) return null;
         const { P, Q, R, rotH } = toolCorners(tool);
-        if (dist(p, rotH) < 22) return "rot";
-        if (inTri(p, P, Q, R) || dist(p, P) < HIT_PAD || distSeg(p, P, Q) < 18 || distSeg(p, P, R) < 18 || distSeg(p, Q, R) < 16) return "move";
+        if (dist(p, rotH) <= 28) return "rot";
+        if (inTri(p, P, Q, R) || dist(p, P) < HIT_PAD || distSeg(p, P, Q) < 22 || distSeg(p, P, R) < 22 || distSeg(p, Q, R) < 20) return "move";
+        const mid = { x: (P.x + Q.x + R.x) / 3, y: (P.y + Q.y + R.y) / 3 };
+        if (dist(p, mid) < tool.L * 0.85) return "move";
+        if (dist(p, P) < tool.L + 48) return "move";
         return null;
       }
-
+      function magnetFoot() {
+        const q = state.q, tool = state.tool;
+        if (!q || !tool || !tool.snapped || q.opp == null) return;
+        if (dist({ x: tool.x, y: tool.y }, q.H) <= 8) {
+          tool.x = q.H.x; tool.y = q.H.y;
+        }
+      }
+      function beginDrag(p, id, mode) {
+        if (!state.tool) return;
+        state.drag = { mode: mode || "move", id, last: p, dx: state.tool.x - p.x, dy: state.tool.y - p.y, toolAng0: state.tool.ang };
+        if (mode === "rot" || mode === "pinch") state.tool.snapped = false;
+        scene.classList.add("dragging");
+      }
+      function applyMove(p) {
+        const tool = state.tool, q = state.q, drag = state.drag;
+        if (!tool || !q || !drag) return;
+        if (drag.mode === "rot") {
+          tool.snapped = false;
+          tool.ang = Math.atan2(p.y - tool.y, p.x - tool.x);
+        } else if (tool.snapped) {
+          const dir = norm(sub(q.baseB, q.baseA));
+          const slide = dot(sub(p, drag.last), dir);
+          const np = add({ x: tool.x, y: tool.y }, mul(dir, slide));
+          const pr = project(np, q.baseA, q.baseB);
+          const pt = lerp(q.baseA, q.baseB, clampFoot(pr.t, q));
+          tool.x = pt.x; tool.y = pt.y;
+          magnetFoot();
+          if (distLine(p, q.baseA, q.baseB) > 70) {
+            tool.snapped = false;
+            tool.x = p.x + drag.dx;
+            tool.y = p.y + drag.dy;
+          }
+        } else {
+          tool.x = p.x + drag.dx;
+          tool.y = p.y + drag.dy;
+          trySnap();
+        }
+        drag.last = p;
+        draw();
+      }
       function onDown(e) {
         if (state.ended || !state.q || state.q.phase !== 1) return;
+        if (e.pointerType === "touch") state.input = "pointer";
         const p = cssPos(e);
         state.pointers.set(e.pointerId, p);
-        if (state.pointers.size === 2) {
+        if (state.pointers.size >= 2 && state.tool) {
           const arr = [...state.pointers.values()];
           state.drag = {
-            mode: "pinch",
-            id: e.pointerId,
+            mode: "pinch", id: e.pointerId,
             ang0: Math.atan2(arr[1].y - arr[0].y, arr[1].x - arr[0].x),
             toolAng0: state.tool.ang
           };
@@ -1076,13 +1168,10 @@
           e.preventDefault();
           return;
         }
-        const hit = hitTool(p);
-        if (!hit) return;
+        const hit = hitTool(p) || "move";
         e.preventDefault();
         try { scene.setPointerCapture(e.pointerId); } catch (err) {}
-        scene.classList.add("dragging");
-        if (hit === "rot") state.tool.snapped = false;
-        state.drag = { mode: hit, id: e.pointerId, last: p, dx: state.tool.x - p.x, dy: state.tool.y - p.y };
+        beginDrag(p, e.pointerId, hit);
       }
       function onMove(e) {
         if (state.pointers.has(e.pointerId)) state.pointers.set(e.pointerId, cssPos(e));
@@ -1092,50 +1181,62 @@
           const arr = [...state.pointers.values()];
           const ang = Math.atan2(arr[1].y - arr[0].y, arr[1].x - arr[0].x);
           state.tool.ang = state.drag.toolAng0 + (ang - state.drag.ang0);
-          trySnap(); draw();
+          draw();
           return;
         }
         if (e.pointerId !== state.drag.id) return;
-        const p = cssPos(e);
-        const tool = state.tool, q = state.q;
-        if (state.drag.mode === "rot") {
-          tool.snapped = false;
-          tool.ang = Math.atan2(p.y - tool.y, p.x - tool.x);
-          trySnap();
-        } else if (tool.snapped) {
-          const dir = norm(sub(q.baseB, q.baseA));
-          const slide = dot(sub(p, state.drag.last), dir);
-          const np = add({ x: tool.x, y: tool.y }, mul(dir, slide));
-          const pr = project(np, q.baseA, q.baseB);
-          const t = clampFoot(pr.t, q);
-          const pt = lerp(q.baseA, q.baseB, t);
-          tool.x = pt.x; tool.y = pt.y;
-          const pull = distLine(p, q.baseA, q.baseB);
-          if (pull > 64) {
-            tool.snapped = false;
-            tool.x = p.x + state.drag.dx;
-            tool.y = p.y + state.drag.dy;
-          }
-        } else {
-          tool.x = p.x + state.drag.dx;
-          tool.y = p.y + state.drag.dy;
-          trySnap();
-        }
-        state.drag.last = p;
-        draw();
+        applyMove(cssPos(e));
       }
       function onUp(e) {
         state.pointers.delete(e.pointerId);
         if (!state.drag) return;
         if (state.drag.mode === "pinch") {
-          if (state.pointers.size < 2) { state.drag = null; scene.classList.remove("dragging"); trySnap(); draw(); }
+          if (state.pointers.size < 2) {
+            state.drag = null; scene.classList.remove("dragging"); trySnap(); draw();
+          }
           return;
         }
         if (e.pointerId !== state.drag.id) return;
-        trySnap();
+        magnetFoot(); trySnap();
         state.drag = null;
         scene.classList.remove("dragging");
         draw();
+      }
+      function onTouchStart(e) {
+        if (state.input === "pointer") return;
+        if (state.ended || !state.q || state.q.phase !== 1) return;
+        e.preventDefault();
+        if (e.touches.length >= 2 && state.tool) {
+          const pair = touchPair(e);
+          state.drag = { mode: "pinch", id: "touch", ang0: pair.ang, toolAng0: state.tool.ang };
+          state.tool.snapped = false;
+          scene.classList.add("dragging");
+          return;
+        }
+        const p = cssPos(e);
+        beginDrag(p, "touch", hitTool(p) || "move");
+      }
+      function onTouchMove(e) {
+        if (state.input === "pointer") return;
+        if (!state.drag) return;
+        e.preventDefault();
+        if (state.drag.mode === "pinch" && e.touches.length >= 2) {
+          const pair = touchPair(e);
+          state.tool.ang = state.drag.toolAng0 + (pair.ang - state.drag.ang0);
+          draw();
+          return;
+        }
+        applyMove(cssPos(e));
+      }
+      function onTouchEnd(e) {
+        if (state.input === "pointer") return;
+        if (e.touches && e.touches.length >= 2) return;
+        if (state.drag && state.drag.id === "touch") {
+          magnetFoot(); trySnap();
+          state.drag = null;
+          scene.classList.remove("dragging");
+          draw();
+        }
       }
 
       function rotateBy(deg) {
@@ -1169,7 +1270,7 @@
         const q = state.q;
         $("phase2Acts").innerHTML = q.options.map((o, i) => {
           const lab = String.fromCharCode(65 + i);
-          const cls = i === 0 ? "teal" : i === 1 ? "sky" : "gold";
+          const cls = i === 0 ? "mint" : i === 1 ? "sky" : "lemon";
           return `<button type="button" class="candy ${cls}" data-ok="${o.ok ? 1 : 0}">${lab}. 底 ${o.b}cm／高 ${o.h}cm</button>`;
         }).join("");
       }
@@ -1214,10 +1315,13 @@
           return;
         }
         const { perp } = toolCorners(tool);
+        magnetFoot();
         if (q.opp != null) {
-          if (dist({ x: tool.x, y: tool.y }, q.H) > 22) {
+          const dFoot = dist({ x: tool.x, y: tool.y }, q.H);
+          const dVert = Math.abs(cross(perp, sub(q.target, { x: tool.x, y: tool.y }))) / (len(perp) || 1);
+          if (dFoot > VERTEX_TOL || dVert > VERTEX_TOL) {
             state.missPerp += 1;
-            setToast(false, "記得高要和底『垂直』，並接住頂點喔！");
+            setToast(false, "高要精準接住頂點喔！");
             sfx("bad");
             return;
           }
@@ -1225,7 +1329,7 @@
           const hit = rayHitSeg({ x: tool.x, y: tool.y }, perp, q.oppA, q.oppB);
           if (!hit || hit.t < 8) {
             state.missPerp += 1;
-            setToast(false, "記得高要和底『垂直』，並接住對邊喔！");
+            setToast(false, "高要精準接住頂點喔！");
             sfx("bad");
             return;
           }
@@ -1526,7 +1630,7 @@
       let pieces = [];
       function resizeConfetti() { confetti.width = window.innerWidth; confetti.height = window.innerHeight; }
       function burstConfetti(count) {
-        const colors = ["#3db4ff", "#f0c14b", "#2fd3b6", "#7ec8ff", "#ffe08a"];
+        const colors = ["#ff7eb6", "#5cc8ff", "#ffe066", "#c9b6ff", "#7eecc8"];
         for (let i = 0; i < count; i++) {
           pieces.push({
             x: confetti.width * (0.2 + Math.random() * 0.6), y: -12,
@@ -1561,6 +1665,26 @@
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
       window.addEventListener("pointercancel", onUp);
+      scene.addEventListener("touchstart", onTouchStart, { passive: false });
+      scene.addEventListener("touchmove", onTouchMove, { passive: false });
+      scene.addEventListener("touchend", onTouchEnd, { passive: false });
+      scene.addEventListener("touchcancel", onTouchEnd, { passive: false });
+      scene.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        if (state.ended || !state.q || state.q.phase !== 1) return;
+        rotateBy(e.deltaY > 0 ? 8 : -8);
+      }, { passive: false });
+      scene.addEventListener("gesturestart", (e) => {
+        e.preventDefault();
+        if (state.tool) state.gest = state.tool.ang;
+      });
+      scene.addEventListener("gesturechange", (e) => {
+        e.preventDefault();
+        if (!state.tool || !state.q || state.q.phase !== 1) return;
+        state.tool.snapped = false;
+        state.tool.ang = (state.gest || 0) + (e.rotation || 0) * Math.PI / 180;
+        draw();
+      });
       scene.addEventListener("contextmenu", (e) => e.preventDefault());
 
       function bindRot(btn, deg) {
