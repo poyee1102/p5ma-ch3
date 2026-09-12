@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="尋找垂直線" />
-  <title>高偵探：尋找垂直線</title>
+  <meta name="apple-mobile-web-app-title" content="底高偵探" />
+  <title>底高偵探：尋找垂直線</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet" />
@@ -36,7 +36,7 @@
         linear-gradient(165deg, #fff3ea, #ffe8f2 48%, #eaf4ff);
       user-select: none;
     }
-    button, input, textarea { font-family: inherit; }
+    button, input { font-family: inherit; }
     button { cursor: pointer; touch-action: manipulation; }
     input { user-select: text; -webkit-user-select: text; }
 
@@ -44,7 +44,6 @@
     @keyframes bounce { 0% { transform: scale(1); } 35% { transform: scale(0.88); } 70% { transform: scale(1.08); } 100% { transform: scale(1); } }
     @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-    @keyframes stampIn { from { opacity: 0; transform: scale(1.4) rotate(-12deg); } to { opacity: 1; transform: scale(1) rotate(-8deg); } }
     .bounce { animation: bounce 0.35s ease; }
     .shake { animation: shake 0.4s ease; }
 
@@ -86,8 +85,8 @@
     }
     .title {
       font-family: "Fredoka", "Noto Sans TC", sans-serif;
-      font-size: clamp(26px, 5.4vh, 40px); font-weight: 900; letter-spacing: 0.04em;
-      margin-bottom: 4px; line-height: 1.15;
+      font-size: clamp(26px, 5.2vh, 40px); font-weight: 900; letter-spacing: 0.04em;
+      margin-bottom: 2px; line-height: 1.15;
     }
     .title span:nth-child(odd) { color: var(--lilac-deep); }
     .title span:nth-child(even) { color: var(--pink-deep); }
@@ -122,54 +121,28 @@
       flex-shrink: 0; font-size: 13px; font-weight: 800; color: #5a4a72;
       background: #f4edff; border-radius: 12px; padding: 6px 10px; text-align: center;
     }
-
     .board {
       flex: 1; min-height: 0; position: relative;
-      display: flex; align-items: center; justify-content: center;
-      background:
-        linear-gradient(180deg, #fff, #f7f4ff);
+      display: flex; align-items: stretch; justify-content: center;
+      background: linear-gradient(180deg, #fff, #f7f4ff);
       border-radius: 22px; overflow: hidden;
       box-shadow: inset 0 0 0 2px rgba(203, 178, 254, 0.35);
     }
     .board::before, .board::after {
       content: ""; position: absolute; width: 42px; height: 14px; z-index: 2; pointer-events: none;
-      background: rgba(255, 224, 102, 0.88); border-radius: 2px; transform: rotate(-18deg);
+      background: rgba(255, 224, 102, 0.88); border-radius: 2px;
       box-shadow: 0 2px 0 rgba(228, 184, 42, 0.35);
     }
-    .board::before { top: 10px; left: 14px; }
+    .board::before { top: 10px; left: 14px; transform: rotate(-18deg); }
     .board::after { top: 12px; right: 16px; transform: rotate(16deg); }
-    #sceneCanvas { width: 100%; height: 100%; display: block; }
-
-    .pick-grid {
-      flex: 1; min-height: 0; display: grid;
-      grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px;
-    }
-    .pick-card {
-      position: relative; border: 3px solid #fff; border-radius: 18px;
-      background: #fff; overflow: hidden; box-shadow: 0 4px 0 #e4d4f4;
-      padding: 0; min-height: 0;
-    }
-    .pick-card canvas { width: 100%; height: 100%; display: block; }
-    .pick-card .tag {
-      position: absolute; top: 6px; left: 8px; z-index: 2;
-      width: 28px; height: 28px; border-radius: 50%;
-      background: var(--lilac); color: #fff; font-weight: 900; font-size: 14px;
-      display: grid; place-items: center; box-shadow: 0 3px 0 var(--lilac-deep);
-    }
-    .pick-card.ok { box-shadow: 0 0 0 3px #3cbc9a, 0 4px 0 #2a9a7c; }
-    .pick-card.bad { box-shadow: 0 0 0 3px #ef5f8a, 0 4px 0 #d44a74; }
-    .pick-card.dim { opacity: 0.55; }
+    #scene { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+    #scene.dragging { cursor: grabbing; }
 
     .choice-row { display: flex; gap: 10px; flex-shrink: 0; }
-    .choice-row .candy { flex: 1; font-size: clamp(16px, 2.4vh, 20px); padding: 12px 8px; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; flex-shrink: 0; }
-    .chip {
-      border: 0; border-radius: 999px; font-weight: 900; font-size: 15px;
-      padding: 8px 14px; background: #fff; color: var(--ink); box-shadow: 0 4px 0 #e4d4f4;
-    }
-    .chip.on { background: var(--lilac); color: #fff; box-shadow: 0 4px 0 var(--lilac-deep); }
-    .chip.ok { background: var(--mint); color: #165f4c; box-shadow: 0 4px 0 var(--mint-deep); }
-    .chip.bad { background: #ffd0d8; color: #b42318; box-shadow: 0 4px 0 #f5a3b0; }
+    .choice-row .candy { flex: 1; font-size: clamp(15px, 2.3vh, 19px); padding: 12px 8px; }
+    .opt-col { display: none; flex-direction: column; gap: 8px; flex-shrink: 0; }
+    .opt-col.show { display: flex; }
+    .opt-col .candy { width: 100%; text-align: center; font-size: clamp(15px, 2.2vh, 18px); padding: 10px 8px; }
 
     .toast {
       display: none; flex-shrink: 0; border-radius: 16px; padding: 8px 12px;
@@ -178,15 +151,6 @@
     .toast.show { display: block; }
     .toast.good { background: #e4faf2; border: 2px solid #7ce0c3; color: #165f4c; }
     .toast.bad { background: #fff1f1; border: 2px solid #ffb4b4; color: #b42318; }
-    .stamp {
-      position: absolute; right: 16px; bottom: 16px; z-index: 3; pointer-events: none;
-      width: 86px; height: 86px; border-radius: 50%; display: none; place-items: center;
-      font-weight: 900; font-size: 18px; border: 5px solid; transform: rotate(-8deg);
-      animation: stampIn 0.28s ease;
-    }
-    .stamp.show { display: grid; }
-    .stamp.yes { color: #1d7a5c; border-color: #1d7a5c; background: rgba(124, 224, 195, 0.35); }
-    .stamp.no { color: #b42318; border-color: #b42318; background: rgba(255, 141, 171, 0.28); }
 
     .report {
       position: fixed; inset: 0; background: rgba(59, 42, 74, 0.45);
@@ -269,7 +233,7 @@
 
     @media (max-height: 720px) {
       .mascot { width: 56px; height: 56px; font-size: 28px; }
-      .choice-row .candy { padding: 10px 8px; font-size: 16px; }
+      .choice-row .candy { padding: 10px 8px; font-size: 15px; }
       .hintbar { font-size: 12px; padding: 4px 8px; }
     }
     @media print {
@@ -285,9 +249,9 @@
   <div class="app">
     <section id="screen-login" class="screen active">
       <div class="card login">
-        <div class="mascot">🕵️</div>
+        <div class="mascot">📐</div>
         <h1 class="title" id="titleWave"></h1>
-        <p class="tagline">高偵探 · 兩線相交成直角，才叫互相垂直<br>唔係「豎線／鉛垂線」噉簡單！</p>
+        <p class="tagline">尋找垂直線 · 高 ⊥ 底</p>
         <div class="field">
           <label for="classId">班別</label>
           <input id="classId" maxlength="8" placeholder="5A" autocomplete="off" />
@@ -310,24 +274,19 @@
       </div>
       <div class="card play">
         <div class="task-h">
-          <h2 id="taskTitle">這兩條線互相垂直嗎？</h2>
-          <p id="taskKind">判斷</p>
+          <h2 id="taskTitle">任務一：垂直定位</h2>
+          <p id="taskKind">銳角△</p>
         </div>
-        <div class="hintbar">垂直＝兩條直線相交成直角（90°），斜斜擺都可以。</div>
-        <div class="board" id="boardYesNo">
-          <canvas id="sceneCanvas"></canvas>
-          <div class="stamp" id="stamp"></div>
+        <div class="hintbar" id="hintBar">拖尺貼底 · 高 ⊥ 底</div>
+        <div class="board" id="board">
+          <canvas id="scene"></canvas>
         </div>
-        <div class="pick-grid" id="boardPick" hidden></div>
-        <div class="chips" id="pairChips" hidden></div>
         <div class="toast" id="feedToast"></div>
-        <div class="choice-row" id="yesNoActs">
-          <button class="candy mint" id="btnYes">互相垂直</button>
-          <button class="candy peach" id="btnNo">不是垂直</button>
+        <div class="choice-row" id="phase1Acts">
+          <button class="candy lemon" id="btnExtend">➕ 延伸底邊</button>
+          <button class="candy mint" id="btnHeight">確定劃高</button>
         </div>
-        <div class="choice-row" id="tripleActs" hidden>
-          <button class="candy mint" id="btnTriple">確認搜證</button>
-        </div>
+        <div class="opt-col" id="phase2Acts"></div>
       </div>
     </section>
 
@@ -382,30 +341,32 @@
     (function () {
       const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyGGhtjy7bKzw9M-divK5BZYL0mGcHJwcNoV_xv8VAUalMu_U9ptg8A8wIRQ8cpvQxv/exec";
       const GAME_ID = "p5ma-ch3";
+      const CHAPTER = "p5ma-ch3";
       const STORE_KEY = "p5ma-ch3-v1";
       const TEACHER_PIN = "2246";
       const GAME_SECS = 180;
-      const LINE_COLORS = ["#ef5f8a", "#3cbc9a", "#4ea2f0", "#9d7af0"];
-      const TIP_INTERSECT = "💡 小提醒：兩條線相交還不夠，一定要相交成直角（90°）才叫互相垂直喔！";
-      const TIP_ROTATED = "💡 小提醒：垂直不一定是「一橫一直」。斜斜的兩條線，只要成直角，都算互相垂直！";
-      const TIP_PARALLEL = "💡 小提醒：平行線永遠不會相交，所以不會互相垂直。";
-      const TIP_PERFECT = "🌟 太厲害了！你完全掌握「相交成直角才算垂直」！";
+      const TIP_PERP = "💡 偵探提醒：記得高要和底「垂直」，並接住頂點喔！";
+      const TIP_OBTUSE = "💡 偵探提醒：鈍角三角形的高可能在外面，記得先延伸底邊喔！";
+      const TIP_PAIR = "💡 偵探提醒：底與高要成對，唔好把 A 底配去 B 高喔！";
+      const TIP_PERFECT = "🌟 太厲害了！完全掌握垂直概念，零失誤過關！";
 
       const state = {
         classId: "", studentId: "",
         qIndex: 1, remain: GAME_SECS, ended: false, busy: false,
         done: 0, qTimes: [], qStart: 0, sheetSent: false,
-        missIntersect: 0, missRotated: 0, missParallel: 0, missOther: 0,
-        q: null, nextTimer: null
+        missPerp: 0, missObtuse: 0, missPair: 0,
+        q: null, tool: null, drag: null, cssW: 0, cssH: 0
       };
 
-      let audioCtx = null, countId = null;
+      let audioCtx = null, countId = null, sceneCtx = null;
       const $ = (id) => document.getElementById(id);
       const screens = { login: $("screen-login"), game: $("screen-game"), dash: $("screen-dash") };
+      const scene = $("scene");
 
       function showScreen(name) {
         Object.keys(screens).forEach((key) => screens[key].classList.toggle("active", key === name));
         if (name !== "game") stopCountdown();
+        if (name === "game") requestAnimationFrame(() => { layoutCanvas(); draw(); });
       }
       function bounce(el) {
         if (!el) return;
@@ -413,7 +374,7 @@
         void el.offsetWidth;
         el.classList.add("bounce");
       }
-      $("titleWave").innerHTML = [..."尋找垂直線"].map((ch, i) =>
+      $("titleWave").innerHTML = [..."底高偵探"].map((ch, i) =>
         `<span style="display:inline-block;animation:floaty 2.4s ${i * 0.08}s ease-in-out infinite">${ch}</span>`
       ).join("");
 
@@ -446,22 +407,18 @@
         return key;
       }
       function diagnose() {
-        const a = state.missIntersect, b = state.missRotated, c = state.missParallel, d = state.missOther;
-        if (a + b + c + d === 0) {
-          return { short: "零失誤", sheet: "完全掌握互相垂直（相交成直角）", tip: TIP_PERFECT };
+        const a = state.missPerp, b = state.missObtuse, c = state.missPair;
+        if (a + b + c === 0) {
+          return { short: "零失誤", sheet: "完全掌握垂直概念，零失誤過關", tip: TIP_PERFECT };
         }
-        if (a >= b && a >= c && a >= d) {
-          return { short: "易把相交當成垂直", sheet: "易把相交當成垂直", tip: TIP_INTERSECT };
+        if (b >= a && b >= c) {
+          return { short: "鈍角未延伸", sheet: "鈍角三角形記得先延伸底邊", tip: TIP_OBTUSE };
         }
-        if (b >= a && b >= c && b >= d) {
-          return { short: "斜向垂直易漏", sheet: "斜向垂直易漏：垂直唔一定要一橫一直", tip: TIP_ROTATED };
+        if (c >= a && c >= b) {
+          return { short: "底高配對混淆", sheet: "底與高要成對，唔好把 A 底配去 B 高", tip: TIP_PAIR };
         }
-        if (c >= a && c >= b && c >= d) {
-          return { short: "平行線誤判為垂直", sheet: "平行線誤判為垂直", tip: TIP_PARALLEL };
-        }
-        return { short: "判斷直角需再練", sheet: "判斷直角需再練", tip: TIP_INTERSECT };
+        return { short: "高未垂直", sheet: "高要和底垂直，並接住頂點", tip: TIP_PERP };
       }
-
       function sheetConfigured() {
         return /^https:\/\/script\.google\.com\/macros\/s\/(?!YOUR_SCRIPT_ID\b)[^/]+\/exec\/?$/.test(GOOGLE_SHEET_URL);
       }
@@ -471,6 +428,7 @@
         const avg = state.done ? Math.round(state.qTimes.reduce((x, y) => x + y, 0) / state.done) : 0;
         const payload = {
           game: GAME_ID,
+          chapter: CHAPTER,
           student: `${state.classId} (${normalizeId(state.studentId)})`,
           score: state.done,
           avgTime: `${avg}秒`,
@@ -486,13 +444,10 @@
         } catch (err) {}
       }
 
-      let sheetLogsCache = null;
-      let dashSeq = 0;
-      let dashAllLogs = [];
+      let sheetLogsCache = null, dashSeq = 0, dashAllLogs = [];
       let dashClass = "ALL";
       let dashSort = { col: "score", dir: "desc" };
-      let dashFilters = {};
-      let dashMenuCol = "";
+      let dashFilters = {}, dashMenuCol = "";
       const DASH_COLS = [
         { key: "student", label: "班別學號", numeric: false },
         { key: "score", label: "答對題數", numeric: true },
@@ -519,10 +474,10 @@
             done: Number(r.score) || 0,
             avgSec: parseAvgSec(r.avgTime),
             diagnosis: diagnostic,
-            intersectErr: /相交當成垂直/.test(diagnostic) ? 1 : 0,
-            rotatedErr: /斜向垂直/.test(diagnostic) ? 1 : 0,
+            perpErr: /垂直/.test(diagnostic) && /頂點|接住/.test(diagnostic) ? 1 : 0,
+            obtuseErr: /延伸/.test(diagnostic) ? 1 : 0,
             time: r.time || "",
-            game: r.game || ""
+            game: r.game || r.chapter || ""
           };
         }).filter((e) => e.studentId || e.classId);
       }
@@ -569,8 +524,8 @@
           done: state.done,
           avgSec: avg,
           diagnosis: d.short,
-          intersectErr: state.missIntersect,
-          rotatedErr: state.missRotated,
+          perpErr: state.missPerp,
+          obtuseErr: state.missObtuse,
           time: nowText()
         });
         saveStore(db);
@@ -602,19 +557,16 @@
           tone(523, 0.1, "triangle");
           setTimeout(() => tone(659, 0.1, "triangle"), 80);
           setTimeout(() => tone(784, 0.16, "triangle"), 160);
-        } else if (kind === "bad") tone(180, 0.2, "sawtooth", 0.04);
+        } else if (kind === "snap") tone(720, 0.06, "triangle", 0.03);
+        else if (kind === "bad") tone(180, 0.2, "sawtooth", 0.04);
         else if (kind === "win") [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 0.14, "triangle"), i * 100));
       }
-
       function renderTimer() {
         const s = Math.max(0, state.remain);
         $("timer").textContent = `⏱️ ${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
         $("timer").classList.toggle("low", s <= 15);
       }
-      function stopCountdown() {
-        clearInterval(countId);
-        countId = null;
-      }
+      function stopCountdown() { clearInterval(countId); countId = null; }
       function startCountdown() {
         stopCountdown();
         state.remain = GAME_SECS;
@@ -633,10 +585,9 @@
         state.remain = 0;
         renderTimer();
         stopCountdown();
-        clearTimeout(state.nextTimer);
         const d = saveSession();
         sendToGoogleSheet(d);
-        $("reportScore").textContent = `🎉 太棒了！你一共找出了 ${state.done} 組垂直線！`;
+        $("reportScore").textContent = `🎉 太棒了！你 3 分鐘內成功找出並配對了 ${state.done} 組垂直底高！`;
         $("reportTip").textContent = d.tip;
         $("reportModal").classList.add("show");
         burstConfetti(180);
@@ -654,194 +605,237 @@
         }
         return a;
       }
+      function add(a, b) { return { x: a.x + b.x, y: a.y + b.y }; }
+      function sub(a, b) { return { x: a.x - b.x, y: a.y - b.y }; }
+      function mul(a, s) { return { x: a.x * s, y: a.y * s }; }
+      function dot(a, b) { return a.x * b.x + a.y * b.y; }
+      function cross(a, b) { return a.x * b.y - a.y * b.x; }
+      function len(a) { return Math.hypot(a.x, a.y); }
+      function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+      function norm(a) { const L = len(a) || 1; return { x: a.x / L, y: a.y / L }; }
+      function lerp(a, b, t) { return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }; }
+      function rot(a, ang) {
+        const c = Math.cos(ang), s = Math.sin(ang);
+        return { x: a.x * c - a.y * s, y: a.x * s + a.y * c };
+      }
+      function centroid(pts) {
+        let x = 0, y = 0;
+        pts.forEach((p) => { x += p.x; y += p.y; });
+        return { x: x / pts.length, y: y / pts.length };
+      }
+      function project(p, a, b) {
+        const ab = sub(b, a);
+        const t = dot(sub(p, a), ab) / (dot(ab, ab) || 1);
+        return { pt: add(a, mul(ab, t)), t };
+      }
+      function distLine(p, a, b) {
+        return Math.abs(cross(sub(b, a), sub(p, a))) / (len(sub(b, a)) || 1);
+      }
       function angDiff(a, b) {
-        let d = Math.abs(a - b) % 180;
-        if (d > 90) d = 180 - d;
+        let d = Math.abs(a - b) % (Math.PI * 2);
+        if (d > Math.PI) d = Math.PI * 2 - d;
         return d;
       }
-      function isPerpAng(a, b) { return Math.abs(angDiff(a, b) - 90) < 0.8; }
-
-      function ray(cx, cy, ang, len, both) {
-        const r = ang * Math.PI / 180;
-        const dx = Math.cos(r) * len, dy = Math.sin(r) * len;
-        if (both) return { x1: cx - dx, y1: cy - dy, x2: cx + dx, y2: cy + dy, ang: ang };
-        return { x1: cx, y1: cy, x2: cx + dx, y2: cy + dy, ang: ang };
+      function angleAt(A, B, C) {
+        const u = sub(A, B), v = sub(C, B);
+        return Math.acos(Math.max(-1, Math.min(1, dot(u, v) / ((len(u) * len(v)) || 1))));
+      }
+      function rotatePts(pts, ang) {
+        const c = centroid(pts);
+        return pts.map((p) => add(c, rot(sub(p, c), ang)));
+      }
+      function inTri(p, a, b, c) {
+        const x = cross(sub(b, a), sub(p, a));
+        const y = cross(sub(c, b), sub(p, b));
+        const z = cross(sub(a, c), sub(p, c));
+        return (x >= 0 && y >= 0 && z >= 0) || (x <= 0 && y <= 0 && z <= 0);
+      }
+      function rayHitSeg(o, dir, a, b) {
+        const v = sub(b, a);
+        const det = cross(dir, v);
+        if (Math.abs(det) < 1e-6) return null;
+        const op = sub(a, o);
+        const t = cross(op, v) / det;
+        const u = cross(op, dir) / det;
+        if (t >= 8 && u >= -0.08 && u <= 1.08) return { t, u, pt: add(o, mul(dir, t)) };
+        return null;
       }
 
-      function makePair(kind) {
-        const cx = 48 + rand(-6, 8);
-        const cy = 50 + rand(-7, 7);
-        const len = 28 + rand(0, 6);
-        let a0, a1, style, perp, trap, reason;
-        if (kind === "perp-axis") {
-          a0 = pick([0, 180]); a1 = pick([90, 270]); style = pick(["cross", "T", "L"]);
-          perp = true; trap = "axis"; reason = "兩條線相交成直角，所以互相垂直。";
-        } else if (kind === "perp-rot") {
-          a0 = rand(16, 74); a1 = a0 + 90; style = pick(["cross", "T", "L"]);
-          perp = true; trap = "rotated"; reason = "雖然斜斜擺，但相交成直角，所以互相垂直。";
-        } else if (kind === "cross-acute") {
-          a0 = Math.random() < 0.45 ? 0 : rand(10, 50);
-          a1 = a0 + pick([32, 38, 44, 50, 58]);
-          style = pick(["cross", "L"]); perp = false; trap = "intersect";
-          reason = "兩條線相交，但唔係直角，所以唔垂直。";
-        } else if (kind === "cross-obtuse") {
-          a0 = Math.random() < 0.4 ? 0 : rand(8, 40);
-          a1 = a0 + pick([118, 128, 138, 148]);
-          style = "cross"; perp = false; trap = "intersect";
-          reason = "兩條線相交，但唔係直角，所以唔垂直。";
-        } else if (kind === "steep") {
-          a0 = 0; a1 = pick([72, 76, 78, 102, 108]);
-          style = "cross"; perp = false; trap = "intersect";
-          reason = "看起來好似「豎線」，但相交唔係直角，所以唔垂直。";
-        } else if (kind === "parallel") {
-          a0 = pick([0, 18, 32, 90, 128]); a1 = a0;
-          style = "parallel"; perp = false; trap = "parallel";
-          reason = "兩條線平行，唔會相交成直角，所以唔垂直。";
-        } else {
-          a0 = rand(10, 70); a1 = a0 + pick([28, 40, 55, 125]);
-          style = "cross"; perp = false; trap = "intersect";
-          reason = "兩條線相交，但唔係直角，所以唔垂直。";
-        }
-        let lines;
-        if (style === "parallel") {
-          const off = 11;
-          const nx = Math.cos((a0 + 90) * Math.PI / 180) * off;
-          const ny = Math.sin((a0 + 90) * Math.PI / 180) * off;
-          const l1 = ray(cx - nx, cy - ny, a0, len, true);
-          const l2 = ray(cx + nx, cy + ny, a1, len, true);
-          lines = [l1, l2];
-        } else if (style === "T") {
-          lines = [ray(cx, cy, a0, len, true), ray(cx, cy, a1, len * 0.92, false)];
-        } else if (style === "L") {
-          lines = [ray(cx, cy, a0, len, false), ray(cx, cy, a1, len, false)];
-        } else {
-          lines = [ray(cx, cy, a0, len, true), ray(cx, cy, a1, len, true)];
-        }
-        lines[0].color = LINE_COLORS[0];
-        lines[1].color = LINE_COLORS[1];
-        return { kind, perp, trap, reason, style, a0, a1, cx, cy, lines, labels: ["", ""] };
+      function genLocal() {
+        const roll = Math.random();
+        if (roll < 0.28) return genAcute();
+        if (roll < 0.48) return genRight();
+        if (roll < 0.74) return genObtuse();
+        if (roll < 0.88) return genPara();
+        return genTrap();
       }
-
-      function makeTriple() {
-        const cx = 50, cy = 52;
-        const base = rand(8, 40);
-        const pattern = pick(["one", "one", "two"]);
-        let angs;
-        if (pattern === "two") {
-          angs = [base, base + 90, base + 180];
-        } else {
-          angs = [base, base + 90, base + pick([40, 48, 55, 130])];
+      function genAcute() {
+        for (let n = 0; n < 30; n++) {
+          const R = 90;
+          const pts = [0, 120, 240].map((deg) => {
+            const a = (deg + rand(-14, 14)) * Math.PI / 180;
+            const r = R + rand(-16, 16);
+            return { x: Math.cos(a) * r, y: Math.sin(a) * r };
+          });
+          const angs = [0, 1, 2].map((i) => angleAt(pts[(i + 2) % 3], pts[i], pts[(i + 1) % 3]));
+          if (angs.every((x) => x > 0.45 && x < 1.4)) {
+            const bi = rint(0, 2);
+            return { kind: "acute", name: "銳角△", verts: pts, baseI: bi, baseJ: (bi + 1) % 3, opp: (bi + 2) % 3 };
+          }
         }
-        const lines = angs.map((ang, i) => {
-          const ln = ray(cx, cy, ang, 30, false);
-          ln.color = LINE_COLORS[i];
-          ln.label = ["①", "②", "③"][i];
-          return ln;
-        });
-        const pairs = [
-          { a: 0, b: 1, perp: isPerpAng(angs[0], angs[1]) },
-          { a: 0, b: 2, perp: isPerpAng(angs[0], angs[2]) },
-          { a: 1, b: 2, perp: isPerpAng(angs[1], angs[2]) }
+        return genRight();
+      }
+      function genRight() {
+        const w = rand(80, 130), h = rand(70, 115);
+        const pts = [{ x: 0, y: 0 }, { x: w, y: 0 }, { x: 0, y: h }];
+        const useHyp = Math.random() < 0.45;
+        if (useHyp) return { kind: "right", name: "直角△", verts: pts, baseI: 1, baseJ: 2, opp: 0 };
+        return { kind: "right", name: "直角△", verts: pts, baseI: 0, baseJ: 1, opp: 2 };
+      }
+      function genObtuse() {
+        const obt = rand(102, 132) * Math.PI / 180;
+        const len1 = rand(88, 125), len2 = rand(78, 115);
+        const pts = [
+          { x: 0, y: 0 },
+          { x: len1, y: 0 },
+          { x: Math.cos(obt) * len2, y: Math.sin(obt) * len2 }
         ];
-        if (!pairs.some((p) => p.perp)) {
-          angs[1] = angs[0] + 90;
-          lines[1] = ray(cx, cy, angs[1], 30, false);
-          lines[1].color = LINE_COLORS[1];
-          lines[1].label = "②";
-          pairs[0].perp = true;
-          pairs[1].perp = isPerpAng(angs[0], angs[2]);
-          pairs[2].perp = isPerpAng(angs[1], angs[2]);
-        }
-        return { type: "triple", lines, pairs, cx, cy, trap: pairs.filter((p) => p.perp).some((_, i) => true) && Math.abs((angs[0] % 90)) > 8 ? "rotated" : "axis" };
+        return { kind: "obtuse", name: "鈍角△", verts: pts, baseI: 0, baseJ: 1, opp: 2 };
+      }
+      function genPara() {
+        const w = rand(95, 140), h = rand(55, 85), sk = rand(22, 55) * (Math.random() < 0.5 ? 1 : -1);
+        const pts = [
+          { x: 0, y: 0 }, { x: w, y: 0 },
+          { x: w + sk, y: h }, { x: sk, y: h }
+        ];
+        return { kind: "para", name: "平行四邊形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2] };
+      }
+      function genTrap() {
+        const bot = rand(120, 160), top = rand(60, 95), h = rand(52, 80), off = rand(8, bot - top - 8);
+        const pts = [
+          { x: 0, y: 0 }, { x: bot, y: 0 },
+          { x: off + top, y: h }, { x: off, y: h }
+        ];
+        return { kind: "trap", name: "梯形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2] };
       }
 
-      function fitCtx(canvas) {
-        const dpr = Math.min(2, window.devicePixelRatio || 1);
-        const w = Math.max(40, canvas.clientWidth);
-        const h = Math.max(40, canvas.clientHeight);
-        canvas.width = Math.round(w * dpr);
-        canvas.height = Math.round(h * dpr);
-        const ctx = canvas.getContext("2d");
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        return { ctx, w, h };
+      function finishLocal(local) {
+        const tilt = Math.random() < 0.22 ? rand(-8, 8) * Math.PI / 180 : pick([
+          rand(18, 58), rand(72, 108), rand(122, 158), rand(198, 248), rand(288, 338)
+        ]) * Math.PI / 180;
+        local.verts = rotatePts(local.verts, tilt);
+        const A = local.verts[local.baseI], B = local.verts[local.baseJ];
+        const target = local.opp != null ? local.verts[local.opp]
+          : lerp(local.verts[local.oppEdge[0]], local.verts[local.oppEdge[1]], 0.5);
+        const pr = project(target, A, B);
+        local.tFoot = pr.t;
+        local.needExtend = pr.t < -0.04 || pr.t > 1.04;
+        local.baseCm = rint(6, 12);
+        return local;
       }
-      function mapPt(p, w, h) {
-        const m = Math.min(w, h);
-        const ox = (w - m) / 2, oy = (h - m) / 2;
-        return { x: ox + (p.x / 100) * m, y: oy + (p.y / 100) * m };
-      }
-      function drawBg(ctx, w, h, mini) {
-        const g = ctx.createLinearGradient(0, 0, 0, h);
-        g.addColorStop(0, "#ffffff");
-        g.addColorStop(1, "#f4f0ff");
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, w, h);
-        if (!mini) {
-          ctx.strokeStyle = "rgba(157,122,240,0.08)";
-          ctx.lineWidth = 1;
-          const step = Math.min(w, h) / 8;
-          for (let x = step; x < w; x += step) {
-            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-          }
-          for (let y = step; y < h; y += step) {
-            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-          }
+
+      function fitQuestion(q, W, H) {
+        const local = q.local;
+        const verts = local.verts;
+        const A = verts[local.baseI], B = verts[local.baseJ];
+        const extra = [];
+        extra.push(lerp(A, B, -0.85), lerp(A, B, 1.85));
+        const all = verts.concat(extra);
+        let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+        all.forEach((p) => {
+          minx = Math.min(minx, p.x); miny = Math.min(miny, p.y);
+          maxx = Math.max(maxx, p.x); maxy = Math.max(maxy, p.y);
+        });
+        const pad = 44;
+        const scale = Math.min((W - pad * 2) / Math.max(40, maxx - minx), (H - pad * 2) / Math.max(40, maxy - miny));
+        const ox = W / 2 - (minx + maxx) / 2 * scale;
+        const oy = H / 2 - (miny + maxy) / 2 * scale;
+        q.verts = verts.map((p) => ({ x: ox + p.x * scale, y: oy + p.y * scale }));
+        q.baseA = q.verts[local.baseI];
+        q.baseB = q.verts[local.baseJ];
+        q.target = local.opp != null ? q.verts[local.opp]
+          : lerp(q.verts[local.oppEdge[0]], q.verts[local.oppEdge[1]], 0.5);
+        if (local.oppEdge) q.oppA = q.verts[local.oppEdge[0]], q.oppB = q.verts[local.oppEdge[1]];
+        const pr = project(q.target, q.baseA, q.baseB);
+        q.H = pr.pt;
+        q.tFoot = pr.t;
+        q.needExtend = local.needExtend;
+        const baseLen = dist(q.baseA, q.baseB);
+        const heightLen = distLine(q.target, q.baseA, q.baseB);
+        q.baseCm = local.baseCm;
+        q.heightCm = Math.max(3, Math.round(heightLen / ((baseLen / q.baseCm) || 1)));
+        if (q.heightCm === q.baseCm) q.heightCm = Math.max(3, q.heightCm - 1);
+        q.kind = local.kind;
+        q.name = local.name;
+        q.opp = local.opp;
+        q.oppEdge = local.oppEdge;
+        const sides = [];
+        for (let i = 0; i < q.verts.length; i++) {
+          const a = q.verts[i], b = q.verts[(i + 1) % q.verts.length];
+          const cm = Math.max(3, Math.round(dist(a, b) / ((baseLen / q.baseCm) || 1)));
+          sides.push({ a, b, cm, isBase: (i === local.baseI && (i + 1) % q.verts.length === local.baseJ) || (i === local.baseJ && (i + 1) % q.verts.length === local.baseI) });
         }
+        q.sides = sides;
+        const fakeH = q.heightCm + pick([1, 2, -1].filter((d) => q.heightCm + d >= 3));
+        let fakeB = q.baseCm + pick([2, 3, -2]);
+        if (fakeB < 4) fakeB = q.baseCm + 2;
+        q.options = shuffle([
+          { b: q.baseCm, h: q.heightCm, ok: true },
+          { b: q.baseCm, h: fakeH, ok: false },
+          { b: fakeB, h: q.heightCm, ok: false }
+        ]);
       }
-      function drawLine(ctx, w, h, ln, width) {
-        const a = mapPt({ x: ln.x1, y: ln.y1 }, w, h);
-        const b = mapPt({ x: ln.x2, y: ln.y2 }, w, h);
-        ctx.strokeStyle = ln.color || "#ef5f8a";
-        ctx.lineWidth = width;
-        ctx.lineCap = "round";
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-        if (ln.label) {
-          const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-          const dx = b.x - a.x, dy = b.y - a.y;
-          const L = Math.hypot(dx, dy) || 1;
-          const px = mx - dy / L * 16, py = my + dx / L * 16;
-          ctx.fillStyle = ln.color;
-          ctx.font = "900 16px 'Noto Sans TC', sans-serif";
-          ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          ctx.fillText(ln.label, px, py);
+
+      function toolCorners(tool) {
+        const L = tool.L;
+        const along = { x: Math.cos(tool.ang), y: Math.sin(tool.ang) };
+        const perp = { x: Math.cos(tool.ang + Math.PI / 2), y: Math.sin(tool.ang + Math.PI / 2) };
+        const P = { x: tool.x, y: tool.y };
+        return { P, Q: add(P, mul(along, L)), R: add(P, mul(perp, L)), along, perp };
+      }
+      function placeTool() {
+        const L = Math.max(64, Math.min(108, Math.min(state.cssW, state.cssH) * 0.22));
+        state.tool = {
+          x: state.cssW * 0.78,
+          y: state.cssH * 0.78,
+          ang: -0.35,
+          snapped: false,
+          L
+        };
+      }
+      function snapAngle(baseAng, P, target) {
+        let best = baseAng, bestDot = -Infinity;
+        [baseAng, baseAng + Math.PI].forEach((a) => {
+          const perp = { x: Math.cos(a + Math.PI / 2), y: Math.sin(a + Math.PI / 2) };
+          const d = dot(perp, sub(target, P));
+          if (d > bestDot) { bestDot = d; best = a; }
+        });
+        return best;
+      }
+      function clampFoot(t, extended) {
+        const lo = extended ? -0.8 : 0.02;
+        const hi = extended ? 1.8 : 0.98;
+        return Math.max(lo, Math.min(hi, t));
+      }
+      function trySnap(force) {
+        const q = state.q, tool = state.tool;
+        if (!q || q.phase !== 1 || !tool) return;
+        const d = distLine({ x: tool.x, y: tool.y }, q.baseA, q.baseB);
+        const baseAng = Math.atan2(q.baseB.y - q.baseA.y, q.baseB.x - q.baseA.x);
+        const align = Math.min(angDiff(tool.ang, baseAng), angDiff(tool.ang, baseAng + Math.PI));
+        const near = d < 38 && (force || align < 0.42 || tool.snapped);
+        if (near) {
+          const was = tool.snapped;
+          const pr = project({ x: tool.x, y: tool.y }, q.baseA, q.baseB);
+          const t = clampFoot(pr.t, q.extended);
+          const pt = lerp(q.baseA, q.baseB, t);
+          tool.x = pt.x; tool.y = pt.y;
+          tool.ang = snapAngle(baseAng, pt, q.target);
+          tool.snapped = true;
+          if (!was) sfx("snap");
+        } else if (tool.snapped && d > 56) {
+          tool.snapped = false;
         }
-      }
-      function drawDot(ctx, w, h, x, y) {
-        const p = mapPt({ x, y }, w, h);
-        ctx.fillStyle = "#3b2a4a";
-        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill();
-      }
-      function drawRightMark(ctx, w, h, geom) {
-        if (!geom || !geom.perp) return;
-        const size = 9;
-        const r0 = geom.a0 * Math.PI / 180;
-        const r1 = geom.a1 * Math.PI / 180;
-        let ux = Math.cos(r0), uy = Math.sin(r0);
-        let vx = Math.cos(r1), vy = Math.sin(r1);
-        if (geom.style === "L" || geom.style === "T") {
-          /* rays already start at centre; keep given directions */
-        } else {
-          if (ux + vx < 0 && uy + vy < 0) { ux = -ux; uy = -uy; }
-        }
-        const o = mapPt({ x: geom.cx, y: geom.cy }, w, h);
-        const s = Math.min(w, h) * (size / 100);
-        ctx.strokeStyle = "#9d7af0";
-        ctx.lineWidth = 3;
-        ctx.lineCap = "butt";
-        ctx.lineJoin = "miter";
-        ctx.beginPath();
-        ctx.moveTo(o.x + ux * s, o.y + uy * s);
-        ctx.lineTo(o.x + ux * s + vx * s, o.y + uy * s + vy * s);
-        ctx.lineTo(o.x + vx * s, o.y + vy * s);
-        ctx.stroke();
-      }
-      function paintPair(canvas, geom, opts) {
-        const { ctx, w, h } = fitCtx(canvas);
-        drawBg(ctx, w, h, !!(opts && opts.mini));
-        const width = (opts && opts.mini) ? 5 : 8;
-        (geom.lines || []).forEach((ln) => drawLine(ctx, w, h, ln, width));
-        if (geom.cx != null) drawDot(ctx, w, h, geom.cx, geom.cy);
-        if (opts && opts.mark) drawRightMark(ctx, w, h, geom);
       }
 
       function setToast(ok, text) {
@@ -849,200 +843,344 @@
         el.className = "toast show " + (ok ? "good" : "bad");
         el.textContent = text;
       }
-      function clearToast() {
-        $("feedToast").className = "toast";
-        $("feedToast").textContent = "";
-      }
-      function setStamp(ok) {
-        const el = $("stamp");
-        el.className = "stamp show " + (ok ? "yes" : "no");
-        el.textContent = ok ? "破案" : "再查";
-      }
-      function hideStamp() { $("stamp").className = "stamp"; }
+      function clearToast() { $("feedToast").className = "toast"; $("feedToast").textContent = ""; }
 
-      function showMode(mode) {
-        $("boardYesNo").style.display = mode === "yesno" || mode === "triple" ? "flex" : "none";
-        $("boardPick").hidden = mode !== "pick";
-        $("boardPick").style.display = mode === "pick" ? "grid" : "none";
-        $("yesNoActs").hidden = mode !== "yesno";
-        $("yesNoActs").style.display = mode === "yesno" ? "flex" : "none";
-        $("tripleActs").hidden = mode !== "triple";
-        $("tripleActs").style.display = mode === "triple" ? "flex" : "none";
-        $("pairChips").hidden = mode !== "triple";
-        $("pairChips").style.display = mode === "triple" ? "flex" : "none";
-      }
-
-      function drawQuestion() {
-        const q = state.q;
-        if (!q) return;
-        if (q.type === "yesno") {
-          paintPair($("sceneCanvas"), q.geom, { mark: q.revealed && q.geom.perp });
-        } else if (q.type === "pick") {
-          const cards = $("boardPick").querySelectorAll(".pick-card");
-          cards.forEach((card, i) => {
-            const c = card.querySelector("canvas");
-            if (c && q.options[i]) paintPair(c, q.options[i], { mini: true, mark: q.revealed && q.options[i].perp });
-          });
-        } else if (q.type === "triple") {
-          paintPair($("sceneCanvas"), { lines: q.geom.lines, cx: q.geom.cx, cy: q.geom.cy, perp: false }, {});
+      function layoutCanvas() {
+        const c = scene;
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        const w = Math.max(40, c.clientWidth);
+        const h = Math.max(40, c.clientHeight);
+        c.width = Math.round(w * dpr);
+        c.height = Math.round(h * dpr);
+        sceneCtx = c.getContext("2d");
+        sceneCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        state.cssW = w; state.cssH = h;
+        if (state.q && state.q.local) {
+          const keep = { snapped: state.tool && state.tool.snapped, t: null, ang: state.tool && state.tool.ang };
+          if (state.tool && state.q.baseA) {
+            const pr = project({ x: state.tool.x, y: state.tool.y }, state.q.baseA, state.q.baseB);
+            keep.t = pr.t;
+          }
+          fitQuestion(state.q, w, h);
+          if (state.tool) {
+            state.tool.L = Math.max(64, Math.min(108, Math.min(w, h) * 0.22));
+            if (keep.snapped && keep.t != null) {
+              const pt = lerp(state.q.baseA, state.q.baseB, clampFoot(keep.t, state.q.extended));
+              state.tool.x = pt.x; state.tool.y = pt.y;
+              state.tool.snapped = true;
+              state.tool.ang = snapAngle(Math.atan2(state.q.baseB.y - state.q.baseA.y, state.q.baseB.x - state.q.baseA.x), pt, state.q.target);
+            }
+          }
         }
+      }
+
+      function drawGrid(ctx, w, h) {
+        const g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#f4f0ff");
+        ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = "rgba(157,122,240,0.07)";
+        ctx.lineWidth = 1;
+        const step = Math.min(w, h) / 8;
+        for (let x = step; x < w; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+        for (let y = step; y < h; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+      }
+      function drawPoly(ctx, q) {
+        const vs = q.verts;
+        ctx.beginPath();
+        ctx.moveTo(vs[0].x, vs[0].y);
+        vs.slice(1).forEach((p) => ctx.lineTo(p.x, p.y));
+        ctx.closePath();
+        ctx.fillStyle = "rgba(255,255,255,0.92)";
+        ctx.fill();
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = "#7a6588";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        if (q.extended) {
+          const a = lerp(q.baseA, q.baseB, -0.85);
+          const b = lerp(q.baseA, q.baseB, 1.85);
+          ctx.save();
+          ctx.setLineDash([8, 7]);
+          ctx.strokeStyle = "#ef5f8a";
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          ctx.restore();
+        }
+        ctx.strokeStyle = "#ef5f8a";
+        ctx.lineWidth = 8;
+        ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(q.baseA.x, q.baseA.y); ctx.lineTo(q.baseB.x, q.baseB.y); ctx.stroke();
+        const mid = lerp(q.baseA, q.baseB, 0.5);
+        const n = norm({ x: q.baseA.y - q.baseB.y, y: q.baseB.x - q.baseA.x });
+        const c = centroid(q.verts);
+        const nOut = dot(n, sub(c, mid)) > 0 ? mul(n, -1) : n;
+        const tag = add(mid, mul(nOut, 16));
+        ctx.fillStyle = "#ef5f8a";
+        ctx.font = "900 13px 'Noto Sans TC', sans-serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText("底", tag.x, tag.y);
+        if (q.opp != null && q.phase === 1) {
+          ctx.fillStyle = "#9d7af0";
+          ctx.beginPath(); ctx.arc(q.target.x, q.target.y, 7, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#fff";
+          ctx.font = "900 10px 'Noto Sans TC', sans-serif";
+          ctx.fillText("頂", q.target.x, q.target.y);
+        }
+        if (q.heightDrawn) {
+          ctx.save();
+          ctx.setLineDash([6, 5]);
+          ctx.strokeStyle = "#3cbc9a";
+          ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(q.H.x, q.H.y); ctx.lineTo(q.target.x, q.target.y); ctx.stroke();
+          ctx.restore();
+          drawRightMark(ctx, q.H, q.baseA, q.baseB, q.target);
+        }
+      }
+      function drawRightMark(ctx, H, A, B, T) {
+        const along = norm(sub(B, A));
+        let perp = { x: -along.y, y: along.x };
+        if (dot(perp, sub(T, H)) < 0) perp = mul(perp, -1);
+        const s = 12;
+        ctx.strokeStyle = "#9d7af0";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(H.x + along.x * s, H.y + along.y * s);
+        ctx.lineTo(H.x + along.x * s + perp.x * s, H.y + along.y * s + perp.y * s);
+        ctx.lineTo(H.x + perp.x * s, H.y + perp.y * s);
+        ctx.stroke();
+      }
+      function drawLabels(ctx, q) {
+        q.sides.forEach((s) => {
+          const mid = lerp(s.a, s.b, 0.5);
+          const n = norm({ x: s.a.y - s.b.y, y: s.b.x - s.a.x });
+          const c = centroid(q.verts);
+          const nOut = dot(n, sub(c, mid)) > 0 ? mul(n, -1) : n;
+          const p = add(mid, mul(nOut, 14));
+          ctx.fillStyle = s.isBase ? "#ef5f8a" : "#7a6588";
+          ctx.font = "900 13px 'Noto Sans TC', sans-serif";
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText(s.cm + "cm", p.x, p.y);
+        });
+        const hm = lerp(q.H, q.target, 0.5);
+        ctx.fillStyle = "#165f4c";
+        ctx.font = "900 13px 'Noto Sans TC', sans-serif";
+        ctx.fillText(q.heightCm + "cm", hm.x + 12, hm.y);
+      }
+      function drawTool(ctx, tool, q) {
+        const { P, Q, R, perp } = toolCorners(tool);
+        ctx.save();
+        ctx.globalAlpha = 0.92;
+        ctx.beginPath();
+        ctx.moveTo(P.x, P.y); ctx.lineTo(Q.x, Q.y); ctx.lineTo(R.x, R.y); ctx.closePath();
+        ctx.fillStyle = tool.snapped ? "rgba(124,224,195,0.55)" : "rgba(203,178,254,0.5)";
+        ctx.fill();
+        ctx.strokeStyle = tool.snapped ? "#3cbc9a" : "#9d7af0";
+        ctx.lineWidth = 3;
+        ctx.lineJoin = "round";
+        ctx.stroke();
+        const s = 10;
+        const along = { x: Math.cos(tool.ang), y: Math.sin(tool.ang) };
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(P.x + along.x * s, P.y + along.y * s);
+        ctx.lineTo(P.x + along.x * s + perp.x * s, P.y + along.y * s + perp.y * s);
+        ctx.lineTo(P.x + perp.x * s, P.y + perp.y * s);
+        ctx.stroke();
+        if (tool.snapped) {
+          ctx.save();
+          ctx.setLineDash([5, 5]);
+          ctx.strokeStyle = "rgba(60,188,154,0.55)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(P.x, P.y);
+          ctx.lineTo(P.x + perp.x * 420, P.y + perp.y * 420);
+          ctx.stroke();
+          ctx.restore();
+        }
+        if (!tool.snapped) {
+          ctx.fillStyle = "#9d7af0";
+          ctx.beginPath(); ctx.arc(Q.x, Q.y, 9, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#fff";
+          ctx.font = "900 11px 'Noto Sans TC', sans-serif";
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText("↻", Q.x, Q.y + 0.5);
+        }
+        ctx.restore();
+      }
+      function draw() {
+        const ctx = sceneCtx, q = state.q, w = state.cssW, h = state.cssH;
+        if (!ctx || !w) return;
+        drawGrid(ctx, w, h);
+        if (!q) return;
+        drawPoly(ctx, q);
+        if (q.phase === 2) drawLabels(ctx, q);
+        if (q.phase === 1 && state.tool) drawTool(ctx, state.tool, q);
+      }
+
+      function cssPos(e) {
+        const r = scene.getBoundingClientRect();
+        return { x: e.clientX - r.left, y: e.clientY - r.top };
+      }
+      function hitTool(p) {
+        const tool = state.tool;
+        if (!tool) return null;
+        const { P, Q, R } = toolCorners(tool);
+        if (!tool.snapped && dist(p, Q) < 18) return "rot";
+        if (inTri(p, P, Q, R) || dist(p, P) < 22) return "move";
+        return null;
+      }
+
+      function onDown(e) {
+        if (state.ended || !state.q || state.q.phase !== 1) return;
+        const p = cssPos(e);
+        const hit = hitTool(p);
+        if (!hit) return;
+        e.preventDefault();
+        scene.setPointerCapture(e.pointerId);
+        scene.classList.add("dragging");
+        state.drag = { mode: hit, id: e.pointerId, last: p, dx: state.tool.x - p.x, dy: state.tool.y - p.y };
+      }
+      function onMove(e) {
+        if (!state.drag || e.pointerId !== state.drag.id) return;
+        const p = cssPos(e);
+        const tool = state.tool, q = state.q;
+        if (state.drag.mode === "rot" && !tool.snapped) {
+          tool.ang = Math.atan2(p.y - tool.y, p.x - tool.x);
+          trySnap(false);
+        } else {
+          if (tool.snapped) {
+            const dir = norm(sub(q.baseB, q.baseA));
+            const slide = dot(sub(p, state.drag.last), dir);
+            const np = add({ x: tool.x, y: tool.y }, mul(dir, slide));
+            const pr = project(np, q.baseA, q.baseB);
+            const t = clampFoot(pr.t, q.extended);
+            const pt = lerp(q.baseA, q.baseB, t);
+            tool.x = pt.x; tool.y = pt.y;
+            const pull = distLine(p, q.baseA, q.baseB);
+            if (pull > 58) { tool.snapped = false; tool.x = p.x + state.drag.dx; tool.y = p.y + state.drag.dy; }
+          } else {
+            tool.x = p.x + state.drag.dx;
+            tool.y = p.y + state.drag.dy;
+            trySnap(false);
+          }
+        }
+        state.drag.last = p;
+        draw();
+      }
+      function onUp(e) {
+        if (!state.drag || e.pointerId !== state.drag.id) return;
+        trySnap(true);
+        state.drag = null;
+        scene.classList.remove("dragging");
+        draw();
+      }
+
+      function showPhase(n) {
+        $("phase1Acts").style.display = n === 1 ? "flex" : "none";
+        $("phase2Acts").classList.toggle("show", n === 2);
+        if (n === 1) {
+          $("taskTitle").textContent = "任務一：垂直定位";
+          $("hintBar").textContent = "拖尺貼底 · 高 ⊥ 底";
+        } else {
+          $("taskTitle").textContent = "任務二：底高配對";
+          $("hintBar").textContent = "揀正確底高";
+        }
+      }
+      function renderOptions() {
+        const q = state.q;
+        $("phase2Acts").innerHTML = q.options.map((o, i) => {
+          const lab = String.fromCharCode(65 + i);
+          return `<button type="button" class="candy ${i === 0 ? "mint" : i === 1 ? "sky" : "peach"}" data-ok="${o.ok ? 1 : 0}">${lab}. 底 ${o.b}cm／高 ${o.h}cm</button>`;
+        }).join("");
       }
 
       function newQuestion() {
         if (state.ended) return;
-        clearTimeout(state.nextTimer);
         state.busy = false;
         state.qStart = Date.now();
         clearToast();
-        hideStamp();
-        $("btnYes").disabled = false;
-        $("btnNo").disabled = false;
-        $("btnTriple").disabled = false;
         $("playerPill").textContent = `${state.classId} ${normalizeId(state.studentId)}`;
         $("qPill").textContent = `第 ${state.qIndex} 題`;
-
-        const roll = Math.random();
-        let q;
-        if (roll < 0.52) {
-          const kinds = ["perp-axis", "perp-rot", "perp-rot", "cross-acute", "cross-obtuse", "steep", "parallel", "perp-axis"];
-          const geom = makePair(pick(kinds));
-          q = { type: "yesno", geom, revealed: false };
-          $("taskTitle").textContent = "這兩條線互相垂直嗎？";
-          $("taskKind").textContent = "判斷";
-          showMode("yesno");
-        } else if (roll < 0.84) {
-          const yes = makePair(pick(["perp-axis", "perp-rot", "perp-rot"]));
-          const nos = [makePair("cross-acute"), makePair("parallel"), makePair(pick(["steep", "cross-obtuse"]))];
-          const options = shuffle([yes, ...nos]);
-          const answer = options.findIndex((g) => g.perp);
-          q = { type: "pick", options, answer, revealed: false };
-          $("taskTitle").textContent = "邊一組互相垂直？點選證物卡";
-          $("taskKind").textContent = "找出";
-          showMode("pick");
-          $("boardPick").innerHTML = ["A", "B", "C", "D"].map((lab, i) =>
-            `<button type="button" class="pick-card" data-i="${i}"><span class="tag">${lab}</span><canvas></canvas></button>`
-          ).join("");
-        } else {
-          const geom = makeTriple();
-          q = { type: "triple", geom, selected: new Set(), revealed: false };
-          $("taskTitle").textContent = "揀出所有互相垂直的線，再按確認";
-          $("taskKind").textContent = "搜證";
-          showMode("triple");
-          $("pairChips").innerHTML = geom.pairs.map((p, i) =>
-            `<button type="button" class="chip" data-i="${i}">${["①","②","③"][p.a]} 與 ${["①","②","③"][p.b]}</button>`
-          ).join("");
-        }
-        state.q = q;
-        requestAnimationFrame(() => requestAnimationFrame(drawQuestion));
+        const local = finishLocal(genLocal());
+        state.q = { local, phase: 1, extended: false, heightDrawn: false };
+        layoutCanvas();
+        placeTool();
+        $("taskKind").textContent = state.q.name;
+        $("btnExtend").style.display = state.q.needExtend ? "inline-flex" : "none";
+        $("btnExtend").disabled = false;
+        $("btnHeight").disabled = false;
+        showPhase(1);
+        draw();
       }
 
-      function noteMiss(trap) {
-        if (trap === "intersect") state.missIntersect += 1;
-        else if (trap === "rotated") state.missRotated += 1;
-        else if (trap === "parallel") state.missParallel += 1;
-        else state.missOther += 1;
-      }
-      function finishQ(ok, msg, trap) {
-        if (state.busy || state.ended) return;
-        state.busy = true;
-        $("btnYes").disabled = true;
-        $("btnNo").disabled = true;
-        $("btnTriple").disabled = true;
-        if (ok) {
-          state.done += 1;
-          state.qTimes.push(Math.max(1, Math.round((Date.now() - state.qStart) / 1000)));
-          sfx("ok");
-          setToast(true, msg || "破案！相交成直角，互相垂直。");
-          setStamp(true);
-        } else {
-          noteMiss(trap);
+      function confirmHeight() {
+        if (state.ended || !state.q || state.q.phase !== 1 || state.busy) return;
+        const q = state.q, tool = state.tool;
+        bounce($("btnHeight"));
+        if (!tool.snapped) {
+          setToast(false, "先把直角尺貼緊底邊");
           sfx("bad");
-          setToast(false, msg || "再查！垂直要成直角。");
-          setStamp(false);
+          return;
         }
-        if (state.q) state.q.revealed = true;
-        drawQuestion();
-        state.nextTimer = setTimeout(() => {
+        if (q.needExtend && !q.extended) {
+          state.missObtuse += 1;
+          setToast(false, "先延伸底邊");
+          sfx("bad");
+          return;
+        }
+        const { perp } = toolCorners(tool);
+        if (q.opp != null) {
+          if (dist({ x: tool.x, y: tool.y }, q.H) > 28) {
+            state.missPerp += 1;
+            setToast(false, "記得高要和底『垂直』，並接住頂點喔！");
+            sfx("bad");
+            return;
+          }
+        } else {
+          const hit = rayHitSeg({ x: tool.x, y: tool.y }, perp, q.oppA, q.oppB);
+          if (!hit || hit.t < 8) {
+            state.missPerp += 1;
+            setToast(false, "記得高要和底『垂直』，並接住對邊喔！");
+            sfx("bad");
+            return;
+          }
+        }
+        q.heightDrawn = true;
+        q.H = { x: tool.x, y: tool.y };
+        q.phase = 2;
+        sfx("ok");
+        setToast(true, "劃高成功！");
+        showPhase(2);
+        renderOptions();
+        draw();
+      }
+      function extendBase() {
+        if (!state.q || state.q.phase !== 1) return;
+        state.q.extended = true;
+        $("btnExtend").disabled = true;
+        setToast(true, "底邊已延伸");
+        sfx("snap");
+        draw();
+      }
+      function pickPair(ok) {
+        if (state.ended || !state.q || state.q.phase !== 2 || state.busy) return;
+        if (!ok) {
+          state.missPair += 1;
+          setToast(false, "底高要成對");
+          sfx("bad");
+          return;
+        }
+        state.busy = true;
+        state.done += 1;
+        state.qTimes.push(Math.max(1, Math.round((Date.now() - state.qStart) / 1000)));
+        setToast(true, "配對成功！");
+        sfx("ok");
+        burstConfetti(70);
+        setTimeout(() => {
           if (state.ended) return;
           state.qIndex += 1;
           newQuestion();
-        }, 1150);
-      }
-
-      function answerYesNo(sayYes) {
-        const q = state.q;
-        if (!q || q.type !== "yesno") return;
-        const actual = !!q.geom.perp;
-        const ok = sayYes === actual;
-        if (ok) {
-          finishQ(true, actual ? "破案！兩線相交成直角，互相垂直。" : "正確！呢組唔係垂直。");
-        } else if (sayYes && q.geom.trap === "intersect") {
-          finishQ(false, "相交 ≠ 垂直。要成直角先算。", "intersect");
-        } else if (sayYes && q.geom.trap === "parallel") {
-          finishQ(false, "平行線唔會垂直。", "parallel");
-        } else if (!sayYes && q.geom.trap === "rotated") {
-          finishQ(false, "斜斜都可以垂直！只要成直角。", "rotated");
-        } else if (!sayYes && actual) {
-          finishQ(false, "佢哋相交成直角，所以互相垂直。", q.geom.trap || "rotated");
-        } else {
-          finishQ(false, q.geom.reason || "再睇清楚直角。", q.geom.trap || "other");
-        }
-      }
-
-      function answerPick(i) {
-        const q = state.q;
-        if (!q || q.type !== "pick" || state.busy) return;
-        const cards = $("boardPick").querySelectorAll(".pick-card");
-        cards.forEach((card, idx) => {
-          card.classList.toggle("ok", idx === q.answer);
-          card.classList.toggle("bad", idx === i && i !== q.answer);
-          card.classList.toggle("dim", idx !== q.answer && idx !== i);
-        });
-        const chosen = q.options[i];
-        if (i === q.answer) {
-          finishQ(true, "破案！搵到相交成直角嗰組。");
-        } else {
-          const trap = chosen && chosen.trap === "parallel" ? "parallel"
-            : (q.options[q.answer].trap === "rotated" ? "rotated" : (chosen && chosen.trap) || "intersect");
-          const msg = chosen && chosen.trap === "parallel" ? "嗰組係平行，唔係垂直。"
-            : (q.options[q.answer].trap === "rotated" ? "正確嗰組斜斜都可以垂直。" : "相交唔等於垂直，要成直角。");
-          finishQ(false, msg, trap);
-        }
-      }
-
-      function toggleChip(i) {
-        const q = state.q;
-        if (!q || q.type !== "triple" || state.busy) return;
-        if (q.selected.has(i)) q.selected.delete(i); else q.selected.add(i);
-        $("pairChips").querySelectorAll(".chip").forEach((el) => {
-          const idx = Number(el.getAttribute("data-i"));
-          el.classList.toggle("on", q.selected.has(idx));
-        });
-      }
-      function answerTriple() {
-        const q = state.q;
-        if (!q || q.type !== "triple") return;
-        const pairs = q.geom.pairs;
-        let ok = true;
-        pairs.forEach((p, i) => {
-          const on = q.selected.has(i);
-          if (on !== p.perp) ok = false;
-        });
-        $("pairChips").querySelectorAll(".chip").forEach((el) => {
-          const idx = Number(el.getAttribute("data-i"));
-          el.classList.remove("on", "ok", "bad");
-          if (pairs[idx].perp) el.classList.add("ok");
-          else if (q.selected.has(idx)) el.classList.add("bad");
-        });
-        if (ok) finishQ(true, "破案！所有垂直組合都搵到。");
-        else {
-          const missedRot = pairs.some((p, i) => p.perp && !q.selected.has(i)) && q.geom.trap === "rotated";
-          const extra = pairs.some((p, i) => !p.perp && q.selected.has(i));
-          finishQ(false,
-            extra ? "有組合相交但唔係直角。" : "仲有互相垂直嘅線未搵到。",
-            missedRot ? "rotated" : (extra ? "intersect" : "other")
-          );
-        }
+        }, 700);
       }
 
       function startGame() {
@@ -1055,10 +1193,9 @@
         state.qIndex = 1;
         state.done = 0;
         state.qTimes = [];
-        state.missIntersect = 0;
-        state.missRotated = 0;
-        state.missParallel = 0;
-        state.missOther = 0;
+        state.missPerp = 0;
+        state.missObtuse = 0;
+        state.missPair = 0;
         state.ended = false;
         state.busy = false;
         state.sheetSent = false;
@@ -1117,9 +1254,7 @@
         const sel = dashFilters[key];
         return !!(sel && sel.size < uniqueValues(key).length);
       }
-      function anyFilterOn() {
-        return DASH_COLS.some((c) => filterActive(c.key));
-      }
+      function anyFilterOn() { return DASH_COLS.some((c) => filterActive(c.key)); }
       function passesFilters(e) {
         return DASH_COLS.every((col) => {
           const sel = dashFilters[col.key];
@@ -1234,19 +1369,17 @@
         const base = classLogs();
         const logs = base.filter(passesFilters);
         const avgDone = logs.length ? Math.round((logs.reduce((n, e) => n + (e.done || 0), 0) / logs.length) * 10) / 10 : 0;
-        const interTotal = logs.reduce((n, e) => n + (e.intersectErr || 0), 0);
-        const rotTotal = logs.reduce((n, e) => n + (e.rotatedErr || 0), 0);
+        const perpTotal = logs.reduce((n, e) => n + (e.perpErr || 0), 0);
+        const obtTotal = logs.reduce((n, e) => n + (e.obtuseErr || 0), 0);
         const classes = [...new Set(dashAllLogs.map((s) => s.classId).filter(Boolean))].sort();
         $("classFilter").innerHTML = `<option value="ALL">全部班別</option>` +
           classes.map((c) => `<option value="${escapeHtml(c)}" ${c === dashClass ? "selected" : ""}>${escapeHtml(c)}</option>`).join("");
         $("analysisCards").innerHTML = `
           <div class="stat s1"><b>平均 3 分鐘完成題數</b><strong>${logs.length ? avgDone : "—"}</strong></div>
-          <div class="stat s2"><b>誤當相交即垂直</b><strong>${interTotal}</strong></div>
-          <div class="stat s3"><b>漏判斜向垂直</b><strong>${rotTotal}</strong></div>
+          <div class="stat s2"><b>高未垂直／未接頂點</b><strong>${perpTotal}</strong></div>
+          <div class="stat s3"><b>鈍角未延伸</b><strong>${obtTotal}</strong></div>
         `;
-        if ($("dashCount")) {
-          $("dashCount").textContent = dashAllLogs.length ? `顯示 ${logs.length} / ${base.length} 筆` : "";
-        }
+        if ($("dashCount")) $("dashCount").textContent = dashAllLogs.length ? `顯示 ${logs.length} / ${base.length} 筆` : "";
         if ($("clearFiltersBtn")) $("clearFiltersBtn").style.visibility = anyFilterOn() ? "visible" : "hidden";
         if (!dashAllLogs.length) {
           $("studentRecords").innerHTML = `<div class="empty">${sourceEl && sourceEl.textContent.indexOf("未能") >= 0 ? "未能連線 Google 試算表" : "未有紀錄"}</div>`;
@@ -1297,8 +1430,8 @@
         $("studentRecords").innerHTML = `<div class="empty">載入全班分數…</div>`;
         $("analysisCards").innerHTML = `
           <div class="stat s1"><b>平均 3 分鐘完成題數</b><strong>…</strong></div>
-          <div class="stat s2"><b>誤當相交即垂直</b><strong>…</strong></div>
-          <div class="stat s3"><b>漏判斜向垂直</b><strong>…</strong></div>
+          <div class="stat s2"><b>高未垂直／未接頂點</b><strong>…</strong></div>
+          <div class="stat s3"><b>鈍角未延伸</b><strong>…</strong></div>
         `;
         let source = "";
         try {
@@ -1313,17 +1446,15 @@
         paintDash();
       }
 
-      const canvas = $("confetti");
-      const ctx = canvas.getContext("2d");
+      const confetti = $("confetti");
+      const cfx = confetti.getContext("2d");
       let pieces = [];
-      function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-      window.addEventListener("resize", () => { resizeCanvas(); if (screens.game.classList.contains("active")) drawQuestion(); });
-      resizeCanvas();
+      function resizeConfetti() { confetti.width = window.innerWidth; confetti.height = window.innerHeight; }
       function burstConfetti(count) {
         const colors = ["#ff8fab", "#7ce0c3", "#ffe066", "#cbb2fe", "#8ecaff", "#ffc09f"];
         for (let i = 0; i < count; i++) {
           pieces.push({
-            x: canvas.width * (0.2 + Math.random() * 0.6), y: -12,
+            x: confetti.width * (0.2 + Math.random() * 0.6), y: -12,
             r: 4 + Math.random() * 6, c: colors[i % colors.length],
             vx: -3 + Math.random() * 6, vy: 3 + Math.random() * 5,
             rot: Math.random() * 360, vr: -8 + Math.random() * 16,
@@ -1332,20 +1463,29 @@
         }
       }
       (function tick() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        cfx.clearRect(0, 0, confetti.width, confetti.height);
         pieces = pieces.filter((p) => p.life > 0);
         pieces.forEach((p) => {
           p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.rot += p.vr; p.life -= 1;
-          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
-          ctx.globalAlpha = Math.max(0, p.life / 70); ctx.fillStyle = p.c;
-          if (p.shape === 0) ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
-          else if (p.shape === 1) { ctx.beginPath(); ctx.arc(0, 0, p.r, 0, Math.PI * 2); ctx.fill(); }
-          else { ctx.beginPath(); ctx.moveTo(0, -p.r); ctx.lineTo(p.r, p.r); ctx.lineTo(-p.r, p.r); ctx.fill(); }
-          ctx.restore();
+          cfx.save(); cfx.translate(p.x, p.y); cfx.rotate(p.rot * Math.PI / 180);
+          cfx.globalAlpha = Math.max(0, p.life / 70); cfx.fillStyle = p.c;
+          if (p.shape === 0) cfx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
+          else if (p.shape === 1) { cfx.beginPath(); cfx.arc(0, 0, p.r, 0, Math.PI * 2); cfx.fill(); }
+          else { cfx.beginPath(); cfx.moveTo(0, -p.r); cfx.lineTo(p.r, p.r); cfx.lineTo(-p.r, p.r); cfx.fill(); }
+          cfx.restore();
         });
         requestAnimationFrame(tick);
       })();
+      resizeConfetti();
+      window.addEventListener("resize", () => {
+        resizeConfetti();
+        if (screens.game.classList.contains("active")) { layoutCanvas(); draw(); }
+      });
 
+      scene.addEventListener("pointerdown", onDown);
+      scene.addEventListener("pointermove", onMove);
+      scene.addEventListener("pointerup", onUp);
+      scene.addEventListener("pointercancel", onUp);
       $("startBtn").addEventListener("click", startGame);
       $("classId").addEventListener("keydown", (e) => { if (e.key === "Enter") $("studentId").focus(); });
       $("studentId").addEventListener("keydown", (e) => { if (e.key === "Enter") startGame(); });
@@ -1371,7 +1511,7 @@
       $("pinInput").addEventListener("keydown", (e) => { if (e.key === "Enter") $("pinOk").click(); });
       $("dashBackBtn").addEventListener("click", () => { closeFilterMenu(); showScreen("login"); });
       $("backLoginBtn").addEventListener("click", () => {
-        if (!state.ended && (state.done > 0 || state.missIntersect + state.missRotated + state.missParallel + state.missOther > 0)) {
+        if (!state.ended && (state.done > 0 || state.missPerp + state.missObtuse + state.missPair > 0)) {
           endSession();
           return;
         }
@@ -1434,8 +1574,7 @@
         const values = uniqueValues(key);
         const val = values[Number(inp.getAttribute("data-idx"))];
         if (val == null) return;
-        const all = values;
-        const sel = dashFilters[key] ? new Set(dashFilters[key]) : new Set(all);
+        const sel = dashFilters[key] ? new Set(dashFilters[key]) : new Set(values);
         if (inp.checked) sel.add(val); else sel.delete(val);
         setColFilter(key, sel);
       });
@@ -1452,18 +1591,12 @@
         closeFilterMenu();
       });
       $("refreshDashBtn").addEventListener("click", () => renderDashboard($("classFilter").value || "ALL", true));
-      $("btnYes").addEventListener("click", () => answerYesNo(true));
-      $("btnNo").addEventListener("click", () => answerYesNo(false));
-      $("btnTriple").addEventListener("click", answerTriple);
-      $("boardPick").addEventListener("click", (e) => {
-        const card = e.target.closest(".pick-card");
-        if (!card) return;
-        answerPick(Number(card.getAttribute("data-i")));
-      });
-      $("pairChips").addEventListener("click", (e) => {
-        const chip = e.target.closest(".chip");
-        if (!chip) return;
-        toggleChip(Number(chip.getAttribute("data-i")));
+      $("btnExtend").addEventListener("click", extendBase);
+      $("btnHeight").addEventListener("click", confirmHeight);
+      $("phase2Acts").addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-ok]");
+        if (!btn) return;
+        pickPair(btn.getAttribute("data-ok") === "1");
       });
     })();
   </script>
