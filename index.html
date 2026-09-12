@@ -397,10 +397,7 @@
       const ROT_OFFSET = 48;
       const ROT_R = 24;
       const TITLE = "底高偵探：尋找垂直線";
-      const TIP_PERP = "小提醒：由底畫垂直線到頂點或對邊。";
-      const TIP_OBTUSE = "小提醒：交點在底外，須先延長底。";
-      const TIP_PAIR = "小提醒：底與高須成對。";
-      const TIP_PERFECT = "小提醒：零失誤，已完全掌握。";
+      const TIP_PERFECT = "🌟 小提醒：零失誤，表現出色！";
 
       const state = {
         classId: "", studentId: "",
@@ -467,22 +464,22 @@
         if (a) parts.push({
           short: "高未垂直",
           sheet: `高未垂直${a}次（未由底畫垂直線到頂點或對邊）`,
-          line: `高未垂直（${a}次）：須由底畫垂直線到頂點或對邊`
+          line: `📐 高未垂直（${a}次）：由底畫垂直線到頂點或對邊`
         });
         if (b) parts.push({
           short: "未延長",
           sheet: `鈍角未延長${b}次（交點在底外）`,
-          line: `未延長（${b}次）：交點在底外，須先延長`
+          line: `✏️ 未延長（${b}次）：交點在底外，先延長底`
         });
         if (c) parts.push({
           short: "底高配對",
           sheet: `底高配對混淆${c}次`,
-          line: `底高配對（${c}次）：底與高須成對`
+          line: `🧩 底高配對（${c}次）：底與高須成對`
         });
         return {
           short: parts.map((p) => p.short).join("、"),
           sheet: parts.map((p) => p.sheet).join("；"),
-          tip: "小提醒：\n" + parts.map((p) => "• " + p.line).join("\n")
+          tip: "💡 小提醒：已有進步，下次可再留意——\n" + parts.map((p) => p.line).join("\n") + "\n✨ 再接再厲，必能掌握。"
         };
       }
       function sheetConfigured() {
@@ -636,7 +633,9 @@
         state.ended = true; state.remain = 0; renderTimer(); stopCountdown();
         const d = saveSession();
         sendToGoogleSheet(d);
-        $("reportScore").textContent = `3 分鐘內成功配對 ${state.done} 組底與高。`;
+        $("reportScore").textContent = state.done
+          ? `🎉 做得好！3 分鐘內成功配對 ${state.done} 組底與高。`
+          : `🎉 做得好！已完成 3 分鐘挑戰。`;
         $("reportTip").textContent = d.tip;
         $("reportModal").classList.add("show");
         burstConfetti(180); sfx("win");
