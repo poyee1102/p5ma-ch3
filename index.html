@@ -459,26 +459,24 @@
       }
       function diagnose() {
         const a = state.missPerp, b = state.missObtuse, c = state.missPair;
-        if (a + b + c === 0) return { short: "零失誤", sheet: "完全掌握垂直概念，零失誤過關", tip: TIP_PERFECT };
+        if (a + b + c === 0) return { short: "零失誤", sheet: "零失誤", tip: TIP_PERFECT };
         const parts = [];
         if (a) parts.push({
-          short: "高未垂直",
-          sheet: `高未垂直${a}次（未由底畫垂直線到頂點或對邊）`,
+          sheet: `高未垂直${a}次`,
           line: `📐 高未垂直（${a}次）：由底畫垂直線到頂點或對邊`
         });
         if (b) parts.push({
-          short: "未延長",
-          sheet: `鈍角未延長${b}次（頂點或對邊在底外）`,
+          sheet: `未延長${b}次`,
           line: `✏️ 未延長（${b}次）：頂點或對邊在底外，先延長底`
         });
         if (c) parts.push({
-          short: "底高配對",
-          sheet: `底高配對混淆${c}次`,
+          sheet: `底高配對${c}次`,
           line: `🧩 底高配對（${c}次）：底與高須成對`
         });
+        const sheet = parts.map((p) => p.sheet).join("；");
         return {
-          short: parts.map((p) => p.short).join("、"),
-          sheet: parts.map((p) => p.sheet).join("；"),
+          short: sheet,
+          sheet,
           tip: "💡 小提醒：已有進步，下次可再留意——\n" + parts.map((p) => p.line).join("\n") + "\n✨ 再接再厲，必能掌握。"
         };
       }
@@ -535,8 +533,8 @@
             classId: who.classId, studentId: who.studentId,
             done: Number(r.score) || 0, avgSec: parseAvgSec(r.avgTime),
             diagnosis: diagnostic,
-            perpErr: /垂直/.test(diagnostic) && /頂點|接住|對邊|接觸|通過|到達|垂線|垂直線/.test(diagnostic) ? 1 : 0,
-            obtuseErr: /延長|延伸|垂足|交點在底外|頂點或對邊在底外/.test(diagnostic) ? 1 : 0,
+            perpErr: /高未垂直/.test(diagnostic) ? 1 : 0,
+            obtuseErr: /未延長|鈍角未延長|垂足|頂點或對邊在底外/.test(diagnostic) ? 1 : 0,
             time: r.time || "", game: r.game || r.chapter || ""
           };
         }).filter((e) => e.studentId || e.classId);
