@@ -78,27 +78,23 @@
     .ghost { background: #fff; color: var(--soft); box-shadow: 0 5px 0 #ecd6de; }
     .sq { width: 52px; flex: 0 0 52px !important; padding: 0; font-size: 22px; border-radius: 16px; }
 
-    #screen-login { align-items: center; justify-content: center; }
-    .login { width: min(480px, 100%); padding: 22px 16px 16px; text-align: center; border: 4px solid #fff; box-shadow: 0 10px 0 #ff7eb6, 0 16px 28px rgba(80, 20, 60, 0.18); }
+    #screen-login { align-items: center; justify-content: center; gap: 2px; }
+    .login { width: min(400px, 100%); padding: 18px 18px 14px; text-align: center; }
     .mascot {
-      width: 68px; height: 68px; margin: 0 auto 10px; border-radius: 50%;
-      display: grid; place-items: center; font-size: 32px; background: #fff8c4;
-      border: 4px solid #fff; box-shadow: 0 6px 0 #e4b82a;
+      width: 72px; height: 72px; margin: 0 auto 6px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 36px; background: #fff;
+      box-shadow: 0 8px 0 #ffc2e0;
       animation: floaty 2.6s ease-in-out infinite;
     }
     .title {
       font-family: "Fredoka", "Noto Sans TC", sans-serif;
-      display: inline-block;
-      font-size: clamp(17px, 4.2vw, 28px); font-weight: 900; letter-spacing: 0.03em;
-      margin: 0 0 14px; line-height: 1.35; padding: 10px 14px;
+      font-size: clamp(22px, 5.2vw, 36px); font-weight: 900; letter-spacing: 0.04em;
+      margin: 0 0 12px; line-height: 1.35; padding: 0;
       color: #ffffff;
-      background: linear-gradient(180deg, #7b5cff 0%, #4b2ed6 100%);
-      border: 4px solid #fff;
-      border-radius: 22px;
-      text-shadow: 0 3px 0 #1c0d55, 0 5px 0 rgba(28, 13, 85, 0.35);
-      box-shadow: 0 6px 0 #2a1870, 0 10px 18px rgba(40, 20, 90, 0.28);
-      animation: floaty 3.2s ease-in-out infinite;
+      background: none; border: 0; border-radius: 0; box-shadow: none;
+      text-shadow: 0 3px 0 #3b1d6e, 0 6px 0 #24124a, 2px 4px 10px rgba(40, 16, 80, 0.35);
     }
+    .title span { display: inline-block; color: #fff; }
     .field { text-align: left; margin-bottom: 10px; }
     .field label { display: block; font-weight: 900; font-size: 15px; margin-bottom: 4px; }
     .field input {
@@ -287,9 +283,9 @@
   <canvas id="confetti"></canvas>
   <div class="app">
     <section id="screen-login" class="screen active">
+      <div class="mascot">🔍</div>
+      <h1 class="title" id="titleWave"></h1>
       <div class="card login">
-        <div class="mascot">🔎</div>
-        <h1 class="title" id="titleWave"></h1>
         <div class="field">
           <label for="classId">班別</label>
           <input id="classId" maxlength="8" placeholder="5A" autocomplete="off" />
@@ -422,7 +418,9 @@
         void el.offsetWidth;
         el.classList.add("bounce");
       }
-      $("titleWave").textContent = TITLE;
+      $("titleWave").innerHTML = [...TITLE].map((ch, i) =>
+        `<span style="animation:floaty 2.6s ${i * 0.06}s ease-in-out infinite">${ch}</span>`
+      ).join("");
 
       function loadStore() {
         try {
@@ -702,12 +700,8 @@
         });
       }
       function genLocal() {
-        const roll = Math.random();
-        if (roll < 0.28) return genAcute();
-        if (roll < 0.48) return genRight();
-        if (roll < 0.74) return genObtuse();
-        if (roll < 0.88) return genPara();
-        return genTrap();
+        if (state.qIndex % 2 === 1) return pick([genAcute, genRight, genObtuse])();
+        return Math.random() < 0.55 ? genPara() : genTrap();
       }
       function genAcute() {
         for (let n = 0; n < 40; n++) {
@@ -809,14 +803,7 @@
       }
 
       function toolSize() {
-        const q = state.q;
-        const canvas = Math.min(state.cssW || 400, state.cssH || 400);
-        if (q && q.baseA && q.baseB) {
-          const baseLen = dist(q.baseA, q.baseB);
-          const hLen = distLine(q.target || q.baseA, q.baseA, q.baseB);
-          return Math.max(88, Math.min(baseLen * 0.46, Math.max(hLen * 0.98, 88), canvas * 0.28, 150));
-        }
-        return Math.max(96, canvas * 0.22);
+        return 104;
       }
       function toolCorners(tool) {
         const L = tool.L;
@@ -830,11 +817,13 @@
       }
       function placeTool() {
         const L = toolSize();
+        const w = state.cssW || 400, h = state.cssH || 400;
         state.tool = {
-          x: Math.min(state.cssW - L * 0.85, Math.max(L * 0.35, state.cssW * 0.8)),
-          y: Math.min(state.cssH - L * 0.5, Math.max(L * 0.35, state.cssH * 0.74)),
-          ang: 0, snapped: false, L, near: false
+          x: w * 0.5,
+          y: Math.min(h - L * 0.42, Math.max(L * 0.45, h * 0.68)),
+          ang: 0, snapped: false, L, near: false, hotRot: false
         };
+        scene.style.pointerEvents = "auto";
       }
       function snapAngle(baseAng, P, target) {
         let best = baseAng, bestDot = -Infinity;
