@@ -320,7 +320,7 @@
           <h2 id="taskTitle">任務一：垂直定位</h2>
           <p id="taskKind">銳角△</p>
         </div>
-        <div class="hintbar" id="hintBar">1. 旋轉三角尺，對齊底邊　　2. 貼緊底邊　　3. 由底畫垂線到頂點</div>
+        <div class="hintbar" id="hintBar">1. 旋轉三角尺，對齊底邊　　2. 貼緊底邊　　3. 由底畫垂直線到頂點</div>
         <div class="board" id="board">
           <canvas id="scene"></canvas>
         </div>
@@ -397,7 +397,7 @@
       const ROT_OFFSET = 48;
       const ROT_R = 24;
       const TITLE = "底高偵探：尋找垂直線";
-      const TIP_PERP = "小提醒：由底畫垂線到頂點或對邊。";
+      const TIP_PERP = "小提醒：由底畫垂直線到頂點或對邊。";
       const TIP_OBTUSE = "小提醒：交點在底邊外，須先延長底邊。";
       const TIP_PAIR = "小提醒：底與高須成對。";
       const TIP_PERFECT = "小提醒：零失誤，已完全掌握。";
@@ -466,8 +466,8 @@
         const parts = [];
         if (a) parts.push({
           short: "高未垂直",
-          sheet: `高未垂直${a}次（未由底畫垂線到頂點或對邊）`,
-          line: `高未垂直（${a}次）：須由底畫垂線到頂點或對邊`
+          sheet: `高未垂直${a}次（未由底畫垂直線到頂點或對邊）`,
+          line: `高未垂直（${a}次）：須由底畫垂直線到頂點或對邊`
         });
         if (b) parts.push({
           short: "未延長",
@@ -538,7 +538,7 @@
             classId: who.classId, studentId: who.studentId,
             done: Number(r.score) || 0, avgSec: parseAvgSec(r.avgTime),
             diagnosis: diagnostic,
-            perpErr: /垂直/.test(diagnostic) && /頂點|接住|對邊|接觸|通過|到達|垂線/.test(diagnostic) ? 1 : 0,
+            perpErr: /垂直/.test(diagnostic) && /頂點|接住|對邊|接觸|通過|到達|垂線|垂直線/.test(diagnostic) ? 1 : 0,
             obtuseErr: /延長|延伸|垂足|交點在底邊外/.test(diagnostic) ? 1 : 0,
             time: r.time || "", game: r.game || r.chapter || ""
           };
@@ -724,18 +724,18 @@
       function isTriQ(q) { return !!(q && q.opp != null); }
       function phase1Steps(q) {
         const ext = (q && q.needExtend && !q.extended) ? "貼緊底邊（須延長則先延長）" : "貼緊底邊";
-        let aim = "由底畫垂線到頂點";
-        if (q && q.kind === "trap") aim = "由底畫垂線到平行邊";
-        else if (q && !isTriQ(q)) aim = "由底畫垂線到對邊";
+        let aim = "由底畫垂直線到頂點";
+        if (q && q.kind === "trap") aim = "由底畫垂直線到平行邊";
+        else if (q && !isTriQ(q)) aim = "由底畫垂直線到對邊";
         return ["旋轉三角尺，對齊底邊", ext, aim];
       }
       function setHintSteps(steps) {
         $("hintBar").textContent = steps.map((s, i) => (i + 1) + ". " + s).join("　　");
       }
       function missHeightMsg(q) {
-        if (isTriQ(q)) return "垂線未到頂點　請沿底邊移動";
-        if (q && q.kind === "trap") return "垂線未到平行邊　請沿底邊移動";
-        return "垂線未到對邊　請沿底邊移動";
+        if (isTriQ(q)) return "垂直線未到頂點　沿底邊移動";
+        if (q && q.kind === "trap") return "垂直線未到平行邊　沿底邊移動";
+        return "垂直線未到對邊　沿底邊移動";
       }
 
       function tiltPts(pts) {
@@ -1039,7 +1039,7 @@
           tool.snapped = true;
           if (!was) {
             sfx("snap");
-            setToast(true, isTriQ(q) ? "已貼緊底邊　請移至頂點" : "已貼緊底邊　請移至對邊");
+            setToast(true, isTriQ(q) ? "已貼緊底邊　沿底邊移至頂點" : "已貼緊底邊　沿底邊移至對邊");
           }
           updateHeightBtn();
         } else if (tool.snapped && (Math.min(dAlong, dPerp) > SNAP_DIST + 16 || Math.min(aAlong, aPerp) > ALIGN_RAD + 0.12)) {
@@ -1780,7 +1780,7 @@
         const q = state.q, tool = state.tool;
         bounce($("btnHeight"));
         if (!tool) {
-          setToast(false, "請先對齊並貼緊底邊");
+          setToast(false, "先對齊並貼緊底邊");
           sfx("bad");
           return;
         }
@@ -1789,13 +1789,13 @@
           || alongAlign(tool.ang + Math.PI / 2, baseAng) <= ALIGN_RAD;
         if (!tool.snapped || !angOk) {
           state.missPerp += 1;
-          setToast(false, "尚未貼緊底邊　請先對齊");
+          setToast(false, "尚未貼緊底邊　先對齊");
           sfx("bad");
           return;
         }
         if (q.needExtend && !q.extended) {
           state.missObtuse += 1;
-          setToast(false, "交點在底邊外　請先延長底邊");
+          setToast(false, "交點在底邊外　先延長底邊");
           sfx("bad");
           return;
         }
@@ -1844,7 +1844,7 @@
         }
         state.q.extended = true;
         syncExtendBtn();
-        setToast(true, "已延長底邊　請沿虛線移至頂點");
+        setToast(true, "已延長底邊　沿虛線移至頂點");
         sfx("snap");
         if (state.tool && state.tool.snapped) trySnap();
         setHintSteps(phase1Steps(state.q));
@@ -2059,7 +2059,7 @@
           classes.map((c) => `<option value="${escapeHtml(c)}" ${c === dashClass ? "selected" : ""}>${escapeHtml(c)}</option>`).join("");
         $("analysisCards").innerHTML = `
           <div class="stat s1"><b>平均 3 分鐘完成題數</b><strong>${logs.length ? avgDone : "—"}</strong></div>
-          <div class="stat s2"><b>高未垂直／未畫垂線</b><strong>${perpTotal}</strong></div>
+          <div class="stat s2"><b>高未垂直／未畫垂直線</b><strong>${perpTotal}</strong></div>
           <div class="stat s3"><b>鈍角未延長</b><strong>${obtTotal}</strong></div>
         `;
         if ($("dashCount")) $("dashCount").textContent = dashAllLogs.length ? `顯示 ${logs.length} / ${base.length} 筆` : "";
@@ -2113,7 +2113,7 @@
         $("studentRecords").innerHTML = `<div class="empty">載入全班分數…</div>`;
         $("analysisCards").innerHTML = `
           <div class="stat s1"><b>平均 3 分鐘完成題數</b><strong>…</strong></div>
-          <div class="stat s2"><b>高未垂直／未畫垂線</b><strong>…</strong></div>
+          <div class="stat s2"><b>高未垂直／未畫垂直線</b><strong>…</strong></div>
           <div class="stat s3"><b>鈍角未延長</b><strong>…</strong></div>
         `;
         let source = "";
