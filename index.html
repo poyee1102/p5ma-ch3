@@ -736,14 +736,21 @@
         }
         return state.roundKinds[slot]();
       }
+      function numsDistinct(arr) {
+        const a = arr.filter((x) => x != null);
+        return new Set(a).size === a.length;
+      }
       function genAcute() {
-        for (let n = 0; n < 40; n++) {
-          const base = rint(8, 12), height = rint(6, 9);
+        for (let n = 0; n < 80; n++) {
+          const base = rint(8, 13), height = rint(5, 10);
+          if (height === base) continue;
           const tx = rand(0.28, 0.72) * base;
           const pts = [{ x: 0, y: 0 }, { x: base, y: 0 }, { x: tx, y: height }];
-          if (isAcuteTri(pts)) {
-            return { kind: "acute", name: "銳角△", verts: pts, baseI: 0, baseJ: 1, opp: 2, baseCm: base, heightCm: height };
-          }
+          if (!isAcuteTri(pts)) continue;
+          const left = Math.max(1, Math.round(Math.hypot(tx, height)));
+          const right = Math.max(1, Math.round(Math.hypot(base - tx, height)));
+          if (!numsDistinct([base, height, left, right])) continue;
+          return { kind: "acute", name: "銳角△", verts: pts, baseI: 0, baseJ: 1, opp: 2, baseCm: base, heightCm: height };
         }
         return genRight();
       }
@@ -754,24 +761,51 @@
         return { kind: "right", name: "直角△", verts: pts, baseI: 0, baseJ: 1, opp: 2, baseCm: a, heightCm: b };
       }
       function genObtuse() {
-        const base = rint(8, 12), height = rint(5, 8);
-        const tx = Math.random() < 0.5 ? -rand(1.8, 3.6) : base + rand(1.8, 3.6);
-        const pts = [{ x: 0, y: 0 }, { x: base, y: 0 }, { x: tx, y: height }];
-        return { kind: "obtuse", name: "鈍角△", verts: pts, baseI: 0, baseJ: 1, opp: 2, baseCm: base, heightCm: height };
+        for (let n = 0; n < 80; n++) {
+          const base = rint(8, 13), height = rint(5, 9);
+          if (height === base) continue;
+          const tx = Math.random() < 0.5 ? -rand(1.8, 3.8) : base + rand(1.8, 3.8);
+          const pts = [{ x: 0, y: 0 }, { x: base, y: 0 }, { x: tx, y: height }];
+          const left = Math.max(1, Math.round(Math.hypot(tx, height)));
+          const right = Math.max(1, Math.round(Math.hypot(base - tx, height)));
+          if (!numsDistinct([base, height, left, right])) continue;
+          return { kind: "obtuse", name: "鈍角△", verts: pts, baseI: 0, baseJ: 1, opp: 2, baseCm: base, heightCm: height };
+        }
+        const pts = [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: -2.4, y: 6 }];
+        return { kind: "obtuse", name: "鈍角△", verts: pts, baseI: 0, baseJ: 1, opp: 2, baseCm: 10, heightCm: 6 };
       }
       function genPara() {
-        const base = rint(8, 12), h = rint(5, 8), sk = rint(2, 5) * (Math.random() < 0.5 ? 1 : -1);
-        const pts = [{ x: 0, y: 0 }, { x: base, y: 0 }, { x: base + sk, y: h }, { x: sk, y: h }];
-        return { kind: "para", name: "平行四邊形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2], baseCm: base, heightCm: h };
+        for (let n = 0; n < 80; n++) {
+          const base = rint(8, 13), h = rint(5, 9);
+          if (h === base) continue;
+          const sk = rint(2, 6) * (Math.random() < 0.5 ? 1 : -1);
+          const slant = Math.max(1, Math.round(Math.hypot(sk, h)));
+          if (!numsDistinct([base, h, slant])) continue;
+          const pts = [{ x: 0, y: 0 }, { x: base, y: 0 }, { x: base + sk, y: h }, { x: sk, y: h }];
+          return { kind: "para", name: "平行四邊形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2], baseCm: base, heightCm: h };
+        }
+        const pts = [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 13, y: 6 }, { x: 3, y: 6 }];
+        return { kind: "para", name: "平行四邊形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2], baseCm: 10, heightCm: 6 };
       }
       function genTrap() {
-        const bot = rint(10, 14), top = rint(5, 8), h = rint(5, 8);
-        const off = rint(1, Math.max(1, bot - top - 1));
-        const pts = [{ x: 0, y: 0 }, { x: bot, y: 0 }, { x: off + top, y: h }, { x: off, y: h }];
-        if (Math.random() < 0.4) {
-          return { kind: "trap", name: "梯形", verts: pts, baseI: 3, baseJ: 2, oppEdge: [0, 1], baseCm: top, heightCm: h };
+        for (let n = 0; n < 80; n++) {
+          const bot = rint(10, 15), top = rint(5, 9), h = rint(5, 9);
+          if (!numsDistinct([bot, top, h])) continue;
+          const off = rint(1, Math.max(1, bot - top - 1));
+          const l1 = Math.hypot(off, h), l2 = Math.hypot(bot - off - top, h);
+          const r1 = Math.max(1, Math.round(l1)), r2 = Math.max(1, Math.round(l2));
+          const equalLegs = Math.abs(l1 - l2) <= 0.08 * Math.max(l1, l2);
+          if (equalLegs) {
+            if ([bot, top, h].indexOf(r1) >= 0) continue;
+          } else if (!numsDistinct([bot, top, h, r1, r2])) continue;
+          const pts = [{ x: 0, y: 0 }, { x: bot, y: 0 }, { x: off + top, y: h }, { x: off, y: h }];
+          if (Math.random() < 0.4) {
+            return { kind: "trap", name: "梯形", verts: pts, baseI: 3, baseJ: 2, oppEdge: [0, 1], baseCm: top, heightCm: h };
+          }
+          return { kind: "trap", name: "梯形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2], baseCm: bot, heightCm: h };
         }
-        return { kind: "trap", name: "梯形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2], baseCm: bot, heightCm: h };
+        const pts = [{ x: 0, y: 0 }, { x: 12, y: 0 }, { x: 9, y: 6 }, { x: 3, y: 6 }];
+        return { kind: "trap", name: "梯形", verts: pts, baseI: 0, baseJ: 1, oppEdge: [3, 2], baseCm: 12, heightCm: 6 };
       }
       function finishLocal(local) {
         local.verts = tiltPts(local.verts);
@@ -834,14 +868,67 @@
           sides.push({ a, b, cm, isBase });
         }
         q.sides = sides;
-        const fakeH = q.heightCm + pick([1, 2, -1].filter((d) => q.heightCm + d >= 3));
-        let fakeB = q.baseCm + pick([2, 3, -2]);
-        if (fakeB < 4) fakeB = q.baseCm + 2;
+        applyDistinctCms(q);
+        const fakeH = q.heightCm + (pick([1, 2, -1].filter((d) => q.heightCm + d >= 3 && q.heightCm + d !== q.baseCm)) || 2);
+        let fakeB = q.baseCm + (pick([2, 3, -2].filter((d) => q.baseCm + d >= 4 && q.baseCm + d !== q.heightCm)) || 2);
+        if (fakeB < 4 || fakeB === q.heightCm) fakeB = q.baseCm + (q.baseCm + 2 === q.heightCm ? 3 : 2);
         q.options = shuffle([
           { b: q.baseCm, h: q.heightCm, ok: true },
           { b: q.baseCm, h: fakeH, ok: false },
           { b: fakeB, h: q.heightCm, ok: false }
         ]);
+      }
+      function applyDistinctCms(q) {
+        const n = q.sides.length;
+        const px = q.sides.map((s) => dist(s.a, s.b));
+        const same = (i, j) => Math.abs(px[i] - px[j]) <= Math.max(5, 0.07 * Math.max(px[i], px[j]));
+        const find = [];
+        for (let i = 0; i < n; i++) find[i] = i;
+        const root = (i) => (find[i] === i ? i : (find[i] = root(find[i])));
+        for (let i = 0; i < n; i++) {
+          for (let j = i + 1; j < n; j++) if (same(i, j)) find[root(i)] = root(j);
+        }
+        const hPx = dist(q.H, q.target);
+        const heightSide = [];
+        const baseDir = norm(sub(q.baseB, q.baseA));
+        for (let i = 0; i < n; i++) {
+          if (Math.abs(px[i] - hPx) > Math.max(5, 0.07 * Math.max(px[i], hPx))) continue;
+          const dir = norm(sub(q.sides[i].b, q.sides[i].a));
+          if (Math.abs(dot(dir, baseDir)) < 0.15) heightSide.push(i);
+        }
+        const take = (pref, used) => {
+          let v = Math.max(1, pref);
+          if (!used.has(v)) { used.add(v); return v; }
+          for (let d = 1; d <= 14; d++) {
+            if (v - d >= 3 && !used.has(v - d)) { used.add(v - d); return v - d; }
+            if (!used.has(v + d)) { used.add(v + d); return v + d; }
+          }
+          used.add(v); return v;
+        };
+        const used = new Set();
+        const groupCm = {};
+        const baseIdx = q.sides.findIndex((s) => s.isBase);
+        const baseG = root(baseIdx);
+        groupCm[baseG] = q.baseCm;
+        used.add(q.baseCm);
+        if (heightSide.length) {
+          const g = root(heightSide[0]);
+          if (groupCm[g] == null) {
+            groupCm[g] = q.heightCm;
+            used.add(q.heightCm);
+          } else q.heightCm = groupCm[g];
+        } else {
+          q.heightCm = take(q.heightCm, used);
+        }
+        for (let i = 0; i < n; i++) {
+          const g = root(i);
+          if (groupCm[g] == null) {
+            const pref = q.sides[i].isBase ? q.baseCm : Math.max(1, Math.round(px[i] / (q.pxPerCm || 1)));
+            groupCm[g] = take(pref, used);
+          }
+          q.sides[i].cm = groupCm[g];
+        }
+        q.baseCm = q.sides[baseIdx].cm;
       }
 
       function toolSize() {
@@ -1075,14 +1162,14 @@
             const end = lerp(foot, top, lineT);
             ctx.save();
             ctx.lineCap = "round";
-            ctx.setLineDash([12, 8]);
+            ctx.setLineDash([16, 10]);
             ctx.strokeStyle = "#111";
-            ctx.lineWidth = 7;
+            ctx.lineWidth = 11;
             ctx.beginPath(); ctx.moveTo(foot.x, foot.y); ctx.lineTo(end.x, end.y); ctx.stroke();
             ctx.setLineDash([]);
             if (lineT < 0.995) {
               ctx.fillStyle = "#111";
-              ctx.beginPath(); ctx.arc(end.x, end.y, 5, 0, Math.PI * 2); ctx.fill();
+              ctx.beginPath(); ctx.arc(end.x, end.y, 6, 0, Math.PI * 2); ctx.fill();
             }
             ctx.restore();
           }
@@ -1105,14 +1192,14 @@
         const up = norm(sub(T, H));
         if (len(up) < 0.5) return;
         const along = { x: up.y, y: -up.x };
-        const m = 20;
+        const m = 24;
         const ang = Math.atan2(along.y, along.x);
         ctx.save();
         ctx.translate(H.x, H.y);
         ctx.rotate(ang);
         ctx.globalAlpha = Math.min(1, t * 1.8);
         ctx.strokeStyle = "#111";
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 8;
         ctx.lineCap = "butt";
         ctx.lineJoin = "miter";
         ctx.miterLimit = 2;
@@ -1152,23 +1239,40 @@
         const c = centroid(q.verts);
         const tags = q.sides.map((s) => {
           const mid = lerp(s.a, s.b, 0.5);
-          let n = norm({ x: s.a.y - s.b.y, y: s.b.x - s.a.x });
+          const along = norm(sub(s.b, s.a));
+          let n = { x: -along.y, y: along.x };
           if (dot(n, sub(c, mid)) > 0) n = mul(n, -1);
-          return { text: s.cm + "cm", p: add(mid, mul(n, 26)), color: s.isBase ? "#c0392b" : "#1a3d68" };
+          const home = add(mid, mul(n, 14));
+          return {
+            text: s.cm + "cm", p: home, home, along, n,
+            color: s.isBase ? "#c0392b" : "#1a3d68"
+          };
         });
         const ends = heightEnds(q);
-        const hm = lerp(ends.foot, ends.top, 0.55);
-        const hd = norm(sub(q.baseB, q.baseA));
-        tags.push({ text: q.heightCm + "cm", p: add(hm, mul(hd, 18)), color: "#1a8f7c" });
-        for (let k = 0; k < 4; k++) {
+        const hDir = norm(sub(ends.top, ends.foot));
+        const hm = lerp(ends.foot, ends.top, 0.5);
+        let hSide = { x: -hDir.y, y: hDir.x };
+        if (dot(hSide, sub(c, hm)) > 0) hSide = mul(hSide, -1);
+        const hHome = add(hm, mul(hSide, 13));
+        tags.push({
+          text: q.heightCm + "cm", p: hHome, home: hHome, along: hDir, n: hSide,
+          color: "#1a8f7c"
+        });
+        for (let k = 0; k < 10; k++) {
           for (let i = 0; i < tags.length; i++) {
             for (let j = i + 1; j < tags.length; j++) {
               const d = dist(tags[i].p, tags[j].p);
-              if (d < 34 && d > 0.1) {
-                const push = mul(norm(sub(tags[j].p, tags[i].p)), (34 - d) / 2);
-                tags[i].p = sub(tags[i].p, push);
-                tags[j].p = add(tags[j].p, push);
-              }
+              if (d >= 28 || d < 0.1) continue;
+              const need = (28 - d) / 2;
+              const sep = sub(tags[j].p, tags[i].p);
+              const slide = (tag, sign) => {
+                const t = dot(sep, tag.along);
+                const dir = Math.abs(t) < 0.08 ? tag.along : mul(tag.along, t >= 0 ? sign : -sign);
+                const next = add(tag.p, mul(dir, need));
+                if (dist(next, tag.home) <= 36) tag.p = next;
+              };
+              slide(tags[i], -1);
+              slide(tags[j], 1);
             }
           }
         }
@@ -1622,9 +1726,9 @@
         q.drawingHeight = true;
         q.heightAnim = { line: 0, mark: 0 };
         const t0 = performance.now();
-        const LINE_MS = 980;
-        const MARK_DELAY = 820;
-        const MARK_MS = 520;
+        const LINE_MS = 1600;
+        const MARK_DELAY = 1400;
+        const MARK_MS = 720;
         const TOTAL = MARK_DELAY + MARK_MS;
         const tick = (now) => {
           if (state.ended || state.q !== q) return;
