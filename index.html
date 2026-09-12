@@ -320,7 +320,7 @@
           <h2 id="taskTitle">任務一：垂直定位</h2>
           <p id="taskKind">銳角△</p>
         </div>
-        <div class="hintbar" id="hintBar">1. 旋轉尺，對齊底邊　　2. 貼緊底邊　　3. 高線須接觸頂點，按「畫出高線」</div>
+        <div class="hintbar" id="hintBar">1. 旋轉三角尺，對齊底邊　　2. 貼緊底邊　　3. 高線須通過頂點，按「畫出高線」</div>
         <div class="board" id="board">
           <canvas id="scene"></canvas>
         </div>
@@ -397,9 +397,9 @@
       const ROT_OFFSET = 48;
       const ROT_R = 24;
       const TITLE = "底高偵探：尋找垂直線";
-      const TIP_PERP = "小提醒：三角形的高須接觸對應頂點；平行四邊形及梯形的高須接觸對邊（梯形對邊與底平行）。";
+      const TIP_PERP = "小提醒：三角形的高須通過頂點；平行四邊形及梯形的高須到達對邊（梯形對邊與底平行）。";
       const TIP_OBTUSE = "小提醒：鈍角三角形的高或在底邊之外，須先延長底邊。";
-      const TIP_PAIR = "小提醒：底與高必須成對，不可錯配。";
+      const TIP_PAIR = "小提醒：底與高須成對，不可錯配。";
       const TIP_PERFECT = "小提醒：零失誤，已完全掌握。";
 
       const state = {
@@ -466,8 +466,8 @@
         const parts = [];
         if (a) parts.push({
           short: "高未垂直",
-          sheet: `高未垂直${a}次（未貼底／未接觸頂點或對邊）`,
-          line: `高未垂直（${a}次）：須貼緊底邊，並使高線接觸頂點或對邊`
+          sheet: `高未垂直${a}次（未貼緊底邊／未通過頂點或到達對邊）`,
+          line: `高未垂直（${a}次）：須貼緊底邊，並使高線通過頂點或到達對邊`
         });
         if (b) parts.push({
           short: "未延長",
@@ -477,7 +477,7 @@
         if (c) parts.push({
           short: "底高配對",
           sheet: `底高配對混淆${c}次`,
-          line: `底高配對（${c}次）：底與高必須成對`
+          line: `底高配對（${c}次）：底與高須成對`
         });
         return {
           short: parts.map((p) => p.short).join("、"),
@@ -538,7 +538,7 @@
             classId: who.classId, studentId: who.studentId,
             done: Number(r.score) || 0, avgSec: parseAvgSec(r.avgTime),
             diagnosis: diagnostic,
-            perpErr: /垂直/.test(diagnostic) && /頂點|接住|對邊|接觸/.test(diagnostic) ? 1 : 0,
+            perpErr: /垂直/.test(diagnostic) && /頂點|接住|對邊|接觸|通過|到達/.test(diagnostic) ? 1 : 0,
             obtuseErr: /延長|延伸/.test(diagnostic) ? 1 : 0,
             time: r.time || "", game: r.game || r.chapter || ""
           };
@@ -724,18 +724,18 @@
       function isTriQ(q) { return !!(q && q.opp != null); }
       function phase1Steps(q) {
         const ext = (q && q.needExtend && !q.extended) ? "貼緊底邊（高在底邊外須先延長）" : "貼緊底邊";
-        let aim = "高線須接觸頂點，按「畫出高線」";
-        if (q && q.kind === "trap") aim = "高線須接觸平行對邊，按「畫出高線」";
-        else if (q && !isTriQ(q)) aim = "高線須接觸對邊，按「畫出高線」";
-        return ["旋轉尺，對齊底邊", ext, aim];
+        let aim = "高線須通過頂點，按「畫出高線」";
+        if (q && q.kind === "trap") aim = "高線須到達平行對邊，按「畫出高線」";
+        else if (q && !isTriQ(q)) aim = "高線須到達對邊，按「畫出高線」";
+        return ["旋轉三角尺，對齊底邊", ext, aim];
       }
       function setHintSteps(steps) {
         $("hintBar").textContent = steps.map((s, i) => (i + 1) + ". " + s).join("　　");
       }
       function missHeightMsg(q) {
-        if (isTriQ(q)) return "尚未接觸頂點　請沿底邊移動";
-        if (q && q.kind === "trap") return "尚未接觸平行對邊　請沿底邊移動";
-        return "尚未接觸對邊　請沿底邊移動";
+        if (isTriQ(q)) return "高線尚未通過頂點　請沿底邊移動";
+        if (q && q.kind === "trap") return "高線尚未到達平行對邊　請沿底邊移動";
+        return "高線尚未到達對邊　請沿底邊移動";
       }
 
       function tiltPts(pts) {
@@ -1598,7 +1598,7 @@
           updateHeightBtn();
         } else {
           $("taskTitle").textContent = "任務二：底高配對";
-          setHintSteps(["查看底邊長度", "查看高的長度", "選取正確一組"]);
+          setHintSteps(["查看底邊長度", "查看高的長度", "選出正確一組"]);
         }
       }
       function renderOptions() {
@@ -1782,7 +1782,7 @@
         const q = state.q, tool = state.tool;
         bounce($("btnHeight"));
         if (!tool) {
-          setToast(false, "請先旋轉對齊，然後貼緊底邊");
+          setToast(false, "請先旋轉三角尺並對齊底邊，然後貼緊底邊");
           sfx("bad");
           return;
         }
@@ -1791,7 +1791,7 @@
           || alongAlign(tool.ang + Math.PI / 2, baseAng) <= ALIGN_RAD;
         if (!tool.snapped || !angOk) {
           state.missPerp += 1;
-          setToast(false, "尚未貼緊底邊　請先旋轉對齊");
+          setToast(false, "尚未貼緊底邊　請先旋轉三角尺並對齊底邊");
           sfx("bad");
           return;
         }
@@ -1857,7 +1857,7 @@
         if (state.ended || !state.q || state.q.phase !== 2 || state.busy) return;
         if (!ok) {
           state.missPair += 1;
-          setToast(false, "底與高必須成對");
+          setToast(false, "底與高須成對");
           sfx("bad");
           return;
         }
@@ -2061,7 +2061,7 @@
           classes.map((c) => `<option value="${escapeHtml(c)}" ${c === dashClass ? "selected" : ""}>${escapeHtml(c)}</option>`).join("");
         $("analysisCards").innerHTML = `
           <div class="stat s1"><b>平均 3 分鐘完成題數</b><strong>${logs.length ? avgDone : "—"}</strong></div>
-          <div class="stat s2"><b>高未垂直／未接頂點</b><strong>${perpTotal}</strong></div>
+          <div class="stat s2"><b>高未垂直／未通過頂點</b><strong>${perpTotal}</strong></div>
           <div class="stat s3"><b>鈍角未延長</b><strong>${obtTotal}</strong></div>
         `;
         if ($("dashCount")) $("dashCount").textContent = dashAllLogs.length ? `顯示 ${logs.length} / ${base.length} 筆` : "";
@@ -2115,7 +2115,7 @@
         $("studentRecords").innerHTML = `<div class="empty">載入全班分數…</div>`;
         $("analysisCards").innerHTML = `
           <div class="stat s1"><b>平均 3 分鐘完成題數</b><strong>…</strong></div>
-          <div class="stat s2"><b>高未垂直／未接頂點</b><strong>…</strong></div>
+          <div class="stat s2"><b>高未垂直／未通過頂點</b><strong>…</strong></div>
           <div class="stat s3"><b>鈍角未延長</b><strong>…</strong></div>
         `;
         let source = "";
