@@ -755,6 +755,10 @@
           : lerp(verts[local.oppEdge[0]], verts[local.oppEdge[1]], 0.5);
         const pr0 = project(target, A, B);
         const all = verts.concat([pr0.pt]);
+        if (local.needExtend) {
+          const extra = 0.22;
+          all.push(lerp(A, B, Math.min(0, pr0.t) - extra), lerp(A, B, Math.max(1, pr0.t) + extra));
+        }
         let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
         all.forEach((p) => {
           minx = Math.min(minx, p.x); miny = Math.min(miny, p.y);
@@ -946,15 +950,25 @@
         ctx.lineWidth = 4;
         ctx.stroke();
         if (q.extended) {
-          const ex = extendRange(q);
+          const A = q.baseA, B = q.baseB;
+          const extra = 0.16;
+          const p0 = lerp(A, B, Math.min(0, q.tFoot) - extra);
+          const p1 = lerp(A, B, Math.max(1, q.tFoot) + extra);
           ctx.save();
-          ctx.setLineDash([7, 6]);
+          ctx.setLineDash([9, 6]);
           ctx.strokeStyle = "#1578c4";
-          ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.moveTo(ex.a.x, ex.a.y); ctx.lineTo(ex.b.x, ex.b.y); ctx.stroke();
+          ctx.lineWidth = 4;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(p0.x, p0.y); ctx.lineTo(A.x, A.y);
+          ctx.moveTo(B.x, B.y); ctx.lineTo(p1.x, p1.y);
+          ctx.stroke();
           ctx.restore();
           ctx.fillStyle = "#1578c4";
-          ctx.beginPath(); ctx.arc(q.H.x, q.H.y, 5, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(q.H.x, q.H.y, 6, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+          const extMid = q.tFoot < 0.5 ? lerp(A, p0, 0.55) : lerp(B, p1, 0.55);
+          drawTag(ctx, "延長", extMid.x, extMid.y, "#1578c4");
         }
         const glow = state.tool && (state.tool.snapped || state.tool.near);
         ctx.strokeStyle = glow ? "#3cbc9a" : "#e24b3d";
@@ -1317,7 +1331,8 @@
         $("phase2Acts").classList.toggle("show", n === 2);
         if (n === 1) {
           $("taskTitle").textContent = "任務一：垂直定位";
-          $("hintBar").textContent = "尺底貼圖底會吸附，再對準頂點撳「劃出高線」";
+          $("hintBar").textContent = "尺底貼圖底會吸附；高在底邊外面就先「延伸底邊」，再對準頂點撳「劃出高線」";
+          syncExtendBtn();
           updateHeightBtn();
         } else {
           $("taskTitle").textContent = "任務二：底高配對";
@@ -1440,10 +1455,12 @@
         $("playerPill").textContent = `${state.classId} ${normalizeId(state.studentId)}`;
         $("qPill").textContent = `第 ${state.qIndex} 題`;
         const local = finishLocal(genLocal());
-        state.q = { local, phase: 1, extended: false, heightDrawn: false };
+        state.q = {
+          local, phase: 1, extended: false, heightDrawn: false,
+          needExtend: !!local.needExtend, name: local.name, kind: local.kind
+        };
         $("taskKind").textContent = state.q.name;
-        $("btnExtend").style.display = state.q.needExtend ? "inline-flex" : "none";
-        $("btnExtend").disabled = false;
+        syncExtendBtn();
         showPhase(1);
         requestAnimationFrame(() => {
           if (state.ended || !state.q || state.q.phase !== 1) return;
@@ -1492,14 +1509,25 @@
         renderOptions();
         draw();
       }
+      function syncExtendBtn() {
+        const btn = $("btnExtend");
+        if (!btn) return;
+        const q = state.q;
+        const show = !!(q && q.phase === 1);
+        btn.hidden = !show;
+        btn.style.display = show ? "inline-flex" : "none";
+        btn.disabled = !!(q && q.extended);
+      }
       function extendBase() {
-        if (!state.q || state.q.phase !== 1) return;
+        if (!state.q || state.q.phase !== 1 || state.q.extended) return;
+        bounce($("btnExtend"));
         state.q.extended = true;
-        $("btnExtend").disabled = true;
-        setToast(true, "已延伸到垂足");
+        syncExtendBtn();
+        setToast(true, "已延伸底邊，可沿虛線滑到垂足");
         sfx("snap");
-        draw();
+        if (state.tool && state.tool.snapped) trySnap();
         updateHeightBtn();
+        draw();
       }
       function pickPair(ok) {
         if (state.ended || !state.q || state.q.phase !== 2 || state.busy) return;
