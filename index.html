@@ -310,15 +310,15 @@
           <h2 id="taskTitle">任務一：垂直定位</h2>
           <p id="taskKind">銳角△</p>
         </div>
-        <div class="hintbar" id="hintBar">先旋轉直角尺對齊底邊，再貼底劃高</div>
+        <div class="hintbar" id="hintBar">先旋轉直角尺對齊底邊，再撳「畫出高線」</div>
         <div class="board" id="board">
           <canvas id="scene"></canvas>
         </div>
         <div class="toast" id="feedToast"></div>
         <div class="choice-row" id="phase1Acts">
           <button class="candy ghost sq" id="btnRotL" aria-label="左轉">↺</button>
-          <button class="candy lemon" id="btnExtend">➕ 延伸底邊</button>
-          <button class="candy mint" id="btnHeight" hidden>✏️ 劃出高線</button>
+          <button class="candy lemon" id="btnExtend">延長底邊</button>
+          <button class="candy mint" id="btnHeight">畫出高線</button>
           <button class="candy ghost sq" id="btnRotR" aria-label="右轉">↻</button>
         </div>
         <div class="opt-col" id="phase2Acts"></div>
@@ -388,7 +388,7 @@
       const ROT_R = 24;
       const TITLE = "底高偵探：尋找垂直線";
       const TIP_PERP = "💡 偵探提醒：三角形的高要掂到同底對應嘅頂點；平行四邊形／梯形的高要掂到底嘅對邊（梯形對邊同底平行）！";
-      const TIP_OBTUSE = "💡 偵探提醒：鈍角三角形的高可能在外面，記得先延伸底邊喔！";
+      const TIP_OBTUSE = "💡 偵探提醒：鈍角三角形的高可能在外面，記得先延長底邊喔！";
       const TIP_PAIR = "💡 偵探提醒：底與高要成對，唔好把 A 底配去 B 高喔！";
       const TIP_PERFECT = "🌟 太厲害了！完全掌握垂直概念，零失誤過關！";
 
@@ -453,7 +453,7 @@
       function diagnose() {
         const a = state.missPerp, b = state.missObtuse, c = state.missPair;
         if (a + b + c === 0) return { short: "零失誤", sheet: "完全掌握垂直概念，零失誤過關", tip: TIP_PERFECT };
-        if (b >= a && b >= c) return { short: "鈍角未延伸", sheet: "鈍角三角形記得先延伸底邊", tip: TIP_OBTUSE };
+        if (b >= a && b >= c) return { short: "鈍角未延長", sheet: "鈍角三角形記得先延長底邊", tip: TIP_OBTUSE };
         if (c >= a && c >= b) return { short: "底高配對混淆", sheet: "底與高要成對，唔好把 A 底配去 B 高", tip: TIP_PAIR };
         return { short: "高未垂直", sheet: "高要垂直於底：三角形接住頂點，四邊形接住對邊", tip: TIP_PERP };
       }
@@ -511,7 +511,7 @@
             done: Number(r.score) || 0, avgSec: parseAvgSec(r.avgTime),
             diagnosis: diagnostic,
             perpErr: /垂直/.test(diagnostic) && /頂點|接住|對邊/.test(diagnostic) ? 1 : 0,
-            obtuseErr: /延伸/.test(diagnostic) ? 1 : 0,
+            obtuseErr: /延長|延伸/.test(diagnostic) ? 1 : 0,
             time: r.time || "", game: r.game || r.chapter || ""
           };
         }).filter((e) => e.studentId || e.classId);
@@ -695,11 +695,11 @@
       }
       function isTriQ(q) { return !!(q && q.opp != null); }
       function phase1Hint(q) {
-        if (!q) return "拖尺貼底，劃出高線";
-        const ext = (q.needExtend && !q.extended) ? "高在底邊外面就先「延伸底邊」。" : "";
-        if (isTriQ(q)) return ext + "先旋轉直角尺對齊底邊，貼底後高線必須掂到同底對應嘅頂點";
-        if (q.kind === "trap") return ext + "先旋轉直角尺對齊底邊，貼底後高線必須掂到底嘅對邊，而且對邊要同底平行";
-        return ext + "先旋轉直角尺對齊底邊，貼底後高線必須掂到底嘅對邊";
+        if (!q) return "旋轉直角尺對齊底邊，再撳「畫出高線」";
+        const ext = (q.needExtend && !q.extended) ? "高在底邊外面就先撳「延長底邊」。" : "";
+        if (isTriQ(q)) return ext + "先旋轉直角尺對齊底邊，貼底後高線必須掂到同底對應嘅頂點，再撳「畫出高線」";
+        if (q.kind === "trap") return ext + "先旋轉直角尺對齊底邊，貼底後高線必須掂到底嘅對邊（對邊同底平行），再撳「畫出高線」";
+        return ext + "先旋轉直角尺對齊底邊，貼底後高線必須掂到底嘅對邊，再撳「畫出高線」";
       }
       function missHeightMsg(q) {
         if (isTriQ(q)) return "高線要掂到同底對應嘅頂點";
@@ -1547,16 +1547,14 @@
       }
       function updateHeightBtn() {
         const btn = $("btnHeight");
-        if (!btn || !state.q || state.q.phase !== 1 || state.busy || state.q.drawingHeight) {
-          if (btn) { btn.hidden = true; btn.style.display = "none"; }
-          return;
-        }
-        const ok = isHeightReady();
-        if (state.tool) state.tool.ready = ok;
-        btn.hidden = !ok;
-        btn.style.display = ok ? "inline-flex" : "none";
-        btn.textContent = "✏️ 劃出高線";
-        btn.disabled = !ok;
+        if (!btn) return;
+        const q = state.q;
+        const show = !!(q && q.phase === 1 && !q.drawingHeight);
+        btn.hidden = !show;
+        btn.style.display = show ? "inline-flex" : "none";
+        btn.disabled = false;
+        btn.textContent = "畫出高線";
+        if (state.tool) state.tool.ready = !!(show && isHeightReady());
       }
       function newQuestion() {
         if (state.ended) return;
@@ -1612,7 +1610,7 @@
         q.phase = 2;
         state.busy = false;
         scene.style.pointerEvents = "auto";
-        setToast(true, "劃高成功！");
+        setToast(true, "畫高成功！");
         showPhase(2);
         renderOptions();
         draw();
@@ -1641,19 +1639,24 @@
       function confirmHeight() {
         if (state.ended || !state.q || state.q.phase !== 1 || state.busy) return;
         const q = state.q, tool = state.tool;
-        if (!tool) return;
         bounce($("btnHeight"));
+        if (!tool) {
+          setToast(false, "先將直角尺旋轉對齊並貼去底邊");
+          sfx("bad");
+          return;
+        }
         const baseAng = Math.atan2(q.baseB.y - q.baseA.y, q.baseB.x - q.baseA.x);
         const angOk = alongAlign(tool.ang, baseAng) <= ALIGN_RAD
           || alongAlign(tool.ang + Math.PI / 2, baseAng) <= ALIGN_RAD;
         if (!tool.snapped || !angOk) {
-          setToast(false, "直角尺要對齊並貼緊底邊");
+          state.missPerp += 1;
+          setToast(false, "直角尺未對齊貼底，請先旋轉並貼去圖形嘅底");
           sfx("bad");
           return;
         }
         if (q.needExtend && !q.extended) {
           state.missObtuse += 1;
-          setToast(false, "先延伸底邊");
+          setToast(false, "高喺底邊外面，請先撳「延長底邊」");
           sfx("bad");
           return;
         }
@@ -1680,24 +1683,29 @@
         $("phase1Acts").style.display = "none";
         updateHeightBtn();
         sfx("ok");
-        setToast(true, "正在劃出高線…");
+        setToast(true, "正在畫出高線…");
         startHeightAnim();
       }
       function syncExtendBtn() {
         const btn = $("btnExtend");
         if (!btn) return;
         const q = state.q;
-        const show = !!(q && q.phase === 1);
+        const show = !!(q && q.phase === 1 && !q.drawingHeight);
         btn.hidden = !show;
         btn.style.display = show ? "inline-flex" : "none";
-        btn.disabled = !!(q && q.extended);
+        btn.disabled = false;
+        btn.textContent = "延長底邊";
       }
       function extendBase() {
-        if (!state.q || state.q.phase !== 1 || state.q.extended || state.busy) return;
+        if (!state.q || state.q.phase !== 1 || state.busy) return;
         bounce($("btnExtend"));
+        if (state.q.extended) {
+          setToast(true, "已經延長底邊喇");
+          return;
+        }
         state.q.extended = true;
         syncExtendBtn();
-        setToast(true, "已延伸底邊，可沿虛線滑到垂足");
+        setToast(true, "已延長底邊，可沿虛線滑到垂足");
         sfx("snap");
         if (state.tool && state.tool.snapped) trySnap();
         $("hintBar").textContent = phase1Hint(state.q);
@@ -1913,7 +1921,7 @@
         $("analysisCards").innerHTML = `
           <div class="stat s1"><b>平均 3 分鐘完成題數</b><strong>${logs.length ? avgDone : "—"}</strong></div>
           <div class="stat s2"><b>高未垂直／未接頂點</b><strong>${perpTotal}</strong></div>
-          <div class="stat s3"><b>鈍角未延伸</b><strong>${obtTotal}</strong></div>
+          <div class="stat s3"><b>鈍角未延長</b><strong>${obtTotal}</strong></div>
         `;
         if ($("dashCount")) $("dashCount").textContent = dashAllLogs.length ? `顯示 ${logs.length} / ${base.length} 筆` : "";
         if ($("clearFiltersBtn")) $("clearFiltersBtn").style.visibility = anyFilterOn() ? "visible" : "hidden";
@@ -1967,7 +1975,7 @@
         $("analysisCards").innerHTML = `
           <div class="stat s1"><b>平均 3 分鐘完成題數</b><strong>…</strong></div>
           <div class="stat s2"><b>高未垂直／未接頂點</b><strong>…</strong></div>
-          <div class="stat s3"><b>鈍角未延伸</b><strong>…</strong></div>
+          <div class="stat s3"><b>鈍角未延長</b><strong>…</strong></div>
         `;
         let source = "";
         try { dashAllLogs = await loadSheetLogs(!!force); source = "Google 試算表"; }
