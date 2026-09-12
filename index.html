@@ -1214,13 +1214,21 @@
         ctx.stroke();
         ctx.restore();
       }
-      function drawTag(ctx, text, x, y, color) {
-        ctx.font = "900 13px 'Noto Sans TC', sans-serif";
+      function labelFontFor(linePx, cm, q) {
+        const byLine = linePx * 0.048;
+        const byCm = 7.5 + Math.max(1, cm) * 0.22;
+        const cap = Math.max(8, Math.min(11, (q.pxPerCm || 24) * 0.3));
+        return Math.max(8, Math.min(cap, Math.min(byLine, byCm)));
+      }
+      function drawTag(ctx, text, x, y, color, fs) {
+        const size = fs || 11;
+        ctx.font = "900 " + size + "px 'Noto Sans TC', sans-serif";
         ctx.textAlign = "center"; ctx.textBaseline = "middle";
         const w = ctx.measureText(text).width;
-        const pw = w + 12, ph = 20;
+        const pw = w + Math.max(6, size * 0.7), ph = size + 6;
+        const r = Math.min(6, ph / 2);
         ctx.beginPath();
-        const r = 8, x0 = x - pw / 2, y0 = y - ph / 2;
+        const x0 = x - pw / 2, y0 = y - ph / 2;
         ctx.moveTo(x0 + r, y0);
         ctx.arcTo(x0 + pw, y0, x0 + pw, y0 + ph, r);
         ctx.arcTo(x0 + pw, y0 + ph, x0, y0 + ph, r);
@@ -1230,7 +1238,7 @@
         ctx.fillStyle = "rgba(255,255,255,0.94)";
         ctx.fill();
         ctx.strokeStyle = color;
-        ctx.lineWidth = 1.6;
+        ctx.lineWidth = 1.2;
         ctx.stroke();
         ctx.fillStyle = color;
         ctx.fillText(text, x, y);
@@ -1242,34 +1250,39 @@
           const along = norm(sub(s.b, s.a));
           let n = { x: -along.y, y: along.x };
           if (dot(n, sub(c, mid)) > 0) n = mul(n, -1);
-          const home = add(mid, mul(n, 14));
+          const fs = labelFontFor(dist(s.a, s.b), s.cm, q);
+          const gap = fs * 0.75 + 3;
+          const home = add(mid, mul(n, gap));
           return {
-            text: s.cm + "cm", p: home, home, along, n,
+            text: s.cm + "cm", p: home, home, along, n, fs,
             color: s.isBase ? "#c0392b" : "#1a3d68"
           };
         });
         const ends = heightEnds(q);
         const hDir = norm(sub(ends.top, ends.foot));
+        const hPx = dist(ends.foot, ends.top);
         const hm = lerp(ends.foot, ends.top, 0.5);
         let hSide = { x: -hDir.y, y: hDir.x };
         if (dot(hSide, sub(c, hm)) > 0) hSide = mul(hSide, -1);
-        const hHome = add(hm, mul(hSide, 13));
+        const hFs = labelFontFor(hPx, q.heightCm, q);
+        const hHome = add(hm, mul(hSide, hFs * 0.75 + 3));
         tags.push({
-          text: q.heightCm + "cm", p: hHome, home: hHome, along: hDir, n: hSide,
+          text: q.heightCm + "cm", p: hHome, home: hHome, along: hDir, n: hSide, fs: hFs,
           color: "#1a8f7c"
         });
         for (let k = 0; k < 10; k++) {
           for (let i = 0; i < tags.length; i++) {
             for (let j = i + 1; j < tags.length; j++) {
+              const minD = (tags[i].fs + tags[j].fs) * 1.15 + 6;
               const d = dist(tags[i].p, tags[j].p);
-              if (d >= 28 || d < 0.1) continue;
-              const need = (28 - d) / 2;
+              if (d >= minD || d < 0.1) continue;
+              const need = (minD - d) / 2;
               const sep = sub(tags[j].p, tags[i].p);
               const slide = (tag, sign) => {
                 const t = dot(sep, tag.along);
                 const dir = Math.abs(t) < 0.08 ? tag.along : mul(tag.along, t >= 0 ? sign : -sign);
                 const next = add(tag.p, mul(dir, need));
-                if (dist(next, tag.home) <= 36) tag.p = next;
+                if (dist(next, tag.home) <= tag.fs * 3.2) tag.p = next;
               };
               slide(tags[i], -1);
               slide(tags[j], 1);
@@ -1279,7 +1292,7 @@
         return tags;
       }
       function drawLabels(ctx, q) {
-        placeLabels(q).forEach((t) => drawTag(ctx, t.text, t.p.x, t.p.y, t.color));
+        placeLabels(q).forEach((t) => drawTag(ctx, t.text, t.p.x, t.p.y, t.color, t.fs));
       }
       function drawTool(ctx, tool) {
         const { P, Q, R, hyp, rotH, perp } = toolCorners(tool);
