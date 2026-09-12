@@ -310,7 +310,7 @@
           <h2 id="taskTitle">任務一：垂直定位</h2>
           <p id="taskKind">銳角△</p>
         </div>
-        <div class="hintbar" id="hintBar">拖尺貼底 · 高線要掂到頂點或對邊</div>
+        <div class="hintbar" id="hintBar">先旋轉直角尺對齊底邊，再貼底劃高</div>
         <div class="board" id="board">
           <canvas id="scene"></canvas>
         </div>
@@ -696,9 +696,9 @@
       function phase1Hint(q) {
         if (!q) return "拖尺貼底，劃出高線";
         const ext = (q.needExtend && !q.extended) ? "高在底邊外面就先「延伸底邊」。" : "";
-        if (isTriQ(q)) return ext + "直角尺貼底，高線必須掂到同底對應嘅頂點";
-        if (q.kind === "trap") return ext + "直角尺貼底，高線必須掂到底嘅對邊，而且對邊要同底平行";
-        return ext + "直角尺貼底，高線必須掂到底嘅對邊";
+        if (isTriQ(q)) return ext + "先旋轉直角尺對齊底邊，貼底後高線必須掂到同底對應嘅頂點";
+        if (q.kind === "trap") return ext + "先旋轉直角尺對齊底邊，貼底後高線必須掂到底嘅對邊，而且對邊要同底平行";
+        return ext + "先旋轉直角尺對齊底邊，貼底後高線必須掂到底嘅對邊";
       }
       function missHeightMsg(q) {
         if (isTriQ(q)) return "高線要掂到同底對應嘅頂點";
@@ -707,8 +707,8 @@
       }
 
       function tiltPts(pts) {
-        const ang = Math.random() < 0.18 ? rand(-6, 6) * Math.PI / 180 : pick([
-          rand(16, 52), rand(70, 110), rand(125, 160), rand(200, 250), rand(290, 340)
+        const ang = pick([
+          rand(22, 68), rand(112, 158), rand(202, 248), rand(292, 338)
         ]) * Math.PI / 180;
         return rotatePts(pts, ang);
       }
@@ -846,13 +846,20 @@
         const out = norm(sub(hyp, P));
         return { P, Q, R, along, perp, hyp, rotH: add(hyp, mul(out, ROT_OFFSET)) };
       }
+      function startToolAng() {
+        const q = state.q;
+        if (!q || !q.baseA || !q.baseB) return rand(28, 50) * Math.PI / 180;
+        const baseAng = Math.atan2(q.baseB.y - q.baseA.y, q.baseB.x - q.baseA.x);
+        const off = (Math.random() < 0.5 ? 1 : -1) * rand(38, 52) * Math.PI / 180;
+        return baseAng + off;
+      }
       function placeTool() {
         const L = toolSize();
         const w = state.cssW || 400, h = state.cssH || 400;
         state.tool = {
           x: w * 0.5,
           y: Math.min(h - L * 0.42, Math.max(L * 0.45, h * 0.68)),
-          ang: 0, snapped: false, L, near: false, hotRot: false
+          ang: startToolAng(), snapped: false, L, near: false, hotRot: false
         };
         scene.style.pointerEvents = "auto";
       }
