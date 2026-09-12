@@ -866,14 +866,25 @@
         };
         scene.style.pointerEvents = "auto";
       }
-      function snapAngle(baseAng, P, target) {
-        let best = baseAng, bestDot = -Infinity;
-        [baseAng, baseAng + Math.PI].forEach((a) => {
-          const perp = { x: Math.cos(a + Math.PI / 2), y: Math.sin(a + Math.PI / 2) };
-          const d = dot(perp, sub(target, P));
-          if (d > bestDot) { bestDot = d; best = a; }
+      function nearestAlignedAng(toolAng, lockAng) {
+        let best = lockAng, bestD = Infinity;
+        [0, Math.PI].forEach((add) => {
+          const a = lockAng + add;
+          const d = angDiff(toolAng, a);
+          if (d < bestD) { bestD = d; best = a; }
         });
         return best;
+      }
+      function applySnapPose(q, tool, useAlong) {
+        const baseAng = Math.atan2(q.baseB.y - q.baseA.y, q.baseB.x - q.baseA.x);
+        tool.ang = useAlong
+          ? nearestAlignedAng(tool.ang, baseAng)
+          : nearestAlignedAng(tool.ang, baseAng - Math.PI / 2);
+        tool.snapAlong = !!useAlong;
+        const pr = project({ x: tool.x, y: tool.y }, q.baseA, q.baseB);
+        const pt = lerp(q.baseA, q.baseB, clampFoot(pr.t, q));
+        tool.x = pt.x;
+        tool.y = pt.y;
       }
       function clampFoot(t, q) {
         if (q.extended) {
@@ -903,11 +914,10 @@
         tool.near = alongOk || perpOk;
         if (!rotating && (alongOk || perpOk)) {
           const was = tool.snapped;
-          const pr = project(P, A, B);
-          const t = clampFoot(pr.t, q);
-          const pt = lerp(A, B, t);
-          tool.x = pt.x; tool.y = pt.y;
-          tool.ang = snapAngle(baseAng, pt, q.target);
+          const useAlong = was && tool.snapAlong != null
+            ? tool.snapAlong
+            : (alongOk && (!perpOk || aAlong <= aPerp));
+          applySnapPose(q, tool, useAlong);
           tool.snapped = true;
           if (!was) {
             sfx("snap");
@@ -950,7 +960,8 @@
             if (keepSnap && keepT != null) {
               const pt = lerp(state.q.baseA, state.q.baseB, clampFoot(keepT, state.q));
               state.tool.x = pt.x; state.tool.y = pt.y; state.tool.snapped = true;
-              state.tool.ang = snapAngle(Math.atan2(state.q.baseB.y - state.q.baseA.y, state.q.baseB.x - state.q.baseA.x), pt, state.q.target);
+              state.tool.ang = keepAng;
+              applySnapPose(state.q, state.tool, state.tool.snapAlong !== false);
             } else if (state.keepToolPose && keepAng != null) {
               state.tool.ang = keepAng;
               if (keepX != null) { state.tool.x = keepX; state.tool.y = keepY; }
@@ -1227,9 +1238,9 @@
         ctx.restore();
       }
       function heightDir(tool, q) {
-        const { P, perp } = toolCorners(tool);
+        const { P, along, perp } = toolCorners(tool);
         const aim = q.target || q.H;
-        let n = perp;
+        let n = tool.snapAlong === false ? along : perp;
         if (aim && dot(n, sub(aim, P)) < 0) n = mul(n, -1);
         return { P, n };
       }
@@ -1633,7 +1644,9 @@
         if (!tool) return;
         bounce($("btnHeight"));
         const baseAng = Math.atan2(q.baseB.y - q.baseA.y, q.baseB.x - q.baseA.x);
-        if (!tool.snapped || alongAlign(tool.ang, baseAng) > ALIGN_RAD) {
+        const angOk = alongAlign(tool.ang, baseAng) <= ALIGN_RAD
+          || alongAlign(tool.ang + Math.PI / 2, baseAng) <= ALIGN_RAD;
+        if (!tool.snapped || !angOk) {
           setToast(false, "直角尺要對齊並貼緊底邊");
           sfx("bad");
           return;
