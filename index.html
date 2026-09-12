@@ -1030,8 +1030,9 @@
         });
         $("pairChips").querySelectorAll(".chip").forEach((el) => {
           const idx = Number(el.getAttribute("data-i"));
-          el.classList.remove("on");
-          el.classList.add(pairs[idx].perp ? "ok" : (q.selected.has(idx) ? "bad" : ""));
+          el.classList.remove("on", "ok", "bad");
+          if (pairs[idx].perp) el.classList.add("ok");
+          else if (q.selected.has(idx)) el.classList.add("bad");
         });
         if (ok) finishQ(true, "破案！所有垂直組合都搵到。");
         else {
