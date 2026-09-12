@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="尋找垂直線" />
+  <title>高偵探：尋找垂直線</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --pink: #ff8fab; --pink-deep: #ef5f8a;
+      --mint: #7ce0c3; --mint-deep: #3cbc9a;
+      --lemon: #ffe066; --lemon-deep: #e4b82a;
+      --lilac: #cbb2fe; --lilac-deep: #9d7af0;
+      --sky: #8ecaff; --sky-deep: #4ea2f0;
+      --peach: #ffc09f;
+      --ink: #3b2a4a; --soft: #7a6588;
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --safe-l: env(safe-area-inset-left, 0px);
+      --safe-r: env(safe-area-inset-right, 0px);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; height: 100%; overflow: hidden; overscroll-behavior: none; }
+    body {
+      position: fixed; inset: 0;
+      font-family: "Noto Sans TC", "PingFang HK", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 10%, #ffd6e8 0 16%, transparent 17%),
+        radial-gradient(circle at 88% 12%, #c9f4e8 0 14%, transparent 15%),
+        radial-gradient(circle at 84% 88%, #dce4ff 0 16%, transparent 17%),
+        linear-gradient(165deg, #fff3ea, #ffe8f2 48%, #eaf4ff);
+      user-select: none;
+    }
+    button, input, textarea { font-family: inherit; }
+    button { cursor: pointer; touch-action: manipulation; }
+    input { user-select: text; -webkit-user-select: text; }
+
+    @keyframes popIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+    @keyframes bounce { 0% { transform: scale(1); } 35% { transform: scale(0.88); } 70% { transform: scale(1.08); } 100% { transform: scale(1); } }
+    @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    @keyframes stampIn { from { opacity: 0; transform: scale(1.4) rotate(-12deg); } to { opacity: 1; transform: scale(1) rotate(-8deg); } }
+    .bounce { animation: bounce 0.35s ease; }
+    .shake { animation: shake 0.4s ease; }
+
+    .app {
+      height: 100%; width: 100%; overflow: hidden; display: flex;
+      padding: calc(8px + var(--safe-t)) calc(12px + var(--safe-r)) calc(8px + var(--safe-b)) calc(12px + var(--safe-l));
+    }
+    .screen {
+      display: none; width: min(1080px, 100%); margin: 0 auto;
+      height: 100%; min-height: 0; flex-direction: column; overflow: hidden;
+      animation: popIn 0.35s ease;
+    }
+    .screen.active { display: flex; }
+    .card {
+      background: rgba(255,255,255,0.9); border: 3px solid #fff; border-radius: 28px;
+      box-shadow: 0 14px 32px rgba(255, 93, 143, 0.16); min-height: 0;
+    }
+    .candy {
+      border: 0; border-radius: 999px; font-weight: 900; padding: 10px 18px;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+    .candy:hover { filter: brightness(1.04); }
+    .candy:active { transform: translateY(4px) scale(0.96); box-shadow: 0 2px 0 rgba(0,0,0,0.12) !important; animation: bounce 0.3s ease; }
+    .candy:disabled { filter: saturate(0.7); pointer-events: none; }
+    .pink { background: var(--pink); color: #fff; box-shadow: 0 6px 0 var(--pink-deep); }
+    .mint { background: var(--mint); color: #165f4c; box-shadow: 0 6px 0 var(--mint-deep); }
+    .lemon { background: var(--lemon); color: var(--ink); box-shadow: 0 6px 0 var(--lemon-deep); }
+    .lilac { background: var(--lilac); color: #fff; box-shadow: 0 6px 0 var(--lilac-deep); }
+    .sky { background: var(--sky); color: #123b63; box-shadow: 0 6px 0 var(--sky-deep); }
+    .peach { background: var(--peach); color: var(--ink); box-shadow: 0 6px 0 #f09468; }
+    .ghost { background: #fff; color: var(--soft); box-shadow: 0 5px 0 #ecd6de; }
+
+    #screen-login { align-items: center; justify-content: center; }
+    .login { width: min(400px, 100%); padding: 22px 22px 16px; text-align: center; }
+    .mascot {
+      width: 72px; height: 72px; margin: 0 auto 6px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 36px; background: #fff;
+      box-shadow: 0 8px 0 #cbb2fe; animation: floaty 2.8s ease-in-out infinite;
+    }
+    .title {
+      font-family: "Fredoka", "Noto Sans TC", sans-serif;
+      font-size: clamp(26px, 5.4vh, 40px); font-weight: 900; letter-spacing: 0.04em;
+      margin-bottom: 4px; line-height: 1.15;
+    }
+    .title span:nth-child(odd) { color: var(--lilac-deep); }
+    .title span:nth-child(even) { color: var(--pink-deep); }
+    .tagline { font-weight: 800; color: var(--soft); font-size: 14px; margin-bottom: 12px; line-height: 1.45; }
+    .field { text-align: left; margin-bottom: 10px; }
+    .field label { display: block; font-weight: 900; font-size: 15px; margin-bottom: 4px; }
+    .field input {
+      width: 100%; border: 3px solid #ffe1ec; border-radius: 16px;
+      padding: 10px 12px; font-size: 18px; font-weight: 800; outline: none; background: #fff;
+    }
+    .field input:focus { border-color: var(--pink); }
+    .start { width: 100%; font-size: 22px; padding: 12px; margin: 6px 0 10px; }
+    .teacher-btn {
+      width: 64px; height: 64px; border-radius: 50%; font-size: 13px; line-height: 1.15;
+      padding: 0; margin: 4px auto 0; display: grid; place-items: center;
+    }
+
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; margin-bottom: 8px; }
+    .pill {
+      background: #fff; border-radius: 999px; padding: 6px 12px;
+      font-weight: 800; font-size: 14px; box-shadow: 0 4px 0 #f0d7e2; white-space: nowrap;
+    }
+    .timer { font-variant-numeric: tabular-nums; background: #fff8d9; min-width: 92px; text-align: center; }
+    .timer.low { background: #ffd0d8; color: #b42318; }
+    .tiny { padding: 6px 12px; font-size: 13px; }
+
+    .play { flex: 1; min-height: 0; overflow: hidden; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .task-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-shrink: 0; }
+    .task-h h2 { font-size: clamp(16px, 2.5vh, 22px); line-height: 1.3; }
+    .task-h p { font-size: 13px; font-weight: 900; color: var(--soft); white-space: nowrap; }
+    .hintbar {
+      flex-shrink: 0; font-size: 13px; font-weight: 800; color: #5a4a72;
+      background: #f4edff; border-radius: 12px; padding: 6px 10px; text-align: center;
+    }
+
+    .board {
+      flex: 1; min-height: 0; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      background:
+        linear-gradient(180deg, #fff, #f7f4ff);
+      border-radius: 22px; overflow: hidden;
+      box-shadow: inset 0 0 0 2px rgba(203, 178, 254, 0.35);
+    }
+    .board::before, .board::after {
+      content: ""; position: absolute; width: 42px; height: 14px; z-index: 2; pointer-events: none;
+      background: rgba(255, 224, 102, 0.88); border-radius: 2px; transform: rotate(-18deg);
+      box-shadow: 0 2px 0 rgba(228, 184, 42, 0.35);
+    }
+    .board::before { top: 10px; left: 14px; }
+    .board::after { top: 12px; right: 16px; transform: rotate(16deg); }
+    #sceneCanvas { width: 100%; height: 100%; display: block; }
+
+    .pick-grid {
+      flex: 1; min-height: 0; display: grid;
+      grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px;
+    }
+    .pick-card {
+      position: relative; border: 3px solid #fff; border-radius: 18px;
+      background: #fff; overflow: hidden; box-shadow: 0 4px 0 #e4d4f4;
+      padding: 0; min-height: 0;
+    }
+    .pick-card canvas { width: 100%; height: 100%; display: block; }
+    .pick-card .tag {
+      position: absolute; top: 6px; left: 8px; z-index: 2;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--lilac); color: #fff; font-weight: 900; font-size: 14px;
+      display: grid; place-items: center; box-shadow: 0 3px 0 var(--lilac-deep);
+    }
+    .pick-card.ok { box-shadow: 0 0 0 3px #3cbc9a, 0 4px 0 #2a9a7c; }
+    .pick-card.bad { box-shadow: 0 0 0 3px #ef5f8a, 0 4px 0 #d44a74; }
+    .pick-card.dim { opacity: 0.55; }
+
+    .choice-row { display: flex; gap: 10px; flex-shrink: 0; }
+    .choice-row .candy { flex: 1; font-size: clamp(16px, 2.4vh, 20px); padding: 12px 8px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; flex-shrink: 0; }
+    .chip {
+      border: 0; border-radius: 999px; font-weight: 900; font-size: 15px;
+      padding: 8px 14px; background: #fff; color: var(--ink); box-shadow: 0 4px 0 #e4d4f4;
+    }
+    .chip.on { background: var(--lilac); color: #fff; box-shadow: 0 4px 0 var(--lilac-deep); }
+    .chip.ok { background: var(--mint); color: #165f4c; box-shadow: 0 4px 0 var(--mint-deep); }
+    .chip.bad { background: #ffd0d8; color: #b42318; box-shadow: 0 4px 0 #f5a3b0; }
+
+    .toast {
+      display: none; flex-shrink: 0; border-radius: 16px; padding: 8px 12px;
+      font-weight: 900; font-size: 15px; text-align: center; line-height: 1.4;
+    }
+    .toast.show { display: block; }
+    .toast.good { background: #e4faf2; border: 2px solid #7ce0c3; color: #165f4c; }
+    .toast.bad { background: #fff1f1; border: 2px solid #ffb4b4; color: #b42318; }
+    .stamp {
+      position: absolute; right: 16px; bottom: 16px; z-index: 3; pointer-events: none;
+      width: 86px; height: 86px; border-radius: 50%; display: none; place-items: center;
+      font-weight: 900; font-size: 18px; border: 5px solid; transform: rotate(-8deg);
+      animation: stampIn 0.28s ease;
+    }
+    .stamp.show { display: grid; }
+    .stamp.yes { color: #1d7a5c; border-color: #1d7a5c; background: rgba(124, 224, 195, 0.35); }
+    .stamp.no { color: #b42318; border-color: #b42318; background: rgba(255, 141, 171, 0.28); }
+
+    .report {
+      position: fixed; inset: 0; background: rgba(59, 42, 74, 0.45);
+      display: none; place-items: center; z-index: 25; padding: 16px;
+    }
+    .report.show { display: grid; }
+    .report-card {
+      width: min(520px, 100%); background: #fff; border-radius: 32px;
+      padding: 22px 20px 18px; text-align: center; border: 4px solid #fff;
+      box-shadow: 0 18px 40px rgba(157, 122, 240, 0.28); animation: popIn 0.4s ease;
+    }
+    .report-card h2 { font-size: clamp(22px, 3.4vh, 28px); margin: 8px 0 10px; }
+    .report-card p { font-weight: 800; line-height: 1.55; margin: 8px 0; font-size: 16px; }
+    .tip {
+      background: #f4edff; border-radius: 18px; padding: 12px 14px; margin: 12px 0 16px;
+      font-weight: 800; line-height: 1.6; text-align: left;
+    }
+
+    .dash-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-shrink: 0; margin-bottom: 8px; }
+    .dash-h h1 { font-family: "Fredoka", "Noto Sans TC", sans-serif; font-size: clamp(20px, 3vh, 28px); }
+    .dash-h .acts { display: flex; gap: 8px; margin: 0; }
+    .dash { flex: 1; min-height: 0; overflow: hidden; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex-shrink: 0; }
+    .stat { border-radius: 16px; padding: 10px; }
+    .stat b { display: block; font-size: 12px; opacity: 0.8; }
+    .stat strong { font-size: clamp(16px, 2.6vh, 24px); display: block; line-height: 1.2; }
+    .s1 { background: #ffe1ea; } .s2 { background: #d9f8ee; } .s3 { background: #efe6ff; }
+    .tools { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; gap: 8px; flex-wrap: wrap; }
+    .tools select, .tools button.tiny { border: 2px solid #ffe1ec; border-radius: 12px; padding: 4px 8px; font-weight: 800; background: #fff; }
+    .tool-filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .dash-src { font-size: 12px; font-weight: 800; color: var(--soft); }
+    .dash-count { font-size: 12px; font-weight: 800; color: var(--soft); }
+    .records { flex: 1; min-height: 0; overflow: auto; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(59,42,74,0.08); font-size: 12px; }
+    th { background: #f4edff; position: sticky; top: 0; z-index: 2; white-space: nowrap; }
+    th.col-h { padding-right: 4px; }
+    .col-sort { border: 0; background: transparent; font: inherit; font-weight: 900; cursor: pointer; padding: 0; }
+    th.sorted .col-sort { color: #9d7af0; }
+    .filter-btn {
+      border: 0; background: #efe6ff; color: var(--ink); cursor: pointer;
+      border-radius: 8px; width: 22px; height: 22px; margin-left: 4px;
+      font-size: 12px; font-weight: 900; line-height: 1; vertical-align: middle;
+    }
+    .filter-btn.on { background: var(--lilac); color: #fff; }
+    .score-cell { font-variant-numeric: tabular-nums; font-weight: 900; text-align: center; }
+    th.score-h, td.rank-cell { text-align: center; font-variant-numeric: tabular-nums; }
+    tr.hi .score-cell { color: #165f4c; }
+    tr.lo .score-cell { color: #b42318; }
+    .empty { text-align: center; padding: 20px; font-weight: 800; color: var(--soft); }
+    .filter-menu {
+      position: fixed; z-index: 30; width: min(280px, calc(100vw - 16px));
+      background: #fff; border-radius: 18px; padding: 10px;
+      box-shadow: 0 16px 36px rgba(59,42,74,0.24); border: 2px solid #efe6ff;
+      display: none; flex-direction: column; gap: 8px; max-height: min(420px, 70vh);
+    }
+    .filter-menu.show { display: flex; }
+    .filter-menu .fm-title { font-weight: 900; font-size: 14px; text-align: left; }
+    .filter-menu .fm-acts { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-menu .fm-acts button {
+      border: 0; border-radius: 999px; font-weight: 900; padding: 6px 10px; font-size: 12px;
+      background: #f6f0ff; color: var(--ink); cursor: pointer;
+    }
+    .filter-menu input[type="search"] {
+      width: 100%; border: 2px solid #efe6ff; border-radius: 12px;
+      padding: 6px 8px; font-weight: 800; font-size: 14px;
+    }
+    .filter-menu .opts { overflow: auto; text-align: left; flex: 1; min-height: 80px; }
+    .filter-menu label { display: flex; gap: 8px; align-items: flex-start; padding: 5px 2px; font-weight: 800; font-size: 13px; cursor: pointer; }
+    .filter-menu label input { margin-top: 2px; }
+
+    .modal { position: fixed; inset: 0; background: rgba(59,42,74,0.4); display: none; place-items: center; z-index: 20; padding: 16px; }
+    .modal.show { display: grid; }
+    .modal-card { width: min(360px, 100%); background: #fff; border-radius: 24px; padding: 18px; text-align: center; }
+    .modal-card input {
+      width: 100%; border: 3px solid #efe6ff; border-radius: 14px;
+      padding: 10px; font-size: 20px; font-weight: 800; text-align: center; margin: 10px 0;
+    }
+    canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
+
+    @media (max-height: 720px) {
+      .mascot { width: 56px; height: 56px; font-size: 28px; }
+      .choice-row .candy { padding: 10px 8px; font-size: 16px; }
+      .hintbar { font-size: 12px; padding: 4px 8px; }
+    }
+    @media print {
+      html, body, .app, .screen.active { position: static; height: auto; overflow: visible; }
+      .no-print, canvas, .report, .modal, .filter-menu, .filter-btn { display: none !important; }
+      .records { overflow: visible; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <div class="app">
+    <section id="screen-login" class="screen active">
+      <div class="card login">
+        <div class="mascot">🕵️</div>
+        <h1 class="title" id="titleWave"></h1>
+        <p class="tagline">高偵探 · 兩線相交成直角，才叫互相垂直<br>唔係「豎線／鉛垂線」噉簡單！</p>
+        <div class="field">
+          <label for="classId">班別</label>
+          <input id="classId" maxlength="8" placeholder="5A" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="studentId">學號</label>
+          <input id="studentId" maxlength="6" placeholder="01" inputmode="numeric" autocomplete="off" />
+        </div>
+        <button class="candy pink start" id="startBtn">開始任務</button>
+        <button class="candy lilac teacher-btn" id="teacherBtn">老師<br>後台</button>
+      </div>
+    </section>
+
+    <section id="screen-game" class="screen">
+      <div class="topbar">
+        <div class="pill" id="playerPill">5A 01</div>
+        <div class="pill" id="qPill">第 1 題</div>
+        <div class="pill timer" id="timer">⏱️ 03:00</div>
+        <button class="candy ghost tiny no-print" id="backLoginBtn">換人</button>
+      </div>
+      <div class="card play">
+        <div class="task-h">
+          <h2 id="taskTitle">這兩條線互相垂直嗎？</h2>
+          <p id="taskKind">判斷</p>
+        </div>
+        <div class="hintbar">垂直＝兩條直線相交成直角（90°），斜斜擺都可以。</div>
+        <div class="board" id="boardYesNo">
+          <canvas id="sceneCanvas"></canvas>
+          <div class="stamp" id="stamp"></div>
+        </div>
+        <div class="pick-grid" id="boardPick" hidden></div>
+        <div class="chips" id="pairChips" hidden></div>
+        <div class="toast" id="feedToast"></div>
+        <div class="choice-row" id="yesNoActs">
+          <button class="candy mint" id="btnYes">互相垂直</button>
+          <button class="candy peach" id="btnNo">不是垂直</button>
+        </div>
+        <div class="choice-row" id="tripleActs" hidden>
+          <button class="candy mint" id="btnTriple">確認搜證</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-dash" class="screen">
+      <div class="dash-h">
+        <h1>老師後台</h1>
+        <div class="acts no-print">
+          <button class="candy lemon tiny" id="printBtn">列印</button>
+          <button class="candy peach tiny" id="refreshDashBtn">重新整理</button>
+          <button class="candy ghost tiny" id="dashBackBtn">返回</button>
+        </div>
+      </div>
+      <div class="card dash">
+        <div class="stats" id="analysisCards"></div>
+        <div class="tools">
+          <strong>全班紀錄 <small id="dashSource" class="dash-src"></small></strong>
+          <div class="tool-filters">
+            <select id="classFilter" aria-label="班別"></select>
+            <span class="dash-count" id="dashCount"></span>
+            <button type="button" class="tiny" id="clearFiltersBtn">清除篩選</button>
+          </div>
+        </div>
+        <div class="records" id="studentRecords"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="report" id="reportModal">
+    <div class="report-card">
+      <div class="mascot">🏆</div>
+      <h2>成績診斷卡</h2>
+      <p id="reportScore"></p>
+      <div class="tip" id="reportTip"></div>
+      <button class="candy pink" id="reportBackBtn">完成</button>
+    </div>
+  </div>
+
+  <div id="dashFilterMenu" class="filter-menu"></div>
+
+  <div class="modal" id="pinModal">
+    <div class="modal-card">
+      <h3>老師後台</h3>
+      <input id="pinInput" type="password" maxlength="8" inputmode="numeric" autocomplete="off" />
+      <div class="choice-row">
+        <button class="candy ghost" id="pinCancel">取消</button>
+        <button class="candy lilac" id="pinOk">確認</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyGGhtjy7bKzw9M-divK5BZYL0mGcHJwcNoV_xv8VAUalMu_U9ptg8A8wIRQ8cpvQxv/exec";
+      const GAME_ID = "p5ma-ch3";
+      const STORE_KEY = "p5ma-ch3-v1";
+      const TEACHER_PIN = "2246";
+      const GAME_SECS = 180;
+      const LINE_COLORS = ["#ef5f8a", "#3cbc9a", "#4ea2f0", "#9d7af0"];
+      const TIP_INTERSECT = "💡 小提醒：兩條線相交還不夠，一定要相交成直角（90°）才叫互相垂直喔！";
+      const TIP_ROTATED = "💡 小提醒：垂直不一定是「一橫一直」。斜斜的兩條線，只要成直角，都算互相垂直！";
+      const TIP_PARALLEL = "💡 小提醒：平行線永遠不會相交，所以不會互相垂直。";
+      const TIP_PERFECT = "🌟 太厲害了！你完全掌握「相交成直角才算垂直」！";
+
+      const state = {
+        classId: "", studentId: "",
+        qIndex: 1, remain: GAME_SECS, ended: false, busy: false,
+        done: 0, qTimes: [], qStart: 0, sheetSent: false,
+        missIntersect: 0, missRotated: 0, missParallel: 0, missOther: 0,
+        q: null, nextTimer: null
+      };
+
+      let audioCtx = null, countId = null;
+      const $ = (id) => document.getElementById(id);
+      const screens = { login: $("screen-login"), game: $("screen-game"), dash: $("screen-dash") };
+
+      function showScreen(name) {
+        Object.keys(screens).forEach((key) => screens[key].classList.toggle("active", key === name));
+        if (name !== "game") stopCountdown();
+      }
+      function bounce(el) {
+        if (!el) return;
+        el.classList.remove("bounce");
+        void el.offsetWidth;
+        el.classList.add("bounce");
+      }
+      $("titleWave").innerHTML = [..."尋找垂直線"].map((ch, i) =>
+        `<span style="display:inline-block;animation:floaty 2.4s ${i * 0.08}s ease-in-out infinite">${ch}</span>`
+      ).join("");
+
+      function loadStore() {
+        try {
+          const raw = localStorage.getItem(STORE_KEY);
+          if (!raw) return { students: {}, logs: [] };
+          const data = JSON.parse(raw);
+          return { students: data.students || {}, logs: Array.isArray(data.logs) ? data.logs : [] };
+        } catch (e) { return { students: {}, logs: [] }; }
+      }
+      function saveStore(data) { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+      function normalizeId(id) {
+        const raw = String(id || "").trim();
+        return /^\d+$/.test(raw) ? raw.padStart(2, "0") : raw;
+      }
+      function studentKey(c, s) { return `${c}__${normalizeId(s)}`; }
+      function nowText() {
+        const d = new Date();
+        const p = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+      }
+      function ensureStudent() {
+        const db = loadStore();
+        const key = studentKey(state.classId, state.studentId);
+        if (!db.students[key]) {
+          db.students[key] = { classId: state.classId, studentId: normalizeId(state.studentId) };
+          saveStore(db);
+        }
+        return key;
+      }
+      function diagnose() {
+        const a = state.missIntersect, b = state.missRotated, c = state.missParallel, d = state.missOther;
+        if (a + b + c + d === 0) {
+          return { short: "零失誤", sheet: "完全掌握互相垂直（相交成直角）", tip: TIP_PERFECT };
+        }
+        if (a >= b && a >= c && a >= d) {
+          return { short: "易把相交當成垂直", sheet: "易把相交當成垂直", tip: TIP_INTERSECT };
+        }
+        if (b >= a && b >= c && b >= d) {
+          return { short: "斜向垂直易漏", sheet: "斜向垂直易漏：垂直唔一定要一橫一直", tip: TIP_ROTATED };
+        }
+        if (c >= a && c >= b && c >= d) {
+          return { short: "平行線誤判為垂直", sheet: "平行線誤判為垂直", tip: TIP_PARALLEL };
+        }
+        return { short: "判斷直角需再練", sheet: "判斷直角需再練", tip: TIP_INTERSECT };
+      }
+
+      function sheetConfigured() {
+        return /^https:\/\/script\.google\.com\/macros\/s\/(?!YOUR_SCRIPT_ID\b)[^/]+\/exec\/?$/.test(GOOGLE_SHEET_URL);
+      }
+      function sendToGoogleSheet(d) {
+        if (state.sheetSent || !sheetConfigured()) return;
+        state.sheetSent = true;
+        const avg = state.done ? Math.round(state.qTimes.reduce((x, y) => x + y, 0) / state.done) : 0;
+        const payload = {
+          game: GAME_ID,
+          student: `${state.classId} (${normalizeId(state.studentId)})`,
+          score: state.done,
+          avgTime: `${avg}秒`,
+          diagnostic: d.sheet
+        };
+        try {
+          fetch(GOOGLE_SHEET_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          }).catch(function () {});
+        } catch (err) {}
+      }
+
+      let sheetLogsCache = null;
+      let dashSeq = 0;
+      let dashAllLogs = [];
+      let dashClass = "ALL";
+      let dashSort = { col: "score", dir: "desc" };
+      let dashFilters = {};
+      let dashMenuCol = "";
+      const DASH_COLS = [
+        { key: "student", label: "班別學號", numeric: false },
+        { key: "score", label: "答對題數", numeric: true },
+        { key: "avg", label: "平均用時(秒)", numeric: true },
+        { key: "diagnosis", label: "診斷", numeric: false },
+        { key: "time", label: "時間", numeric: false }
+      ];
+      function parseSheetStudent(s) {
+        const m = String(s || "").match(/^(.+?)\s*\(([^)]+)\)/);
+        if (m) return { classId: m[1].trim(), studentId: normalizeId(m[2].trim()) };
+        return { classId: "", studentId: String(s || "").trim() };
+      }
+      function parseAvgSec(s) {
+        const m = String(s || "").match(/(\d+)/);
+        return m ? Number(m[1]) : 0;
+      }
+      function rowsToLogs(rows) {
+        return (rows || []).map((r) => {
+          const who = parseSheetStudent(r.student);
+          const diagnostic = String(r.diagnostic || "");
+          return {
+            classId: who.classId,
+            studentId: who.studentId,
+            done: Number(r.score) || 0,
+            avgSec: parseAvgSec(r.avgTime),
+            diagnosis: diagnostic,
+            intersectErr: /相交當成垂直/.test(diagnostic) ? 1 : 0,
+            rotatedErr: /斜向垂直/.test(diagnostic) ? 1 : 0,
+            time: r.time || "",
+            game: r.game || ""
+          };
+        }).filter((e) => e.studentId || e.classId);
+      }
+      function jsonpSheet(url) {
+        return new Promise((resolve, reject) => {
+          const cb = "p5ch3Dash" + Date.now();
+          const s = document.createElement("script");
+          const timer = setTimeout(() => { cleanup(); reject(new Error("timeout")); }, 15000);
+          function cleanup() {
+            clearTimeout(timer);
+            try { delete window[cb]; } catch (err) { window[cb] = undefined; }
+            if (s.parentNode) s.parentNode.removeChild(s);
+          }
+          window[cb] = function (data) { cleanup(); resolve(data); };
+          s.onerror = function () { cleanup(); reject(new Error("script")); };
+          s.src = url + (url.indexOf("?") >= 0 ? "&" : "?") + "callback=" + cb;
+          document.body.appendChild(s);
+        });
+      }
+      async function loadSheetLogs(force) {
+        if (sheetLogsCache && !force) return sheetLogsCache;
+        if (!sheetConfigured()) throw new Error("no-url");
+        const url = GOOGLE_SHEET_URL + "?game=" + encodeURIComponent(GAME_ID);
+        let data = null;
+        try {
+          const res = await fetch(url, { method: "GET" });
+          if (!res.ok) throw new Error("http");
+          data = await res.json();
+        } catch (err) {
+          data = await jsonpSheet(url);
+        }
+        if (!data || !data.ok) throw new Error("bad");
+        sheetLogsCache = rowsToLogs(data.rows);
+        return sheetLogsCache;
+      }
+      function saveSession() {
+        const db = loadStore();
+        ensureStudent();
+        const avg = state.done ? Math.round(state.qTimes.reduce((a, b) => a + b, 0) / state.done) : 0;
+        const d = diagnose();
+        db.logs.push({
+          classId: state.classId,
+          studentId: normalizeId(state.studentId),
+          done: state.done,
+          avgSec: avg,
+          diagnosis: d.short,
+          intersectErr: state.missIntersect,
+          rotatedErr: state.missRotated,
+          time: nowText()
+        });
+        saveStore(db);
+        return d;
+      }
+
+      function unlockAudio() {
+        if (!audioCtx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) audioCtx = new AC();
+        }
+        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+      }
+      function tone(freq, dur, type, gain) {
+        if (!audioCtx) return;
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = type || "sine";
+        o.frequency.value = freq;
+        g.gain.value = gain || 0.05;
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start();
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        o.stop(audioCtx.currentTime + dur);
+      }
+      function sfx(kind) {
+        unlockAudio();
+        if (kind === "ok") {
+          tone(523, 0.1, "triangle");
+          setTimeout(() => tone(659, 0.1, "triangle"), 80);
+          setTimeout(() => tone(784, 0.16, "triangle"), 160);
+        } else if (kind === "bad") tone(180, 0.2, "sawtooth", 0.04);
+        else if (kind === "win") [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 0.14, "triangle"), i * 100));
+      }
+
+      function renderTimer() {
+        const s = Math.max(0, state.remain);
+        $("timer").textContent = `⏱️ ${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+        $("timer").classList.toggle("low", s <= 15);
+      }
+      function stopCountdown() {
+        clearInterval(countId);
+        countId = null;
+      }
+      function startCountdown() {
+        stopCountdown();
+        state.remain = GAME_SECS;
+        state.ended = false;
+        renderTimer();
+        countId = setInterval(() => {
+          if (state.ended) return;
+          state.remain -= 1;
+          renderTimer();
+          if (state.remain <= 0) endSession();
+        }, 1000);
+      }
+      function endSession() {
+        if (state.ended) return;
+        state.ended = true;
+        state.remain = 0;
+        renderTimer();
+        stopCountdown();
+        clearTimeout(state.nextTimer);
+        const d = saveSession();
+        sendToGoogleSheet(d);
+        $("reportScore").textContent = `🎉 太棒了！你一共找出了 ${state.done} 組垂直線！`;
+        $("reportTip").textContent = d.tip;
+        $("reportModal").classList.add("show");
+        burstConfetti(180);
+        sfx("win");
+      }
+
+      function rand(a, b) { return a + Math.random() * (b - a); }
+      function rint(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+      function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+        return a;
+      }
+      function angDiff(a, b) {
+        let d = Math.abs(a - b) % 180;
+        if (d > 90) d = 180 - d;
+        return d;
+      }
+      function isPerpAng(a, b) { return Math.abs(angDiff(a, b) - 90) < 0.8; }
+
+      function ray(cx, cy, ang, len, both) {
+        const r = ang * Math.PI / 180;
+        const dx = Math.cos(r) * len, dy = Math.sin(r) * len;
+        if (both) return { x1: cx - dx, y1: cy - dy, x2: cx + dx, y2: cy + dy, ang: ang };
+        return { x1: cx, y1: cy, x2: cx + dx, y2: cy + dy, ang: ang };
+      }
+
+      function makePair(kind) {
+        const cx = 48 + rand(-6, 8);
+        const cy = 50 + rand(-7, 7);
+        const len = 28 + rand(0, 6);
+        let a0, a1, style, perp, trap, reason;
+        if (kind === "perp-axis") {
+          a0 = pick([0, 180]); a1 = pick([90, 270]); style = pick(["cross", "T", "L"]);
+          perp = true; trap = "axis"; reason = "兩條線相交成直角，所以互相垂直。";
+        } else if (kind === "perp-rot") {
+          a0 = rand(16, 74); a1 = a0 + 90; style = pick(["cross", "T", "L"]);
+          perp = true; trap = "rotated"; reason = "雖然斜斜擺，但相交成直角，所以互相垂直。";
+        } else if (kind === "cross-acute") {
+          a0 = Math.random() < 0.45 ? 0 : rand(10, 50);
+          a1 = a0 + pick([32, 38, 44, 50, 58]);
+          style = pick(["cross", "L"]); perp = false; trap = "intersect";
+          reason = "兩條線相交，但唔係直角，所以唔垂直。";
+        } else if (kind === "cross-obtuse") {
+          a0 = Math.random() < 0.4 ? 0 : rand(8, 40);
+          a1 = a0 + pick([118, 128, 138, 148]);
+          style = "cross"; perp = false; trap = "intersect";
+          reason = "兩條線相交，但唔係直角，所以唔垂直。";
+        } else if (kind === "steep") {
+          a0 = 0; a1 = pick([72, 76, 78, 102, 108]);
+          style = "cross"; perp = false; trap = "intersect";
+          reason = "看起來好似「豎線」，但相交唔係直角，所以唔垂直。";
+        } else if (kind === "parallel") {
+          a0 = pick([0, 18, 32, 90, 128]); a1 = a0;
+          style = "parallel"; perp = false; trap = "parallel";
+          reason = "兩條線平行，唔會相交成直角，所以唔垂直。";
+        } else {
+          a0 = rand(10, 70); a1 = a0 + pick([28, 40, 55, 125]);
+          style = "cross"; perp = false; trap = "intersect";
+          reason = "兩條線相交，但唔係直角，所以唔垂直。";
+        }
+        let lines;
+        if (style === "parallel") {
+          const off = 11;
+          const nx = Math.cos((a0 + 90) * Math.PI / 180) * off;
+          const ny = Math.sin((a0 + 90) * Math.PI / 180) * off;
+          const l1 = ray(cx - nx, cy - ny, a0, len, true);
+          const l2 = ray(cx + nx, cy + ny, a1, len, true);
+          lines = [l1, l2];
+        } else if (style === "T") {
+          lines = [ray(cx, cy, a0, len, true), ray(cx, cy, a1, len * 0.92, false)];
+        } else if (style === "L") {
+          lines = [ray(cx, cy, a0, len, false), ray(cx, cy, a1, len, false)];
+        } else {
+          lines = [ray(cx, cy, a0, len, true), ray(cx, cy, a1, len, true)];
+        }
+        lines[0].color = LINE_COLORS[0];
+        lines[1].color = LINE_COLORS[1];
+        return { kind, perp, trap, reason, style, a0, a1, cx, cy, lines, labels: ["", ""] };
+      }
+
+      function makeTriple() {
+        const cx = 50, cy = 52;
+        const base = rand(8, 40);
+        const pattern = pick(["one", "one", "two"]);
+        let angs;
+        if (pattern === "two") {
+          angs = [base, base + 90, base + 180];
+        } else {
+          angs = [base, base + 90, base + pick([40, 48, 55, 130])];
+        }
+        const lines = angs.map((ang, i) => {
+          const ln = ray(cx, cy, ang, 30, false);
+          ln.color = LINE_COLORS[i];
+          ln.label = ["①", "②", "③"][i];
+          return ln;
+        });
+        const pairs = [
+          { a: 0, b: 1, perp: isPerpAng(angs[0], angs[1]) },
+          { a: 0, b: 2, perp: isPerpAng(angs[0], angs[2]) },
+          { a: 1, b: 2, perp: isPerpAng(angs[1], angs[2]) }
+        ];
+        if (!pairs.some((p) => p.perp)) {
+          angs[1] = angs[0] + 90;
+          lines[1] = ray(cx, cy, angs[1], 30, false);
+          lines[1].color = LINE_COLORS[1];
+          lines[1].label = "②";
+          pairs[0].perp = true;
+          pairs[1].perp = isPerpAng(angs[0], angs[2]);
+          pairs[2].perp = isPerpAng(angs[1], angs[2]);
+        }
+        return { type: "triple", lines, pairs, cx, cy, trap: pairs.filter((p) => p.perp).some((_, i) => true) && Math.abs((angs[0] % 90)) > 8 ? "rotated" : "axis" };
+      }
+
+      function fitCtx(canvas) {
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        const w = Math.max(40, canvas.clientWidth);
+        const h = Math.max(40, canvas.clientHeight);
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        const ctx = canvas.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx, w, h };
+      }
+      function mapPt(p, w, h) {
+        const m = Math.min(w, h);
+        const ox = (w - m) / 2, oy = (h - m) / 2;
+        return { x: ox + (p.x / 100) * m, y: oy + (p.y / 100) * m };
+      }
+      function drawBg(ctx, w, h, mini) {
+        const g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, "#ffffff");
+        g.addColorStop(1, "#f4f0ff");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+        if (!mini) {
+          ctx.strokeStyle = "rgba(157,122,240,0.08)";
+          ctx.lineWidth = 1;
+          const step = Math.min(w, h) / 8;
+          for (let x = step; x < w; x += step) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (let y = step; y < h; y += step) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+        }
+      }
+      function drawLine(ctx, w, h, ln, width) {
+        const a = mapPt({ x: ln.x1, y: ln.y1 }, w, h);
+        const b = mapPt({ x: ln.x2, y: ln.y2 }, w, h);
+        ctx.strokeStyle = ln.color || "#ef5f8a";
+        ctx.lineWidth = width;
+        ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        if (ln.label) {
+          const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+          const dx = b.x - a.x, dy = b.y - a.y;
+          const L = Math.hypot(dx, dy) || 1;
+          const px = mx - dy / L * 16, py = my + dx / L * 16;
+          ctx.fillStyle = ln.color;
+          ctx.font = "900 16px 'Noto Sans TC', sans-serif";
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText(ln.label, px, py);
+        }
+      }
+      function drawDot(ctx, w, h, x, y) {
+        const p = mapPt({ x, y }, w, h);
+        ctx.fillStyle = "#3b2a4a";
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill();
+      }
+      function drawRightMark(ctx, w, h, geom) {
+        if (!geom || !geom.perp) return;
+        const size = 9;
+        const r0 = geom.a0 * Math.PI / 180;
+        const r1 = geom.a1 * Math.PI / 180;
+        let ux = Math.cos(r0), uy = Math.sin(r0);
+        let vx = Math.cos(r1), vy = Math.sin(r1);
+        if (geom.style === "L" || geom.style === "T") {
+          /* rays already start at centre; keep given directions */
+        } else {
+          if (ux + vx < 0 && uy + vy < 0) { ux = -ux; uy = -uy; }
+        }
+        const o = mapPt({ x: geom.cx, y: geom.cy }, w, h);
+        const s = Math.min(w, h) * (size / 100);
+        ctx.strokeStyle = "#9d7af0";
+        ctx.lineWidth = 3;
+        ctx.lineCap = "butt";
+        ctx.lineJoin = "miter";
+        ctx.beginPath();
+        ctx.moveTo(o.x + ux * s, o.y + uy * s);
+        ctx.lineTo(o.x + ux * s + vx * s, o.y + uy * s + vy * s);
+        ctx.lineTo(o.x + vx * s, o.y + vy * s);
+        ctx.stroke();
+      }
+      function paintPair(canvas, geom, opts) {
+        const { ctx, w, h } = fitCtx(canvas);
+        drawBg(ctx, w, h, !!(opts && opts.mini));
+        const width = (opts && opts.mini) ? 5 : 8;
+        (geom.lines || []).forEach((ln) => drawLine(ctx, w, h, ln, width));
+        if (geom.cx != null) drawDot(ctx, w, h, geom.cx, geom.cy);
+        if (opts && opts.mark) drawRightMark(ctx, w, h, geom);
+      }
+
+      function setToast(ok, text) {
+        const el = $("feedToast");
+        el.className = "toast show " + (ok ? "good" : "bad");
+        el.textContent = text;
+      }
+      function clearToast() {
+        $("feedToast").className = "toast";
+        $("feedToast").textContent = "";
+      }
+      function setStamp(ok) {
+        const el = $("stamp");
+        el.className = "stamp show " + (ok ? "yes" : "no");
+        el.textContent = ok ? "破案" : "再查";
+      }
+      function hideStamp() { $("stamp").className = "stamp"; }
+
+      function showMode(mode) {
+        $("boardYesNo").style.display = mode === "yesno" || mode === "triple" ? "flex" : "none";
+        $("boardPick").hidden = mode !== "pick";
+        $("boardPick").style.display = mode === "pick" ? "grid" : "none";
+        $("yesNoActs").hidden = mode !== "yesno";
+        $("yesNoActs").style.display = mode === "yesno" ? "flex" : "none";
+        $("tripleActs").hidden = mode !== "triple";
+        $("tripleActs").style.display = mode === "triple" ? "flex" : "none";
+        $("pairChips").hidden = mode !== "triple";
+        $("pairChips").style.display = mode === "triple" ? "flex" : "none";
+      }
+
+      function drawQuestion() {
+        const q = state.q;
+        if (!q) return;
+        if (q.type === "yesno") {
+          paintPair($("sceneCanvas"), q.geom, { mark: q.revealed && q.geom.perp });
+        } else if (q.type === "pick") {
+          const cards = $("boardPick").querySelectorAll(".pick-card");
+          cards.forEach((card, i) => {
+            const c = card.querySelector("canvas");
+            if (c && q.options[i]) paintPair(c, q.options[i], { mini: true, mark: q.revealed && q.options[i].perp });
+          });
+        } else if (q.type === "triple") {
+          paintPair($("sceneCanvas"), { lines: q.geom.lines, cx: q.geom.cx, cy: q.geom.cy, perp: false }, {});
+        }
+      }
+
+      function newQuestion() {
+        if (state.ended) return;
+        clearTimeout(state.nextTimer);
+        state.busy = false;
+        state.qStart = Date.now();
+        clearToast();
+        hideStamp();
+        $("btnYes").disabled = false;
+        $("btnNo").disabled = false;
+        $("btnTriple").disabled = false;
+        $("playerPill").textContent = `${state.classId} ${normalizeId(state.studentId)}`;
+        $("qPill").textContent = `第 ${state.qIndex} 題`;
+
+        const roll = Math.random();
+        let q;
+        if (roll < 0.52) {
+          const kinds = ["perp-axis", "perp-rot", "perp-rot", "cross-acute", "cross-obtuse", "steep", "parallel", "perp-axis"];
+          const geom = makePair(pick(kinds));
+          q = { type: "yesno", geom, revealed: false };
+          $("taskTitle").textContent = "這兩條線互相垂直嗎？";
+          $("taskKind").textContent = "判斷";
+          showMode("yesno");
+        } else if (roll < 0.84) {
+          const yes = makePair(pick(["perp-axis", "perp-rot", "perp-rot"]));
+          const nos = [makePair("cross-acute"), makePair("parallel"), makePair(pick(["steep", "cross-obtuse"]))];
+          const options = shuffle([yes, ...nos]);
+          const answer = options.findIndex((g) => g.perp);
+          q = { type: "pick", options, answer, revealed: false };
+          $("taskTitle").textContent = "邊一組互相垂直？點選證物卡";
+          $("taskKind").textContent = "找出";
+          showMode("pick");
+          $("boardPick").innerHTML = ["A", "B", "C", "D"].map((lab, i) =>
+            `<button type="button" class="pick-card" data-i="${i}"><span class="tag">${lab}</span><canvas></canvas></button>`
+          ).join("");
+        } else {
+          const geom = makeTriple();
+          q = { type: "triple", geom, selected: new Set(), revealed: false };
+          $("taskTitle").textContent = "揀出所有互相垂直的線，再按確認";
+          $("taskKind").textContent = "搜證";
+          showMode("triple");
+          $("pairChips").innerHTML = geom.pairs.map((p, i) =>
+            `<button type="button" class="chip" data-i="${i}">${["①","②","③"][p.a]} 與 ${["①","②","③"][p.b]}</button>`
+          ).join("");
+        }
+        state.q = q;
+        requestAnimationFrame(() => requestAnimationFrame(drawQuestion));
+      }
+
+      function noteMiss(trap) {
+        if (trap === "intersect") state.missIntersect += 1;
+        else if (trap === "rotated") state.missRotated += 1;
+        else if (trap === "parallel") state.missParallel += 1;
+        else state.missOther += 1;
+      }
+      function finishQ(ok, msg, trap) {
+        if (state.busy || state.ended) return;
+        state.busy = true;
+        $("btnYes").disabled = true;
+        $("btnNo").disabled = true;
+        $("btnTriple").disabled = true;
+        if (ok) {
+          state.done += 1;
+          state.qTimes.push(Math.max(1, Math.round((Date.now() - state.qStart) / 1000)));
+          sfx("ok");
+          setToast(true, msg || "破案！相交成直角，互相垂直。");
+          setStamp(true);
+        } else {
+          noteMiss(trap);
+          sfx("bad");
+          setToast(false, msg || "再查！垂直要成直角。");
+          setStamp(false);
+        }
+        if (state.q) state.q.revealed = true;
+        drawQuestion();
+        state.nextTimer = setTimeout(() => {
+          if (state.ended) return;
+          state.qIndex += 1;
+          newQuestion();
+        }, 1150);
+      }
+
+      function answerYesNo(sayYes) {
+        const q = state.q;
+        if (!q || q.type !== "yesno") return;
+        const actual = !!q.geom.perp;
+        const ok = sayYes === actual;
+        if (ok) {
+          finishQ(true, actual ? "破案！兩線相交成直角，互相垂直。" : "正確！呢組唔係垂直。");
+        } else if (sayYes && q.geom.trap === "intersect") {
+          finishQ(false, "相交 ≠ 垂直。要成直角先算。", "intersect");
+        } else if (sayYes && q.geom.trap === "parallel") {
+          finishQ(false, "平行線唔會垂直。", "parallel");
+        } else if (!sayYes && q.geom.trap === "rotated") {
+          finishQ(false, "斜斜都可以垂直！只要成直角。", "rotated");
+        } else if (!sayYes && actual) {
+          finishQ(false, "佢哋相交成直角，所以互相垂直。", q.geom.trap || "rotated");
+        } else {
+          finishQ(false, q.geom.reason || "再睇清楚直角。", q.geom.trap || "other");
+        }
+      }
+
+      function answerPick(i) {
+        const q = state.q;
+        if (!q || q.type !== "pick" || state.busy) return;
+        const cards = $("boardPick").querySelectorAll(".pick-card");
+        cards.forEach((card, idx) => {
+          card.classList.toggle("ok", idx === q.answer);
+          card.classList.toggle("bad", idx === i && i !== q.answer);
+          card.classList.toggle("dim", idx !== q.answer && idx !== i);
+        });
+        const chosen = q.options[i];
+        if (i === q.answer) {
+          finishQ(true, "破案！搵到相交成直角嗰組。");
+        } else {
+          const trap = chosen && chosen.trap === "parallel" ? "parallel"
+            : (q.options[q.answer].trap === "rotated" ? "rotated" : (chosen && chosen.trap) || "intersect");
+          const msg = chosen && chosen.trap === "parallel" ? "嗰組係平行，唔係垂直。"
+            : (q.options[q.answer].trap === "rotated" ? "正確嗰組斜斜都可以垂直。" : "相交唔等於垂直，要成直角。");
+          finishQ(false, msg, trap);
+        }
+      }
+
+      function toggleChip(i) {
+        const q = state.q;
+        if (!q || q.type !== "triple" || state.busy) return;
+        if (q.selected.has(i)) q.selected.delete(i); else q.selected.add(i);
+        $("pairChips").querySelectorAll(".chip").forEach((el) => {
+          const idx = Number(el.getAttribute("data-i"));
+          el.classList.toggle("on", q.selected.has(idx));
+        });
+      }
+      function answerTriple() {
+        const q = state.q;
+        if (!q || q.type !== "triple") return;
+        const pairs = q.geom.pairs;
+        let ok = true;
+        pairs.forEach((p, i) => {
+          const on = q.selected.has(i);
+          if (on !== p.perp) ok = false;
+        });
+        $("pairChips").querySelectorAll(".chip").forEach((el) => {
+          const idx = Number(el.getAttribute("data-i"));
+          el.classList.remove("on");
+          el.classList.add(pairs[idx].perp ? "ok" : (q.selected.has(idx) ? "bad" : ""));
+        });
+        if (ok) finishQ(true, "破案！所有垂直組合都搵到。");
+        else {
+          const missedRot = pairs.some((p, i) => p.perp && !q.selected.has(i)) && q.geom.trap === "rotated";
+          const extra = pairs.some((p, i) => !p.perp && q.selected.has(i));
+          finishQ(false,
+            extra ? "有組合相交但唔係直角。" : "仲有互相垂直嘅線未搵到。",
+            missedRot ? "rotated" : (extra ? "intersect" : "other")
+          );
+        }
+      }
+
+      function startGame() {
+        const classId = $("classId").value.trim().toUpperCase();
+        const studentId = $("studentId").value.trim();
+        if (!classId || !studentId) { bounce($("startBtn")); return; }
+        unlockAudio();
+        state.classId = classId;
+        state.studentId = studentId;
+        state.qIndex = 1;
+        state.done = 0;
+        state.qTimes = [];
+        state.missIntersect = 0;
+        state.missRotated = 0;
+        state.missParallel = 0;
+        state.missOther = 0;
+        state.ended = false;
+        state.busy = false;
+        state.sheetSent = false;
+        $("reportModal").classList.remove("show");
+        ensureStudent();
+        showScreen("game");
+        startCountdown();
+        newQuestion();
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"'`]/g, (c) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;", "`": "&#96;"
+        }[c]));
+      }
+      function cmpStudent(a, b) {
+        if (a.classId !== b.classId) return String(a.classId).localeCompare(String(b.classId), "zh-Hant");
+        const na = parseInt(a.studentId, 10), nb = parseInt(b.studentId, 10);
+        if (!Number.isNaN(na) && !Number.isNaN(nb) && na !== nb) return na - nb;
+        return String(a.studentId).localeCompare(String(b.studentId), "zh-Hant", { numeric: true });
+      }
+      function timeDay(t) {
+        const s = String(t || "");
+        const m = s.match(/^\d{4}\/\d{2}\/\d{2}/);
+        return m ? m[0] : (s || "（空白）");
+      }
+      function colValue(key, e) {
+        if (key === "student") return `${e.classId} ${e.studentId}`.trim() || "（空白）";
+        if (key === "score") return String(e.done);
+        if (key === "avg") return e.avgSec ? String(e.avgSec) : "—";
+        if (key === "diagnosis") return e.diagnosis || "（空白）";
+        return timeDay(e.time);
+      }
+      function classLogs() {
+        if (!dashClass || dashClass === "ALL") return dashAllLogs;
+        return dashAllLogs.filter((e) => e.classId === dashClass);
+      }
+      function uniqueValues(key) {
+        const set = new Set();
+        classLogs().forEach((e) => set.add(colValue(key, e)));
+        const arr = [...set];
+        const spec = DASH_COLS.find((c) => c.key === key);
+        arr.sort((a, b) => {
+          if (spec && spec.numeric) {
+            const na = Number(a), nb = Number(b);
+            const fa = Number.isFinite(na), fb = Number.isFinite(nb);
+            if (fa && fb) return na - nb;
+            if (fa) return -1;
+            if (fb) return 1;
+          }
+          return String(a).localeCompare(String(b), "zh-Hant", { numeric: true });
+        });
+        return arr;
+      }
+      function filterActive(key) {
+        const sel = dashFilters[key];
+        return !!(sel && sel.size < uniqueValues(key).length);
+      }
+      function anyFilterOn() {
+        return DASH_COLS.some((c) => filterActive(c.key));
+      }
+      function passesFilters(e) {
+        return DASH_COLS.every((col) => {
+          const sel = dashFilters[col.key];
+          if (!sel) return true;
+          return sel.has(colValue(col.key, e));
+        });
+      }
+      function sortLogs(logs) {
+        const col = dashSort.col;
+        const m = dashSort.dir === "asc" ? 1 : -1;
+        return logs.slice().sort((a, b) => {
+          let c = 0;
+          if (col === "score") c = a.done - b.done;
+          else if (col === "avg") c = (a.avgSec || 0) - (b.avgSec || 0);
+          else if (col === "student") c = cmpStudent(a, b);
+          else if (col === "time") c = String(a.time || "").localeCompare(String(b.time || ""));
+          else if (col === "diagnosis") c = String(a.diagnosis || "").localeCompare(String(b.diagnosis || ""), "zh-Hant");
+          return (c * m) || cmpStudent(a, b);
+        });
+      }
+      function sortMark(key) {
+        if (dashSort.col !== key) return "";
+        return dashSort.dir === "asc" ? " ▲" : " ▼";
+      }
+      function closeFilterMenu() {
+        dashMenuCol = "";
+        const menu = $("dashFilterMenu");
+        if (menu) menu.classList.remove("show");
+      }
+      function resetDashFilters() {
+        dashFilters = {};
+        dashSort = { col: "score", dir: "desc" };
+        dashClass = "ALL";
+        closeFilterMenu();
+      }
+      function placeFilterMenu(anchor) {
+        const menu = $("dashFilterMenu");
+        const r = anchor.getBoundingClientRect();
+        menu.classList.add("show");
+        const w = menu.offsetWidth || 260;
+        const h = menu.offsetHeight || 280;
+        let left = Math.min(r.left, window.innerWidth - w - 8);
+        let top = r.bottom + 4;
+        if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 4);
+        if (left < 8) left = 8;
+        menu.style.left = left + "px";
+        menu.style.top = top + "px";
+      }
+      function renderFilterMenu(key, q) {
+        const spec = DASH_COLS.find((c) => c.key === key);
+        if (!spec) return;
+        const values = uniqueValues(key);
+        const sel = dashFilters[key];
+        const query = String(q || "").trim();
+        const shown = query ? values.filter((v) => String(v).indexOf(query) !== -1) : values;
+        const allOn = !sel;
+        const sortDesc = key === "time" ? "新 → 舊" : (spec.numeric ? "由高到低" : "由 Z 到 A");
+        const sortAsc = key === "time" ? "舊 → 新" : (spec.numeric ? "由低到高" : "由 A 到 Z");
+        $("dashFilterMenu").innerHTML = `
+          <div class="fm-title">篩選：${escapeHtml(spec.label)}</div>
+          <div class="fm-acts">
+            <button type="button" data-fm="sort-desc">${sortDesc}</button>
+            <button type="button" data-fm="sort-asc">${sortAsc}</button>
+          </div>
+          <input type="search" id="fmSearch" placeholder="搜尋" value="${escapeHtml(query)}" />
+          <div class="fm-acts">
+            <button type="button" data-fm="all">全選</button>
+            <button type="button" data-fm="none">全不選</button>
+            <button type="button" data-fm="clear">清除此欄</button>
+          </div>
+          <div class="opts">
+            ${shown.map((v) => {
+              const on = allOn || sel.has(v);
+              const idx = values.indexOf(v);
+              return `<label><input type="checkbox" data-idx="${idx}" ${on ? "checked" : ""} />${escapeHtml(v)}</label>`;
+            }).join("") || `<div class="empty">沒有項目</div>`}
+          </div>
+        `;
+        const search = $("fmSearch");
+        if (search) {
+          search.focus();
+          const n = search.value.length;
+          try { search.setSelectionRange(n, n); } catch (err) {}
+        }
+      }
+      function openFilterMenu(key, anchor) {
+        dashMenuCol = key;
+        renderFilterMenu(key, "");
+        placeFilterMenu(anchor);
+      }
+      function setColFilter(key, nextSet) {
+        const all = uniqueValues(key);
+        if (!nextSet || nextSet.size === all.length) dashFilters[key] = null;
+        else dashFilters[key] = nextSet;
+        paintDash();
+        if (dashMenuCol === key) {
+          const q = ($("fmSearch") && $("fmSearch").value) || "";
+          renderFilterMenu(key, q);
+          const btn = document.querySelector(`.filter-btn[data-filter="${key}"]`);
+          if (btn) placeFilterMenu(btn);
+        }
+      }
+      function paintDash() {
+        DASH_COLS.forEach((col) => {
+          const sel = dashFilters[col.key];
+          if (!sel) return;
+          const all = new Set(uniqueValues(col.key));
+          const next = new Set([...sel].filter((v) => all.has(v)));
+          dashFilters[col.key] = next.size === all.size ? null : next;
+        });
+        const sourceEl = $("dashSource");
+        const base = classLogs();
+        const logs = base.filter(passesFilters);
+        const avgDone = logs.length ? Math.round((logs.reduce((n, e) => n + (e.done || 0), 0) / logs.length) * 10) / 10 : 0;
+        const interTotal = logs.reduce((n, e) => n + (e.intersectErr || 0), 0);
+        const rotTotal = logs.reduce((n, e) => n + (e.rotatedErr || 0), 0);
+        const classes = [...new Set(dashAllLogs.map((s) => s.classId).filter(Boolean))].sort();
+        $("classFilter").innerHTML = `<option value="ALL">全部班別</option>` +
+          classes.map((c) => `<option value="${escapeHtml(c)}" ${c === dashClass ? "selected" : ""}>${escapeHtml(c)}</option>`).join("");
+        $("analysisCards").innerHTML = `
+          <div class="stat s1"><b>平均 3 分鐘完成題數</b><strong>${logs.length ? avgDone : "—"}</strong></div>
+          <div class="stat s2"><b>誤當相交即垂直</b><strong>${interTotal}</strong></div>
+          <div class="stat s3"><b>漏判斜向垂直</b><strong>${rotTotal}</strong></div>
+        `;
+        if ($("dashCount")) {
+          $("dashCount").textContent = dashAllLogs.length ? `顯示 ${logs.length} / ${base.length} 筆` : "";
+        }
+        if ($("clearFiltersBtn")) $("clearFiltersBtn").style.visibility = anyFilterOn() ? "visible" : "hidden";
+        if (!dashAllLogs.length) {
+          $("studentRecords").innerHTML = `<div class="empty">${sourceEl && sourceEl.textContent.indexOf("未能") >= 0 ? "未能連線 Google 試算表" : "未有紀錄"}</div>`;
+          return;
+        }
+        const ranked = sortLogs(logs);
+        const scores = ranked.map((e) => e.done || 0).slice().sort((a, b) => a - b);
+        const hiCut = scores.length ? scores[Math.max(0, scores.length - Math.ceil(scores.length * 0.2))] || 0 : 0;
+        const loCut = scores.length ? scores[Math.min(scores.length - 1, Math.floor(scores.length * 0.2))] || 0 : 0;
+        const showRank = dashSort.col === "score";
+        const head = (key, extra) => {
+          const spec = DASH_COLS.find((c) => c.key === key);
+          const on = filterActive(key);
+          const sorted = dashSort.col === key ? " sorted" : "";
+          return `<th class="col-h${extra || ""}${sorted}" data-col="${key}">
+            <button type="button" class="col-sort" data-sort="${key}">${escapeHtml(spec.label)}${sortMark(key)}</button>
+            <button type="button" class="filter-btn${on ? " on" : ""}" data-filter="${key}" aria-label="篩選${escapeHtml(spec.label)}">▼</button>
+          </th>`;
+        };
+        const body = ranked.length ? ranked.map((e, i) => {
+          const rank = dashSort.dir === "asc" ? ranked.length - i : i + 1;
+          const hi = e.done >= hiCut && e.done > 0;
+          const lo = e.done <= loCut;
+          return `<tr class="${hi ? "hi" : lo ? "lo" : ""}">
+            ${showRank ? `<td class="rank-cell">${rank}</td>` : ""}
+            <td>${escapeHtml(e.classId)} ${escapeHtml(e.studentId)}</td>
+            <td class="score-cell">${e.done}</td>
+            <td>${e.avgSec || "—"}</td>
+            <td>${escapeHtml(e.diagnosis)}</td>
+            <td>${escapeHtml(e.time)}</td>
+          </tr>`;
+        }).join("") : `<tr><td colspan="${showRank ? 6 : 5}" class="empty">呢組篩選冇紀錄，可再撳 ▼ 改篩選</td></tr>`;
+        $("studentRecords").innerHTML = `<table>
+          <thead><tr>
+            ${showRank ? `<th class="score-h">名次</th>` : ""}
+            ${head("student")}
+            ${head("score", " score-h")}
+            ${head("avg")}
+            ${head("diagnosis")}
+            ${head("time")}
+          </tr></thead>
+          <tbody>${body}</tbody>
+        </table>`;
+      }
+      async function renderDashboard(filterClass, force) {
+        const seq = ++dashSeq;
+        if (filterClass) dashClass = filterClass;
+        $("studentRecords").innerHTML = `<div class="empty">載入全班分數…</div>`;
+        $("analysisCards").innerHTML = `
+          <div class="stat s1"><b>平均 3 分鐘完成題數</b><strong>…</strong></div>
+          <div class="stat s2"><b>誤當相交即垂直</b><strong>…</strong></div>
+          <div class="stat s3"><b>漏判斜向垂直</b><strong>…</strong></div>
+        `;
+        let source = "";
+        try {
+          dashAllLogs = await loadSheetLogs(!!force);
+          source = "Google 試算表";
+        } catch (err) {
+          dashAllLogs = loadStore().logs;
+          source = "本機（未能連線試算表）";
+        }
+        if (seq !== dashSeq) return;
+        if ($("dashSource")) $("dashSource").textContent = source;
+        paintDash();
+      }
+
+      const canvas = $("confetti");
+      const ctx = canvas.getContext("2d");
+      let pieces = [];
+      function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      window.addEventListener("resize", () => { resizeCanvas(); if (screens.game.classList.contains("active")) drawQuestion(); });
+      resizeCanvas();
+      function burstConfetti(count) {
+        const colors = ["#ff8fab", "#7ce0c3", "#ffe066", "#cbb2fe", "#8ecaff", "#ffc09f"];
+        for (let i = 0; i < count; i++) {
+          pieces.push({
+            x: canvas.width * (0.2 + Math.random() * 0.6), y: -12,
+            r: 4 + Math.random() * 6, c: colors[i % colors.length],
+            vx: -3 + Math.random() * 6, vy: 3 + Math.random() * 5,
+            rot: Math.random() * 360, vr: -8 + Math.random() * 16,
+            life: 80 + Math.random() * 40, shape: i % 3
+          });
+        }
+      }
+      (function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces = pieces.filter((p) => p.life > 0);
+        pieces.forEach((p) => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.rot += p.vr; p.life -= 1;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+          ctx.globalAlpha = Math.max(0, p.life / 70); ctx.fillStyle = p.c;
+          if (p.shape === 0) ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
+          else if (p.shape === 1) { ctx.beginPath(); ctx.arc(0, 0, p.r, 0, Math.PI * 2); ctx.fill(); }
+          else { ctx.beginPath(); ctx.moveTo(0, -p.r); ctx.lineTo(p.r, p.r); ctx.lineTo(-p.r, p.r); ctx.fill(); }
+          ctx.restore();
+        });
+        requestAnimationFrame(tick);
+      })();
+
+      $("startBtn").addEventListener("click", startGame);
+      $("classId").addEventListener("keydown", (e) => { if (e.key === "Enter") $("studentId").focus(); });
+      $("studentId").addEventListener("keydown", (e) => { if (e.key === "Enter") startGame(); });
+      $("teacherBtn").addEventListener("click", () => {
+        $("pinModal").classList.add("show");
+        $("pinInput").value = "";
+        $("pinInput").focus();
+      });
+      $("pinCancel").addEventListener("click", () => $("pinModal").classList.remove("show"));
+      $("pinOk").addEventListener("click", () => {
+        if ($("pinInput").value === TEACHER_PIN) {
+          $("pinModal").classList.remove("show");
+          resetDashFilters();
+          showScreen("dash");
+          renderDashboard("ALL", true);
+        } else {
+          bounce($("pinInput"));
+          $("pinInput").classList.add("shake");
+          setTimeout(() => $("pinInput").classList.remove("shake"), 400);
+          $("pinInput").value = "";
+        }
+      });
+      $("pinInput").addEventListener("keydown", (e) => { if (e.key === "Enter") $("pinOk").click(); });
+      $("dashBackBtn").addEventListener("click", () => { closeFilterMenu(); showScreen("login"); });
+      $("backLoginBtn").addEventListener("click", () => {
+        if (!state.ended && (state.done > 0 || state.missIntersect + state.missRotated + state.missParallel + state.missOther > 0)) {
+          endSession();
+          return;
+        }
+        $("studentId").value = "";
+        $("reportModal").classList.remove("show");
+        showScreen("login");
+        $("studentId").focus();
+      });
+      $("reportBackBtn").addEventListener("click", () => {
+        $("reportModal").classList.remove("show");
+        $("studentId").value = "";
+        showScreen("login");
+        $("studentId").focus();
+      });
+      $("printBtn").addEventListener("click", () => window.print());
+      $("classFilter").addEventListener("change", (e) => {
+        dashClass = e.target.value || "ALL";
+        closeFilterMenu();
+        paintDash();
+      });
+      $("clearFiltersBtn").addEventListener("click", () => {
+        dashFilters = {};
+        closeFilterMenu();
+        paintDash();
+      });
+      $("studentRecords").addEventListener("click", (e) => {
+        const fb = e.target.closest(".filter-btn");
+        if (fb) {
+          e.stopPropagation();
+          const key = fb.getAttribute("data-filter");
+          if (dashMenuCol === key && $("dashFilterMenu").classList.contains("show")) closeFilterMenu();
+          else openFilterMenu(key, fb);
+          return;
+        }
+        const sb = e.target.closest(".col-sort");
+        if (!sb) return;
+        const key = sb.getAttribute("data-sort");
+        if (dashSort.col === key) dashSort.dir = dashSort.dir === "desc" ? "asc" : "desc";
+        else dashSort = { col: key, dir: (key === "student" || key === "diagnosis") ? "asc" : "desc" };
+        paintDash();
+      });
+      $("dashFilterMenu").addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-fm]");
+        if (!btn || !dashMenuCol) return;
+        const act = btn.getAttribute("data-fm");
+        const key = dashMenuCol;
+        if (act === "sort-desc") { dashSort = { col: key, dir: "desc" }; paintDash(); }
+        else if (act === "sort-asc") { dashSort = { col: key, dir: "asc" }; paintDash(); }
+        else if (act === "all" || act === "clear") setColFilter(key, null);
+        else if (act === "none") setColFilter(key, new Set());
+        if (act === "sort-desc" || act === "sort-asc") {
+          const anchor = document.querySelector(`.filter-btn[data-filter="${key}"]`);
+          if (anchor) placeFilterMenu(anchor);
+        }
+      });
+      $("dashFilterMenu").addEventListener("change", (e) => {
+        const inp = e.target;
+        if (!inp.matches || !inp.matches("input[type='checkbox'][data-idx]")) return;
+        const key = dashMenuCol;
+        const values = uniqueValues(key);
+        const val = values[Number(inp.getAttribute("data-idx"))];
+        if (val == null) return;
+        const all = values;
+        const sel = dashFilters[key] ? new Set(dashFilters[key]) : new Set(all);
+        if (inp.checked) sel.add(val); else sel.delete(val);
+        setColFilter(key, sel);
+      });
+      $("dashFilterMenu").addEventListener("input", (e) => {
+        if (e.target.id !== "fmSearch" || !dashMenuCol) return;
+        renderFilterMenu(dashMenuCol, e.target.value);
+        const btn = document.querySelector(`.filter-btn[data-filter="${dashMenuCol}"]`);
+        if (btn) placeFilterMenu(btn);
+      });
+      document.addEventListener("click", (e) => {
+        const menu = $("dashFilterMenu");
+        if (!menu || !menu.classList.contains("show")) return;
+        if (menu.contains(e.target) || e.target.closest(".filter-btn")) return;
+        closeFilterMenu();
+      });
+      $("refreshDashBtn").addEventListener("click", () => renderDashboard($("classFilter").value || "ALL", true));
+      $("btnYes").addEventListener("click", () => answerYesNo(true));
+      $("btnNo").addEventListener("click", () => answerYesNo(false));
+      $("btnTriple").addEventListener("click", answerTriple);
+      $("boardPick").addEventListener("click", (e) => {
+        const card = e.target.closest(".pick-card");
+        if (!card) return;
+        answerPick(Number(card.getAttribute("data-i")));
+      });
+      $("pairChips").addEventListener("click", (e) => {
+        const chip = e.target.closest(".chip");
+        if (!chip) return;
+        toggleChip(Number(chip.getAttribute("data-i")));
+      });
+    })();
+  </script>
+</body>
+</html>
