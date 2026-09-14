@@ -320,7 +320,7 @@
           <h2 id="taskTitle">任務一：垂直定位</h2>
           <p id="taskKind">銳角△</p>
         </div>
-        <div class="hintbar" id="hintBar">1. 旋轉三角尺的底，貼緊形狀的底　　2. 由底畫垂直線到頂點／對邊</div>
+        <div class="hintbar" id="hintBar">1. 旋轉三角尺的底，貼緊形狀的底　　2. 由底畫垂直線到頂點</div>
         <div class="board" id="board">
           <canvas id="scene"></canvas>
         </div>
@@ -720,7 +720,8 @@
       }
       function isTriQ(q) { return !!(q && q.opp != null); }
       function phase1Steps(q) {
-        return ["旋轉三角尺的底，貼緊形狀的底", "由底畫垂直線到頂點／對邊"];
+        const aim = isTriQ(q) ? "由底畫垂直線到頂點" : "由底畫垂直線到對邊";
+        return ["旋轉三角尺的底，貼緊形狀的底", aim];
       }
       function setHintSteps(steps) {
         $("hintBar").textContent = steps.map((s, i) => (i + 1) + ". " + s).join("　　");
@@ -964,7 +965,7 @@
           figH = Math.max(1, h - 32);
         }
         const fig = Math.max(figW, figH);
-        let L = fig / 1.5;
+        let L = fig / 1.75;
         L = Math.min(L, w * 0.58, h * 0.7);
         return Math.max(120, L);
       }
@@ -1166,8 +1167,15 @@
         if (isTriQ(q) && q.phase === 1) {
           ctx.fillStyle = "#1578c4";
           ctx.beginPath(); ctx.arc(q.target.x, q.target.y, 6, 0, Math.PI * 2); ctx.fill();
-          const tn = norm(sub(q.target, q.H));
-          drawTag(ctx, "頂點", add(q.target, mul(tn, 26)).x, add(q.target, mul(tn, 26)).y, "#1578c4");
+          const v = q.target;
+          const up = norm(sub(v, q.H));
+          let side = { x: -up.y, y: up.x };
+          if (dot(side, sub(c, v)) > 0) side = mul(side, -1);
+          const maxW = state.cssW || 400, maxH = state.cssH || 400;
+          const room = (p) => p.x > 44 && p.x < maxW - 44 && p.y > 22 && p.y < maxH - 22;
+          if (!room(add(v, mul(side, 52))) && room(add(v, mul(side, -52)))) side = mul(side, -1);
+          const tagP = add(v, add(mul(side, 52), mul(up, 8)));
+          drawTag(ctx, "頂點", tagP.x, tagP.y, "#1578c4");
         }
         if (q.oppEdge && q.phase === 1 && q.oppA && q.oppB) {
           const ready = !!(state.tool && state.tool.ready);
